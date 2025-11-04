@@ -455,7 +455,6 @@
         .access-link:hover {
             border-color: #b4a5d8;
             transform: translateY(-2px);
-            background: #2a2d3e;
         }
 
         .access-link-title {
@@ -511,24 +510,16 @@
         .credentials-modal {
             display: none;
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 90%;
-            max-width: 400px;
+            max-width: 500px;
             background: #252836;
             border: 2px solid #b4a5d8;
             border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            z-index: 10000;
-        }
-
-        .credentials-modal.minimized {
-            width: 200px;
-            max-width: 200px;
-        }
-
-        .credentials-modal.minimized .modal-body {
-            display: none;
+            z-index: 2000;
         }
 
         .modal-overlay {
@@ -544,39 +535,17 @@
 
         .modal-header {
             background: linear-gradient(135deg, #b4a5d8 0%, #8a7fb8 100%);
-            padding: 15px 20px;
+            padding: 20px;
             border-radius: 13px 13px 0 0;
             cursor: move;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .modal-title {
             color: #1a1d29;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 700;
+            text-align: center;
             letter-spacing: 1px;
-            flex-grow: 1;
-        }
-
-        .modal-minimize-btn {
-            background: rgba(26, 29, 41, 0.3);
-            border: none;
-            color: #1a1d29;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .modal-minimize-btn:hover {
-            background: rgba(26, 29, 41, 0.5);
         }
 
         .modal-body {
@@ -761,15 +730,22 @@
     <!-- Message Box -->
     <div id="messageBox" class="message"></div>
 
+    <!-- Credentials Modal Overlay -->
+    <div id="credentialsModalOverlay" class="modal-overlay" onclick="dismissModal()"></div>
+
     <!-- Credentials Modal -->
     <div id="credentialsModal" class="credentials-modal">
         <div class="modal-header">
-            <div class="modal-title">🔐 Your Credentials</div>
-            <button class="modal-minimize-btn" onclick="toggleMinimizeModal()">
-                <span id="minimizeIcon">−</span>
-            </button>
+            <div class="modal-title">🔐 Save Your Credentials</div>
         </div>
         <div class="modal-body">
+            <div class="modal-warning">
+                <div class="warning-title">⚠️ Important</div>
+                <div class="warning-text">
+                    Copy these credentials now. They will be automatically cleared from this page for security.
+                </div>
+            </div>
+
             <div class="credential-item">
                 <div class="credential-label">Username</div>
                 <div class="credential-value-row">
@@ -803,7 +779,7 @@
                 </div>
             </div>
 
-            <button class="modal-close-btn" onclick="dismissModal()">Close</button>
+            <button class="modal-close-btn" onclick="dismissModal()">I've Saved My Credentials</button>
         </div>
     </div>
 
@@ -941,28 +917,20 @@
     <div id="accessView" class="view">
         <div class="access-container">
             <div class="success-icon">✓</div>
-            <h2>Account Created</h2>
+            <h2>Welcome to Hyphae</h2>
             <div class="access-description">
-                Choose how you want to access the Hyphae Network
+                Your account has been created. Access the network through Element or any Matrix-compatible client.
             </div>
 
             <div class="access-links">
-                <div class="access-link" onclick="openClient('element-web')">
+                <a href="https://hyphae.social" class="access-link">
                     <div class="access-link-title">🌐 Element Web</div>
-                    <div class="access-link-description">Access through your browser (self-hosted)</div>
-                </div>
-                <div class="access-link" onclick="openClient('element-desktop')">
-                    <div class="access-link-title">💻 Element Desktop</div>
-                    <div class="access-link-description">Download for Windows, Mac, or Linux</div>
-                </div>
-                <div class="access-link" onclick="openClient('element-mobile')">
-                    <div class="access-link-title">📱 Element Mobile</div>
-                    <div class="access-link-description">Download for iOS or Android</div>
-                </div>
-                <div class="access-link" onclick="openClient('other')">
-                    <div class="access-link-title">🔧 Other Matrix Clients</div>
-                    <div class="access-link-description">Use any Matrix-compatible app</div>
-                </div>
+                    <div class="access-link-description">Access through your browser</div>
+                </a>
+                <a href="https://element.io/download" class="access-link">
+                    <div class="access-link-title">📱 Element Apps</div>
+                    <div class="access-link-description">Download for iOS, Android, or Desktop</div>
+                </a>
             </div>
         </div>
     </div>
@@ -1059,7 +1027,8 @@
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('accessView').classList.add('active');
             
-            // Show floating credentials modal (no overlay)
+            // Show credentials modal
+            document.getElementById('credentialsModalOverlay').style.display = 'block';
             document.getElementById('credentialsModal').style.display = 'block';
         }
 
@@ -1322,49 +1291,8 @@
 
         function dismissModal() {
             document.getElementById('credentialsModal').style.display = 'none';
+            document.getElementById('credentialsModalOverlay').style.display = 'none';
             clearCredentialsFromDOM();
-        }
-
-        function toggleMinimizeModal() {
-            const modal = document.getElementById('credentialsModal');
-            const icon = document.getElementById('minimizeIcon');
-            
-            if (modal.classList.contains('minimized')) {
-                modal.classList.remove('minimized');
-                icon.textContent = '−';
-            } else {
-                modal.classList.add('minimized');
-                icon.textContent = '+';
-            }
-        }
-
-        function openClient(clientType) {
-            // Ensure modal is visible and expanded
-            const modal = document.getElementById('credentialsModal');
-            modal.style.display = 'block';
-            modal.classList.remove('minimized');
-            document.getElementById('minimizeIcon').textContent = '−';
-            
-            // Open appropriate client
-            let url = '';
-            switch(clientType) {
-                case 'element-web':
-                    url = 'https://hyphae.social/element';
-                    break;
-                case 'element-desktop':
-                    url = 'https://element.io/download';
-                    break;
-                case 'element-mobile':
-                    url = 'https://element.io/download';
-                    break;
-                case 'other':
-                    url = 'https://matrix.org/ecosystem/clients/';
-                    break;
-            }
-            
-            if (url) {
-                window.open(url, '_blank');
-            }
         }
 
         // ===== MODAL DRAG FUNCTIONALITY =====
