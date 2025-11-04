@@ -587,142 +587,60 @@
             color: #ef4444;
         }
 
-        /* ===== CREDENTIALS MODAL ===== */
-        .credentials-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 500px;
-            background: #252836;
-            border: 2px solid #b4a5d8;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-        }
-
-        .modal-overlay {
+        /* ===== ELEMENT LOGIN OVERLAY ===== */
+        .element-iframe-container {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1999;
+            padding: 40px 20px;
+            background: rgba(10, 12, 20, 0.95);
+            z-index: 2500;
         }
 
-        .modal-header {
-            background: linear-gradient(135deg, #b4a5d8 0%, #8a7fb8 100%);
-            padding: 20px;
-            border-radius: 13px 13px 0 0;
-            cursor: move;
+        .element-iframe-container.active {
+            display: block;
         }
 
-        .modal-title {
-            color: #1a1d29;
-            font-size: 18px;
-            font-weight: 700;
-            text-align: center;
-            letter-spacing: 1px;
-        }
-
-        .modal-body {
-            padding: 30px 25px;
-        }
-
-        .credential-item {
-            margin-bottom: 25px;
-        }
-
-        .credential-label {
-            font-size: 12px;
-            color: #8a8a9e;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-        }
-
-        .credential-value-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #1a1d29;
-            border: 2px solid #353849;
-            border-radius: 8px;
-            padding: 12px 15px;
-        }
-
-        .credential-value {
-            flex-grow: 1;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: #e0e0e0;
-            letter-spacing: 1px;
-            word-break: break-all;
-        }
-
-        .password-hidden {
-            letter-spacing: 3px;
-        }
-
-        .credential-action-btn {
-            padding: 6px 12px;
-            background: rgba(180, 165, 216, 0.2);
-            border: none;
-            border-radius: 6px;
-            color: #b4a5d8;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .credential-action-btn:hover {
-            background: rgba(180, 165, 216, 0.3);
-        }
-
-        .modal-warning {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .warning-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #ef4444;
-            margin-bottom: 8px;
-        }
-
-        .warning-text {
-            font-size: 12px;
-            color: #8a8a9e;
-            line-height: 1.6;
-        }
-
-        .modal-close-btn {
+        .element-iframe-wrapper {
+            position: relative;
             width: 100%;
-            padding: 14px;
-            background: #b4a5d8;
+            height: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #0f111a;
+            border: 2px solid #353849;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .element-iframe {
+            width: 100%;
+            height: 100%;
             border: none;
+        }
+
+        .element-iframe-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(26, 29, 41, 0.8);
+            border: 1px solid rgba(180, 165, 216, 0.4);
+            color: #b4a5d8;
+            padding: 8px 14px;
             border-radius: 8px;
-            color: #1a1d29;
-            font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
             cursor: pointer;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             transition: all 0.3s ease;
         }
 
-        .modal-close-btn:hover {
-            background: #c4b5e8;
+        .element-iframe-close:hover {
+            background: rgba(180, 165, 216, 0.15);
         }
 
         /* ===== MODE TOGGLE & MANUAL INPUT ===== */
@@ -814,56 +732,11 @@
     <!-- Message Box -->
     <div id="messageBox" class="message"></div>
 
-    <!-- Credentials Modal Overlay -->
-    <div id="credentialsModalOverlay" class="modal-overlay" onclick="dismissModal()"></div>
-
-    <!-- Credentials Modal -->
-    <div id="credentialsModal" class="credentials-modal">
-        <div class="modal-header">
-            <div class="modal-title">🔐 Save Your Credentials</div>
-        </div>
-        <div class="modal-body">
-            <div class="modal-warning">
-                <div class="warning-title">⚠️ Important</div>
-                <div class="warning-text">
-                    Copy these credentials now. They will be automatically cleared from this page for security.
-                </div>
-            </div>
-
-            <div class="credential-item">
-                <div class="credential-label">Username</div>
-                <div class="credential-value-row">
-                    <div class="credential-value" id="finalUsername"></div>
-                    <button class="credential-action-btn copy-credential-btn" onclick="copyCredential('username')">
-                        <span class="copy-text">Copy</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="credential-item">
-                <div class="credential-label">Password</div>
-                <div class="credential-value-row">
-                    <div class="credential-value password-hidden" id="finalPassword"></div>
-                    <button class="credential-action-btn" onclick="togglePasswordVisibility()">
-                        <span id="toggleIcon">👁️</span>
-                    </button>
-                    <button class="credential-action-btn copy-credential-btn" onclick="copyCredential('password')">
-                        <span class="copy-text">Copy</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="credential-item">
-                <div class="credential-label">Server</div>
-                <div class="credential-value-row">
-                    <div class="credential-value">hyphae.social</div>
-                    <button class="credential-action-btn copy-credential-btn" onclick="copyCredential('server')">
-                        <span class="copy-text">Copy</span>
-                    </button>
-                </div>
-            </div>
-
-            <button class="modal-close-btn" onclick="dismissModal()">I've Saved My Credentials</button>
+    <!-- Element Iframe Container -->
+    <div id="elementIframeContainer" class="element-iframe-container" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Element Web Login">
+        <div class="element-iframe-wrapper">
+            <button type="button" class="element-iframe-close" onclick="closeElementIframe()">Close</button>
+            <iframe id="elementIframe" class="element-iframe" title="Element Web Login"></iframe>
         </div>
     </div>
 
@@ -1039,7 +912,7 @@
             </div>
 
             <div class="primary-action">
-                <a href="https://hyphae.social/element/#/login" class="access-link primary">
+                <a href="https://hyphae.social/element/#/login" class="access-link primary" onclick="openElementIframe(event)">
                     <div class="access-link-title">🌐 Element Web</div>
                     <div class="access-link-description">
                         Sign in through your browser
@@ -1075,7 +948,7 @@
             </div>
 
             <div class="primary-action">
-                <a href="https://hyphae.social/element/#/login" class="access-link primary">
+                <a href="https://hyphae.social/element/#/login" class="access-link primary" onclick="openElementIframe(event)">
                     <div class="access-link-title">🚀 Log In to Element Web</div>
                     <div class="access-link-description">
                         Recommended: Access your account through your browser now
@@ -1170,9 +1043,9 @@
         let selectedUsername = null;
         let generatedPassword = null;
         let createdUsername = null;
-        let passwordVisible = false;
-        let credentialsCopied = { username: false, password: false };
+        let credentialsWindow = null;
         let passwordMode = 'manual';
+        let lastElementIframeTrigger = null;
 
         // ===== VIEW NAVIGATION =====
         function showLanding() {
@@ -1195,13 +1068,364 @@
         function showAccess() {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('accessView').classList.add('active');
-            
+
             // Display username
             document.getElementById('accessUsername').textContent = createdUsername;
-            
-            // Show credentials modal
-            document.getElementById('credentialsModalOverlay').style.display = 'block';
-            document.getElementById('credentialsModal').style.display = 'block';
+
+            // Launch credentials in a dedicated window
+            if (!openCredentialsWindow(createdUsername, generatedPassword)) {
+                showMessage('Please enable pop-ups to view your credentials.', 'error');
+            }
+        }
+
+        // ===== EMBEDDED ELEMENT IFRAME =====
+        function openElementIframe(event) {
+            if (event) {
+                const isModifiedClick = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
+                if (isModifiedClick) return;
+                event.preventDefault();
+                lastElementIframeTrigger = event.currentTarget;
+            }
+
+            const container = document.getElementById('elementIframeContainer');
+            const iframe = document.getElementById('elementIframe');
+
+            if (iframe && !iframe.src) {
+                iframe.src = 'https://hyphae.social/element/#/login';
+            }
+
+            if (container) {
+                container.classList.add('active');
+                container.setAttribute('aria-hidden', 'false');
+
+                const closeButton = container.querySelector('.element-iframe-close');
+                if (closeButton) {
+                    closeButton.focus();
+                }
+            }
+
+            // Credentials stay accessible in their separate window while Element loads
+        }
+
+        function closeElementIframe() {
+            const container = document.getElementById('elementIframeContainer');
+            if (container) {
+                container.classList.remove('active');
+                container.setAttribute('aria-hidden', 'true');
+            }
+
+            if (lastElementIframeTrigger) {
+                lastElementIframeTrigger.focus();
+                lastElementIframeTrigger = null;
+            }
+        }
+
+        function openCredentialsWindow(username, password) {
+            if (!username || !password) {
+                return false;
+            }
+
+            const windowFeatures = 'width=520,height=640,resizable=yes,scrollbars=yes';
+
+            if (credentialsWindow && !credentialsWindow.closed) {
+                try {
+                    credentialsWindow.focus();
+                } catch (error) {
+                    console.warn('Unable to focus existing credentials window:', error);
+                    credentialsWindow = null;
+                }
+            }
+
+            if (!credentialsWindow || credentialsWindow.closed) {
+                credentialsWindow = window.open('', 'HyphaeCredentials', windowFeatures);
+            }
+
+            if (!credentialsWindow) {
+                return false;
+            }
+
+            const payload = encodeURIComponent(JSON.stringify({
+                username,
+                password,
+                server: 'hyphae.social'
+            }));
+
+            const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hyphae Credentials</title>
+    <style>
+        :root { color-scheme: dark; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: #1a1d29;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .credentials-shell {
+            width: 100%;
+            max-width: 480px;
+            background: #252836;
+            border: 2px solid #b4a5d8;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+            overflow: hidden;
+        }
+        .credentials-header {
+            background: linear-gradient(135deg, #b4a5d8 0%, #8a7fb8 100%);
+            padding: 22px;
+            text-align: center;
+        }
+        .credentials-header h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #1a1d29;
+            letter-spacing: 1px;
+        }
+        .credentials-body {
+            padding: 28px 24px 32px;
+        }
+        .modal-warning {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        .modal-warning strong {
+            display: block;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #f87171;
+            margin-bottom: 6px;
+        }
+        .modal-warning span {
+            font-size: 13px;
+            color: #fca5a5;
+            line-height: 1.6;
+        }
+        .credential-block {
+            margin-bottom: 22px;
+        }
+        .credential-label {
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #8a8a9e;
+            margin-bottom: 9px;
+        }
+        .credential-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #1a1d29;
+            border: 2px solid #353849;
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+        .credential-value {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #e0e0e0;
+            word-break: break-word;
+        }
+        .credential-value.masked {
+            letter-spacing: 3px;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            background: rgba(180, 165, 216, 0.22);
+            border: none;
+            border-radius: 7px;
+            color: #b4a5d8;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .action-btn:hover {
+            background: rgba(180, 165, 216, 0.32);
+        }
+        .action-btn.copied {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+        .credentials-footer {
+            margin-top: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .close-btn {
+            padding: 14px;
+            border-radius: 9px;
+            border: none;
+            background: #b4a5d8;
+            color: #1a1d29;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .close-btn:hover {
+            background: #c4b5e8;
+            transform: translateY(-2px);
+        }
+        .support-text {
+            font-size: 11px;
+            color: #8a8a9e;
+            text-align: center;
+            line-height: 1.5;
+        }
+        @media (max-width: 520px) {
+            body {
+                padding: 24px 12px;
+            }
+            .credentials-body {
+                padding: 24px 18px 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="credentials-shell" role="dialog" aria-modal="true">
+        <div class="credentials-header">
+            <h1>🔐 Save Your Credentials</h1>
+        </div>
+        <div class="credentials-body">
+            <div class="modal-warning">
+                <strong>Important</strong>
+                <span>Copy these credentials now. They will only be shown this once for your security.</span>
+            </div>
+            <div class="credential-block">
+                <div class="credential-label">Username</div>
+                <div class="credential-row">
+                    <div class="credential-value" id="usernameValue"></div>
+                    <button class="action-btn" type="button" data-copy="username"><span>Copy</span></button>
+                </div>
+            </div>
+            <div class="credential-block">
+                <div class="credential-label">Password</div>
+                <div class="credential-row">
+                    <div class="credential-value" id="passwordValue"></div>
+                    <button class="action-btn" type="button" id="togglePasswordBtn">👁️</button>
+                    <button class="action-btn" type="button" data-copy="password"><span>Copy</span></button>
+                </div>
+            </div>
+            <div class="credential-block">
+                <div class="credential-label">Server</div>
+                <div class="credential-row">
+                    <div class="credential-value" id="serverValue"></div>
+                    <button class="action-btn" type="button" data-copy="server"><span>Copy</span></button>
+                </div>
+            </div>
+            <div class="credentials-footer">
+                <button class="close-btn" type="button" id="savedBtn">I've Saved My Credentials</button>
+                <div class="support-text">Keep this window open while signing in so you can copy and paste.</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const payload = "${payload}";
+        const credentialData = JSON.parse(decodeURIComponent(payload));
+        const usernameValue = document.getElementById('usernameValue');
+        const passwordValue = document.getElementById('passwordValue');
+        const serverValue = document.getElementById('serverValue');
+        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+        const copyButtons = Array.from(document.querySelectorAll('[data-copy]'));
+        const serverHost = credentialData.server || 'hyphae.social';
+        let passwordVisible = false;
+
+        function notifyParent(type) {
+            if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({ source: 'hyphae-credentials', type }, '*');
+            }
+        }
+
+        function renderPassword() {
+            if (passwordVisible) {
+                passwordValue.textContent = credentialData.password;
+                passwordValue.classList.remove('masked');
+                togglePasswordBtn.textContent = '🙈';
+            } else {
+                passwordValue.textContent = '••••••••••••••••';
+                passwordValue.classList.add('masked');
+                togglePasswordBtn.textContent = '👁️';
+            }
+        }
+
+        usernameValue.textContent = credentialData.username;
+        serverValue.textContent = serverHost;
+        renderPassword();
+
+        togglePasswordBtn.addEventListener('click', () => {
+            passwordVisible = !passwordVisible;
+            renderPassword();
+        });
+
+        copyButtons.forEach((button) => {
+            button.addEventListener('click', async () => {
+                const type = button.getAttribute('data-copy');
+                let value = '';
+
+                if (type === 'username') {
+                    value = credentialData.username;
+                } else if (type === 'password') {
+                    value = credentialData.password;
+                } else {
+                    value = serverHost;
+                }
+
+                try {
+                    if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+                        throw new Error('Clipboard API unavailable');
+                    }
+
+                    await navigator.clipboard.writeText(value);
+                    const original = button.innerHTML;
+                    button.innerHTML = '<span>✓ Copied</span>';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.innerHTML = original;
+                        button.classList.remove('copied');
+                    }, 2000);
+                } catch (error) {
+                    window.alert('Unable to copy automatically. Please select and copy the text manually.');
+                }
+            });
+        });
+
+        document.getElementById('savedBtn').addEventListener('click', () => {
+            notifyParent('credentials-saved');
+            window.close();
+        });
+
+        window.addEventListener('beforeunload', () => {
+            notifyParent('credentials-window-closed');
+        });
+
+        window.focus();
+    <\/script>
+</body>
+</html>`;
+credentialsWindow.document.open();
+            credentialsWindow.document.write(htmlContent);
+            credentialsWindow.document.close();
+            credentialsWindow.focus();
+            return true;
         }
 
         // ===== QUOTES =====
@@ -1444,122 +1668,13 @@
 
         // ===== SUCCESS CREDENTIALS =====
         function displaySuccessCredentials(username, password) {
-            document.getElementById('finalUsername').textContent = username;
-            document.getElementById('finalPassword').textContent = '••••••••••••••••';
-            document.getElementById('finalPassword').dataset.password = password;
-            credentialsCopied = { username: false, password: false };
+            createdUsername = username;
+            generatedPassword = password;
         }
 
-        function clearCredentialsFromDOM() {
-            const passwordDisplay = document.getElementById('finalPassword');
-            if (passwordDisplay && passwordDisplay.dataset.password) {
-                delete passwordDisplay.dataset.password;
-                passwordDisplay.textContent = '••••••••••••••••';
-                passwordVisible = false;
-                document.getElementById('toggleIcon').textContent = '👁️';
-                createdUsername = null;
-                generatedPassword = null;
-                credentialsCopied = { username: false, password: false };
-                console.log('🔒 Credentials cleared from DOM');
-            }
-        }
-
-        function dismissModal() {
-            document.getElementById('credentialsModal').style.display = 'none';
-            document.getElementById('credentialsModalOverlay').style.display = 'none';
-            clearCredentialsFromDOM();
-        }
-
-        // ===== MODAL DRAG FUNCTIONALITY =====
-        let isDragging = false;
-        let currentX, currentY, initialX, initialY;
-        let xOffset = 0, yOffset = 0;
-
-        function initModalDrag() {
-            const modal = document.getElementById('credentialsModal');
-            const header = modal.querySelector('.modal-header');
-
-            header.addEventListener('mousedown', dragStart);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', dragEnd);
-        }
-
-        function dragStart(e) {
-            initialX = e.clientX - xOffset;
-            initialY = e.clientY - yOffset;
-            isDragging = true;
-        }
-
-        function drag(e) {
-            if (isDragging) {
-                e.preventDefault();
-                currentX = e.clientX - initialX;
-                currentY = e.clientY - initialY;
-                xOffset = currentX;
-                yOffset = currentY;
-                
-                const modal = document.getElementById('credentialsModal');
-                modal.style.transform = `translate(calc(-50% + ${currentX}px), calc(-50% + ${currentY}px))`;
-            }
-        }
-
-        function dragEnd() {
-            initialX = currentX;
-            initialY = currentY;
-            isDragging = false;
-        }
-
-        function togglePasswordVisibility() {
-            const passwordDisplay = document.getElementById('finalPassword');
-            const toggleIcon = document.getElementById('toggleIcon');
-            
-            if (!passwordDisplay.dataset.password) {
-                showMessage('Credentials have been cleared for security', 'error');
-                return;
-            }
-            
-            passwordVisible = !passwordVisible;
-            
-            if (passwordVisible) {
-                passwordDisplay.textContent = passwordDisplay.dataset.password;
-                passwordDisplay.classList.remove('password-hidden');
-                toggleIcon.textContent = '🙈';
-            } else {
-                passwordDisplay.textContent = '••••••••••••••••';
-                passwordDisplay.classList.add('password-hidden');
-                toggleIcon.textContent = '👁️';
-            }
-        }
-
-        async function copyCredential(type) {
-            let textToCopy = '';
-            let button = event.target.closest('.copy-credential-btn');
-            
-            if (type === 'username') textToCopy = document.getElementById('finalUsername').textContent;
-            else if (type === 'password') textToCopy = document.getElementById('finalPassword').dataset.password;
-            else if (type === 'server') textToCopy = 'hyphae.social';
-            
-            try {
-                await navigator.clipboard.writeText(textToCopy);
-                const originalHTML = button.innerHTML;
-                button.innerHTML = '<span class="copy-text">✓ Copied</span>';
-                
-                if (type === 'username') credentialsCopied.username = true;
-                if (type === 'password') credentialsCopied.password = true;
-                
-                setTimeout(() => {
-                    button.innerHTML = originalHTML;
-                }, 2000);
-                
-                if (credentialsCopied.username && credentialsCopied.password) {
-                    setTimeout(() => {
-                        clearCredentialsFromDOM();
-                        showMessage('🔒 Credentials cleared from memory for security', 'success');
-                    }, 3000);
-                }
-            } catch (err) {
-                showMessage('Failed to copy', 'error');
-            }
+        function clearCredentialsFromMemory() {
+            createdUsername = null;
+            generatedPassword = null;
         }
 
         // ===== UTILITIES =====
@@ -1573,7 +1688,35 @@
 
         // ===== INIT =====
         displayRandomQuote();
-        initModalDrag();
+
+        const elementIframeContainer = document.getElementById('elementIframeContainer');
+        if (elementIframeContainer) {
+            elementIframeContainer.addEventListener('click', (event) => {
+                if (event.target === elementIframeContainer) {
+                    closeElementIframe();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeElementIframe();
+            }
+        });
+
+        window.addEventListener('message', (event) => {
+            if (!event.data || event.data.source !== 'hyphae-credentials') {
+                return;
+            }
+
+            if (event.data.type === 'credentials-saved') {
+                clearCredentialsFromMemory();
+                credentialsWindow = null;
+                showMessage('🔒 Credentials cleared from memory for security', 'success');
+            } else if (event.data.type === 'credentials-window-closed') {
+                credentialsWindow = null;
+            }
+        });
     </script>
 </body>
 </html>
