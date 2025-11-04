@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyphae Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1d29;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+            min-height: 100vh;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== LANDING VIEW ===== */
+        .landing-container {
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 10vh 20px 40px;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+        }
+
+        h1 {
+            color: #b4a5d8;
+            font-size: 48px;
+            font-weight: 300;
+            margin-bottom: 15px;
+            letter-spacing: 4px;
+        }
+
+        .subtitle {
+            color: #8a8a9e;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 60px;
+        }
+
+        .quote-container {
+            background: linear-gradient(135deg, rgba(180, 165, 216, 0.05) 0%, rgba(180, 165, 216, 0.02) 100%);
+            border: 2px solid rgba(180, 165, 216, 0.2);
+            border-radius: 15px;
+            padding: 40px 35px;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .quote-mark {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 60px;
+            color: rgba(180, 165, 216, 0.2);
+            font-family: Georgia, serif;
+            line-height: 0;
+        }
+
+        .quote-text {
+            font-size: 20px;
+            line-height: 1.7;
+            color: #d4d4d8;
+            font-style: italic;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-author {
+            font-size: 14px;
+            color: #b4a5d8;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .quote-source {
+            font-size: 12px;
+            color: #8a8a9e;
+            margin-top: 5px;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 18px 35px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #b4a5d8;
+            color: #1a1d29;
+            box-shadow: 0 10px 40px rgba(180, 165, 216, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #c4b5e8;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(180, 165, 216, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #b4a5d8;
+            border: 2px solid rgba(180, 165, 216, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(180, 165, 216, 0.1);
+            border-color: #b4a5d8;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            margin-top: 60px;
+            font-size: 11px;
+            color: #5a5a6e;
+            letter-spacing: 1px;
+        }
+
+        /* ===== REGISTRATION VIEW ===== */
+        .register-container {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #8a8a9e;
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 30px;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            color: #b4a5d8;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+        }
+
+        .header h2 {
+            color: #b4a5d8;
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .header .subtitle {
+            margin-bottom: 0;
+        }
+
+        .section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #b4a5d8;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .username-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .username-card {
+            background: #252836;
+            border: 2px solid #353849;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .username-card:hover {
+            border-color: #b4a5d8;
+            transform: translateY(-2px);
+            background: #2a2d3e;
+        }
+
+        .username-card.selected {
+            border-color: #b4a5d8;
+            background: rgba(180, 165, 216, 0.1);
+        }
+
+        .username-card .username-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #e0e0e0;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+
+        .username-card .username-hint {
+            font-size: 11px;
+            color: #8a8a9e;
+        }
+
+        .username-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #b4a5d8;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .regenerate-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(180, 165, 216, 0.1);
+            border: 2px solid rgba(180, 165, 216, 0.3);
+            border-radius: 10px;
+            color: #b4a5d8;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .regenerate-btn:hover {
+            background: rgba(180, 165, 216, 0.2);
+            border-color: #b4a5d8;
+        }
+
+        .password-display {
+            background: #252836;
+            border: 2px solid #353849;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .password-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .password-text {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #e0e0e0;
+            flex-grow: 1;
+            letter-spacing: 2px;
+        }
+
+        .password-text.placeholder {
+            color: #5a5a6e;
+            font-style: italic;
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            background: rgba(180, 165, 216, 0.2);
+            border: none;
+            border-radius: 6px;
+            color: #b4a5d8;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .copy-btn:hover {
+            background: rgba(180, 165, 216, 0.3);
+        }
+
+        .copy-btn.copied {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 10px;
+            background: #353849;
+            overflow: hidden;
+        }
+
+        .strength-bar::after {
+            content: '';
+            display: block;
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+        }
+
+        .strength-bar.strength-weak::after {
+            width: 33%;
+            background: #ef4444;
+        }
+
+        .strength-bar.strength-medium::after {
+            width: 66%;
+            background: #f59e0b;
+        }
+
+        .strength-bar.strength-strong::after {
+            width: 100%;
+            background: #10b981;
+        }
+
+        .create-account-btn {
+            width: 100%;
+            padding: 18px;
+            background: #b4a5d8;
+            border: none;
+            border-radius: 12px;
+            color: #1a1d29;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(180, 165, 216, 0.3);
+        }
+
+        .create-account-btn:hover:not(:disabled) {
+            background: #c4b5e8;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(180, 165, 216, 0.4);
+        }
+
+        .create-account-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ===== SUCCESS VIEW ===== */
+        .access-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            background: rgba(16, 185, 129, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+        }
+
+        .access-container h2 {
+            color: #b4a5d8;
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 15px;
+        }
+
+        .access-description {
+            color: #8a8a9e;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+
+        .access-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .access-link {
+            background: #252836;
+            border: 2px solid #353849;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .access-link:hover {
+            border-color: #b4a5d8;
+            transform: translateY(-2px);
+        }
+
+        .access-link-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #b4a5d8;
+            margin-bottom: 8px;
+        }
+
+        .access-link-description {
+            font-size: 13px;
+            color: #8a8a9e;
+        }
+
+        /* ===== MESSAGE BOX ===== */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid #10b981;
+            color: #10b981;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+        }
+
+        /* ===== CREDENTIALS MODAL ===== */
+        .credentials-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            background: #252836;
+            border: 2px solid #b4a5d8;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1999;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #b4a5d8 0%, #8a7fb8 100%);
+            padding: 20px;
+            border-radius: 13px 13px 0 0;
+            cursor: move;
+        }
+
+        .modal-title {
+            color: #1a1d29;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .modal-body {
+            padding: 30px 25px;
+        }
+
+        .credential-item {
+            margin-bottom: 25px;
+        }
+
+        .credential-label {
+            font-size: 12px;
+            color: #8a8a9e;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .credential-value-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #1a1d29;
+            border: 2px solid #353849;
+            border-radius: 8px;
+            padding: 12px 15px;
+        }
+
+        .credential-value {
+            flex-grow: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #e0e0e0;
+            letter-spacing: 1px;
+            word-break: break-all;
+        }
+
+        .password-hidden {
+            letter-spacing: 3px;
+        }
+
+        .credential-action-btn {
+            padding: 6px 12px;
+            background: rgba(180, 165, 216, 0.2);
+            border: none;
+            border-radius: 6px;
+            color: #b4a5d8;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .credential-action-btn:hover {
+            background: rgba(180, 165, 216, 0.3);
+        }
+
+        .modal-warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .warning-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 8px;
+        }
+
+        .warning-text {
+            font-size: 12px;
+            color: #8a8a9e;
+            line-height: 1.6;
+        }
+
+        .modal-close-btn {
+            width: 100%;
+            padding: 14px;
+            background: #b4a5d8;
+            border: none;
+            border-radius: 8px;
+            color: #1a1d29;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: #c4b5e8;
+        }
+
+        /* ===== MODE TOGGLE & MANUAL INPUT ===== */
+        .mode-toggle-btn {
+            flex: 1;
+            padding: 10px 20px;
+            background: transparent;
+            border: 2px solid rgba(180, 165, 216, 0.3);
+            border-radius: 8px;
+            color: #8a8a9e;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-toggle-btn:hover {
+            border-color: rgba(180, 165, 216, 0.5);
+            color: #b4a5d8;
+        }
+
+        .mode-toggle-btn.active {
+            background: rgba(180, 165, 216, 0.2);
+            border-color: #b4a5d8;
+            color: #b4a5d8;
+        }
+
+        .manual-input-container {
+            background: #252836;
+            border: 2px solid #353849;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .manual-input {
+            width: 100%;
+            padding: 15px;
+            background: #1a1d29;
+            border: 2px solid #353849;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .manual-input:focus {
+            outline: none;
+            border-color: #b4a5d8;
+            background: #1f2230;
+        }
+
+        .manual-input::placeholder {
+            color: #5a5a6e;
+        }
+
+        .input-hint {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #b4a5d8;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-rules {
+            margin-top: 12px;
+            font-size: 11px;
+            color: #8a8a9e;
+            line-height: 1.6;
+        }
+
+        .input-error {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #ef4444;
+            display: none;
+        }
+
+        .input-error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Message Box -->
+    <div id="messageBox" class="message"></div>
+
+    <!-- Credentials Modal Overlay -->
+    <div id="credentialsModalOverlay" class="modal-overlay" onclick="dismissModal()"></div>
+
+    <!-- Credentials Modal -->
+    <div id="credentialsModal" class="credentials-modal">
+        <div class="modal-header">
+            <div class="modal-title">🔐 Save Your Credentials</div>
+        </div>
+        <div class="modal-body">
+            <div class="modal-warning">
+                <div class="warning-title">⚠️ Important</div>
+                <div class="warning-text">
+                    Copy these credentials now. They will be automatically cleared from this page for security.
+                </div>
+            </div>
+
+            <div class="credential-item">
+                <div class="credential-label">Username</div>
+                <div class="credential-value-row">
+                    <div class="credential-value" id="finalUsername"></div>
+                    <button class="credential-action-btn copy-credential-btn" onclick="copyCredential('username')">
+                        <span class="copy-text">Copy</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="credential-item">
+                <div class="credential-label">Password</div>
+                <div class="credential-value-row">
+                    <div class="credential-value password-hidden" id="finalPassword"></div>
+                    <button class="credential-action-btn" onclick="togglePasswordVisibility()">
+                        <span id="toggleIcon">👁️</span>
+                    </button>
+                    <button class="credential-action-btn copy-credential-btn" onclick="copyCredential('password')">
+                        <span class="copy-text">Copy</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="credential-item">
+                <div class="credential-label">Server</div>
+                <div class="credential-value-row">
+                    <div class="credential-value">https://hyphae.social</div>
+                    <button class="credential-action-btn copy-credential-btn" onclick="copyCredential('server')">
+                        <span class="copy-text">Copy</span>
+                    </button>
+                </div>
+            </div>
+
+            <button class="modal-close-btn" onclick="dismissModal()">I've Saved My Credentials</button>
+        </div>
+    </div>
+
+    <!-- Landing View -->
+    <div id="landingView" class="view active">
+        <div class="landing-container">
+            <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="40" fill="none" stroke="#b4a5d8" stroke-width="3"/>
+                <path d="M 100 60 Q 80 80 60 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                <path d="M 100 60 Q 120 80 140 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                <path d="M 100 140 Q 80 120 60 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                <path d="M 100 140 Q 120 120 140 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                <path d="M 60 100 Q 40 100 20 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                <path d="M 140 100 Q 160 100 180 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                <circle cx="60" cy="100" r="8" fill="#b4a5d8"/>
+                <circle cx="140" cy="100" r="8" fill="#b4a5d8"/>
+                <circle cx="20" cy="100" r="6" fill="#b4a5d8"/>
+                <circle cx="180" cy="100" r="6" fill="#b4a5d8"/>
+            </svg>
+
+            <h1>HYPHAE</h1>
+            <div class="subtitle">Emergent Networks</div>
+
+            <div class="quote-container" id="quoteContainer">
+                <div class="quote-mark">"</div>
+                <div class="quote-text" id="quoteText"></div>
+                <div class="quote-author" id="quoteAuthor"></div>
+                <div class="quote-source" id="quoteSource"></div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" onclick="showRegister()">🌱 Create Account</button>
+                <a href="https://hyphae.social" class="btn btn-secondary">🔑 Sign In</a>
+            </div>
+
+            <div class="footer">
+                Decentralized • Secure • Self-Organizing
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration View -->
+    <div id="registerView" class="view">
+        <div class="register-container">
+            <span class="back-link" onclick="showLanding()">← Back</span>
+
+            <div class="header">
+                <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="40" fill="none" stroke="#b4a5d8" stroke-width="3"/>
+                    <path d="M 100 60 Q 80 80 60 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                    <path d="M 100 60 Q 120 80 140 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                    <path d="M 100 140 Q 80 120 60 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                    <path d="M 100 140 Q 120 120 140 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                    <path d="M 60 100 Q 40 100 20 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                    <path d="M 140 100 Q 160 100 180 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
+                    <circle cx="60" cy="100" r="8" fill="#b4a5d8"/>
+                    <circle cx="140" cy="100" r="8" fill="#b4a5d8"/>
+                    <circle cx="20" cy="100" r="6" fill="#b4a5d8"/>
+                    <circle cx="180" cy="100" r="6" fill="#b4a5d8"/>
+                </svg>
+                <h2>Join the Network</h2>
+                <div class="subtitle">Emergence begins with connection</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    🌿 Your Username
+                </div>
+
+                <!-- Auto-generated usernames only -->
+                <div id="autoUsernameSection">
+                    <div class="username-grid" id="usernameGrid"></div>
+                    <button class="regenerate-btn" onclick="generateUsernames()">
+                        🔄 Generate New Options
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    🔐 Password
+                </div>
+
+                <!-- Mode Toggle -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="mode-toggle-btn active" id="manualPasswordBtn" onclick="setPasswordMode('manual')">
+                        ✏️ Create My Own
+                    </button>
+                    <button class="mode-toggle-btn" id="autoPasswordBtn" onclick="setPasswordMode('auto')">
+                        ✨ Auto-Generate
+                    </button>
+                </div>
+
+                <!-- Manual password input (DEFAULT) -->
+                <div id="manualPasswordSection">
+                    <div class="manual-input-container">
+                        <input 
+                            type="password" 
+                            id="manualPassword" 
+                            class="manual-input" 
+                            placeholder="Enter a strong password"
+                            oninput="handleManualPassword()"
+                        />
+                        <div class="strength-bar" id="manualStrengthBar"></div>
+                        <div class="input-rules">
+                            • At least 8 characters (12+ recommended)<br>
+                            • Must include uppercase, lowercase, numbers, and symbols<br>
+                            • Avoid common words or patterns
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto-generated password -->
+                <div id="autoPasswordSection" style="display: none;">
+                    <div class="password-display">
+                        <div class="password-row">
+                            <div class="password-text placeholder" id="passwordText">Generating password...</div>
+                            <button class="copy-btn" id="copyBtn" onclick="copyPassword()">Copy</button>
+                        </div>
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <button class="regenerate-btn" id="regeneratePasswordBtn" onclick="generatePassword()" style="display: none;">
+                        🔄 Generate New Password
+                    </button>
+                </div>
+            </div>
+
+            <button class="create-account-btn" id="createAccountBtn" onclick="createAccount()" disabled>
+                🚀 Create Account
+            </button>
+        </div>
+    </div>
+
+    <!-- Access View -->
+    <div id="accessView" class="view">
+        <div class="access-container">
+            <div class="success-icon">✓</div>
+            <h2>Welcome to Hyphae</h2>
+            <div class="access-description">
+                Your account has been created. Access the network through Element or any Matrix-compatible client.
+            </div>
+
+            <div class="access-links">
+                <a href="https://hyphae.social" class="access-link">
+                    <div class="access-link-title">🌐 Element Web</div>
+                    <div class="access-link-description">Access through your browser</div>
+                </a>
+                <a href="https://element.io/download" class="access-link">
+                    <div class="access-link-title">📱 Element Apps</div>
+                    <div class="access-link-description">Download for iOS, Android, or Desktop</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== USERNAME DATA FROM GITHUB =====
+        const usernameData = {
+            "adjectives": ["emergent", "symbiotic", "entangled", "recursive", "holistic", "autopoietic", "collective", "adaptive", "resonant", "fluid", "reciprocal", "interconnected", "self-organizing", "polycentric", "cascading", "nonlinear", "dynamic", "synergistic", "mutualistic", "distributed", "nested", "intricate", "woven", "pulsing", "living", "dancing", "shifting", "spiraling", "branching", "networked", "coherent", "resilient", "plastic", "multidimensional", "spherical", "planetary", "cosmic", "sacred", "ferocious", "wild", "ancient", "boundless", "luminous", "verdant", "crystalline", "quantum", "strange", "mystic", "sublime"],
+            "nouns": ["mycelium", "network", "web", "node", "pattern", "wave", "flow", "cycle", "spiral", "vortex", "field", "matrix", "lattice", "nexus", "strand", "thread", "weave", "tapestry", "mosaic", "fractal", "attractor", "cascade", "resonance", "symbiosis", "synergy", "emergence", "commons", "ecosystem", "biosphere", "ecotone", "organism", "colony", "collective", "community", "swarm", "flock", "murmuration", "chorus", "pulse", "rhythm", "dance", "current", "tide", "eddy", "stream", "river", "ocean", "forest", "canopy", "root", "branch", "leaf", "seed", "spore", "bloom", "blossom", "garden", "meadow", "grove", "thicket", "wilderness", "horizon", "cosmos", "galaxy", "nebula", "constellation", "quantum", "photon", "particle", "crystal", "prism", "aurora", "phenomenon", "mystery", "threshold", "liminal", "vertex", "synapse", "membrane", "catalyst", "substrate", "enzyme", "pathway", "circuit", "conduit", "vessel", "chamber", "cell", "nucleus", "helix", "molecule", "element", "compound", "alloy", "fusion", "synthesis", "confluence", "convergence"],
+            "nature_nouns": ["fungus", "hyphae", "rhizome", "mycorrhiza", "lichen", "coral", "plankton", "kelp", "algae", "moss", "fern", "vine", "tendril", "pollen", "nectar", "dewdrop", "raindrop", "snowflake", "icicle", "wind", "breeze", "storm", "lightning", "thunder", "mist", "fog", "cloud", "sky", "earth", "soil", "stone", "sand", "clay", "silt", "loam", "bedrock"],
+            "systems_nouns": ["feedback", "loop", "oscillation", "perturbation", "fluctuation", "bifurcation", "transition", "transformation", "phase", "state", "equilibrium", "stability", "instability", "constraint", "boundary", "edge", "interface", "gradient", "differential", "manifold", "topology", "geometry", "algorithm", "protocol", "mechanism", "process", "dynamics"],
+            "quantum_nouns": ["quanta", "entanglement", "superposition", "coherence", "decoherence", "vacuum", "void", "plenum", "implicate", "explicate", "hologram", "dimension", "spacetime", "singularity", "infinity"]
+        };
+
+        // ===== QUOTES DATA FROM GITHUB =====
+        const quotesData = [
+            {"quote": "evolution is no linear family tree, but change in the single multidimensional being that has grown to cover the entire surface of Earth", "author": "Lynn Margulis", "source": "What Is Life?", "year": "1998"},
+            {"quote": "we animals, all thirty million species of us, emanate from the microcosm", "author": "Lynn Margulis", "source": "Symbiotic Planet", "year": "1998"},
+            {"quote": "a major theme of the microbial drama is the emergence of individuality from the community interactions of once-independent actors", "author": "Lynn Margulis", "source": "Symbiotic Planet", "year": "1998"},
+            {"quote": "Gaia itself is not an organism directly selected among many. It is an emergent property of interaction among organisms, the spherical planet on which they reside, and an energy source, the sun", "author": "Lynn Margulis", "source": "The Symbiotic Planet", "year": "1998"},
+            {"quote": "in nature, nothing exists alone", "author": "Rachel Carson", "source": "Silent Spring", "year": "1962", "page": "51"},
+            {"quote": "the balance of nature is not a status quo; it is fluid, ever shifting, in a constant state of adjustment", "author": "Rachel Carson", "source": "Silent Spring", "year": "1962", "page": "246"},
+            {"quote": "sympoiesis is a simple word; it means 'making-with.' Nothing makes itself; nothing is really autopoietic or self-organizing", "author": "Donna Haraway", "source": "Staying with the Trouble", "year": "2016", "page": "58"},
+            {"quote": "nothing makes itself in the biological world, but rather reciprocal induction within and between always-in-process critters ramifies through space and time on both large and small scales in cascades of inter- and intra-action", "author": "Donna Haraway", "source": "all emergence is collaborative emergence", "year": "2016", "page": "32"},
+            {"quote": "the unit of selection is normally the whole community. Its prosperity depends on the efficiency of the workers", "author": "Mary Midgley", "source": "Beast and Man", "year": "1979", "page": "147"},
+            {"quote": "motivation is fundamentally plural", "author": "Mary Midgley", "source": null, "year": "1979", "page": "168"},
+            {"quote": "the basic mystery about ant colonies is that there is no management", "author": "Deborah Gordon", "source": null, "year": "2010"},
+            {"quote": "The queen is just a big ant that lays the eggs. That's it. She's not telling anybody what to do", "author": "Deborah Gordon", "source": null, "year": null},
+            {"quote": "ants use the rate at which they interact to decide what to do. No ant is coming back saying, 'Wow, I had a really hard time out there today!' It's just that by tuning the rate at which they go to the rate at which other ants are coming back, the whole system is tuned to the availability of food, but no ant is telling any other anything. So there's no message, it's just the pattern of interaction", "author": "Deborah Gordon", "source": null, "year": null},
+            {"quote": "when I look at biological systems, what I see is that they are collective. They are all made up of interacting components with only partly overlapping interests, who are noisy information processors dealing with noisy signals", "author": "Jessica Flack", "source": "Quanta Magazine", "year": "2017"},
+            {"quote": "A complex system is a system in which large networks of components with no central control and simple rules of operation give rise to complex collective behavior, sophisticated information processing, and adaptation via learning or evolution", "author": "Jessica Flack", "source": null, "year": "2009"},
+            {"quote": "the being and doing of an autopoietic unity are inseparable, and this is their specific mode of organization", "author": "Humberto Maturana", "source": "The Tree of Knowledge", "year": "1987"},
+            {"quote": "living systems are units of interactions; they exist in an ambience. From a purely biological point of view they cannot be understood independently of that part of the ambience with which they interact: the niche", "author": "Humberto Maturana", "source": "Autopoiesis and Cognition", "year": "1980"},
+            {"quote": "Organisms do not passively receive information from their environments, which they then translate into internal representations. Natural cognitive systems participate in the generation of meaning engaging in transformational and not merely informational interactions: they enact a world", "author": "Francisco Varela", "source": "The Embodied Mind", "year": "1991"},
+            {"quote": "a diverse community is a resilient community, capable of adapting to changing situations. However, diversity is a strategic advantage only if there is a truly vibrant community, sustained by a web of relationships", "author": "Fritjof Capra", "source": "The Tree of Knowledge", "year": "1987"},
+            {"quote": "The ultimate goal of farming is not the growing of crops, but the cultivation and perfection of human beings", "author": "Masanobu Fukuoka", "source": "The One-Straw Revolution", "year": "1978", "page": "119"},
+            {"quote": "left alone, the earth maintains its own fertility, in accordance with the orderly cycle of plant and animal life", "author": "Masanobu Fukuoka", "source": "self-organizing natural systems", "year": null},
+            {"quote": "diversity is nature's way. Diversity creates harmony, and harmony creates beauty, balance, bounty and peace in nature and society, in agriculture and culture, in science and in politics", "author": "Vandana Shiva", "source": "India Divided", "year": "2011", "page": "68"},
+            {"quote": "in nature's economy the currency is not money, it is life", "author": "Vandana Shiva", "source": null, "year": "2005", "page": "33"},
+            {"quote": "when times are easy and there's plenty to go around, individual species can go it alone. But when conditions are harsh and life is tenuous, it takes a team sworn to reciprocity to keep life going forward. In a world of scarcity, interconnection and mutual aid become critical for survival", "author": "Robin Wall Kimmerer", "source": null, "year": null},
+            {"quote": "All flourishing is mutual. Soil, fungus, tree, squirrel, boy—all are the beneficiaries of reciprocity", "author": "Robin Wall Kimmerer", "source": null, "year": null},
+            {"quote": "the essential feature in quantum interconnectedness is that the whole universe is enfolded in everything, and that each thing is enfolded in the whole", "author": "David Bohm", "source": null, "year": null},
+            {"quote": "both observer and observed are merging and interpenetrating aspects of one whole reality, which is indivisible and unanalysable", "author": "David Bohm", "source": null, "year": null},
+            {"quote": "relativity and quantum theory agree, in that they both imply the need to look on the world as an undivided whole, in which all parts of the universe, including the observer and his instruments, merge and unite in one totality", "author": "David Bohm", "source": null, "year": null},
+            {"quote": "Separation of the observer from the phenomenon to be observed is no longer possible", "author": "Werner Heisenberg", "source": "Physics and Philosophy", "year": "1958"},
+            {"quote": "what we observe is not nature itself, but nature exposed to our method of questioning", "author": "Werner Heisenberg", "source": null, "year": null},
+            {"quote": "What is the pattern which connects all the living creatures?", "author": "Gregory Bateson", "source": null, "year": "1979", "page": "11"},
+            {"quote": "the pattern which connects is a metapattern. It is a pattern of patterns. It is that metapattern which defines the vast generalization that, indeed, it is patterns which connect", "author": "Gregory Bateson", "source": null, "year": "1979", "page": "11"},
+            {"quote": "the major problems in the world are the result of the difference between how nature works and the way people think", "author": "Gregory Bateson", "source": null, "year": null},
+            {"quote": "an interconnected set of elements that is coherently organized in a way that achieves something", "author": "Donella Meadows", "source": "Thinking in Systems", "year": "2008"},
+            {"quote": "the behavior of a system cannot be known just by knowing the elements of which the system is made", "author": "Donella Meadows", "source": null, "year": null},
+            {"quote": "the least obvious part of the system, its function or purpose, is often the most crucial determinant of the system's behavior", "author": "Donella Meadows", "source": null, "year": null},
+            {"quote": "Understanding of life begins with the understanding of patterns", "author": "Fritjof Capra", "source": "The Web of Life", "year": "1996"},
+            {"quote": "the basic pattern of life is a network. Whenever you see life, you see networks", "author": "Fritjof Capra", "source": null, "year": "2014"},
+            {"quote": "The more complex the network is, the more complex its pattern of interconnections, the more resilient it will be", "author": "Fritjof Capra", "source": "The Systems View of Life", "year": "2014"},
+            {"quote": "The creativity and adaptability of life expresses itself through the spontaneous emergence of novelty at critical points of instability. Every human organization contains both designed and emergent structures. The challenge is to find the right balance between the creativity of emergence and the stability of design", "author": "Fritjof Capra", "source": "The Systems View of Life", "year": "2014"},
+            {"quote": "Life did not take over the world by combat, but by networking", "author": "Lynn Margulis", "source": "Microcosmos", "year": "1986"},
+            {"quote": "When we try to pick out anything by itself, we find it hitched to everything else in the universe", "author": "John Muir", "source": "My First Summer in the Sierra", "year": "1911", "page": "110"},
+            {"quote": "Harmony with land is like harmony with a friend; you cannot cherish his right hand and chop off his left. That is to say, you cannot love game and hate predators; you cannot conserve the waters and waste the ranges; you cannot build the forest and mine the farm. The land is one organism", "author": "Aldo Leopold", "source": "Round River", "year": "1938", "page": "145-146"},
+            {"quote": "A thing is right when it tends to preserve the integrity, stability, and beauty of the biotic community. It is wrong when it tends otherwise", "author": "Aldo Leopold", "source": "A Sand County Almanac", "year": "1949"},
+            {"quote": "The outstanding scientific discovery of the twentieth century is not television, or radio, but rather the complexity of the land organism", "author": "Aldo Leopold", "source": "Round River", "year": "1938", "page": "146-147"},
+            {"quote": "Holism is the tendency in nature to form wholes that are greater than the sum of the parts through creative evolution", "author": "Jan Smuts", "source": "Holism and Evolution", "year": "1926"},
+            {"quote": "There is grandeur in this view of life, with its several powers, having been originally breathed into a few forms or into one; and that, whilst this planet has gone cycling on according to the fixed law of gravity, from so simple a beginning endless forms most beautiful and most wonderful have been, and are being, evolved", "author": "Charles Darwin", "source": null, "year": null},
+            {"quote": "Nothing in biology makes sense except in the light of evolution", "author": "Theodosius Dobzhansky", "source": "The American Biology Teacher", "year": "1973", "page": "125-129"},
+            {"quote": "How do ant colonies get anything done, when no one is in charge? An ant colony operates without a central control or hierarchy, and no ant directs another. Instead, ants decide what to do based on the rate, rhythm, and pattern of individual encounters and interactions—resulting in a dynamic network that coordinates the functions of the colony", "author": "Deborah Gordon", "source": "Ant Encounters", "year": "2010"},
+            {"quote": "Real ants do not offer lessons in behavior. They do, however, provide insight about the dynamics of networks. Ants can show us how the rhythm of local interactions creates patterns in the behavior and development of large groups. There are no morals to be taken from the ants, but there is much to learn about systems without central control", "author": "Deborah Gordon", "source": null, "year": null},
+            {"quote": "Action on behalf of life transforms. Because the relationship between self and the world is reciprocal, it is not a question of first getting enlightened or saved and then acting. As we work to heal the earth, the earth heals us", "author": "Robin Wall Kimmerer", "source": "Braiding Sweetgrass", "year": "2013"},
+            {"quote": "Knowing that you love the earth changes you, activates you to defend and protect and celebrate. But when you feel that the earth loves you in return, that feeling transforms the relationship from a one-way street into a sacred bond", "author": "Robin Wall Kimmerer", "source": "Braiding Sweetgrass", "year": "2013"},
+            {"quote": "The trees in a forest are often interconnected by subterranean networks of mycorrhizae, fungal strands that inhabit tree roots. These fungal networks appear to redistribute the wealth of carbs from tree to tree. A kind of Robin Hood, they take from the rich and give to the poor so that all trees arrive at the same carbon surplus at the same time. They weave a web of reciprocity, of giving and taking. In this way, the trees all act as one because the fungi have connected them. Through unity, survival", "author": "Robin Wall Kimmerer", "source": "Braiding Sweetgrass", "year": "2013"}
+        ];
+
+        // ===== STATE =====
+        let selectedUsername = null;
+        let generatedPassword = null;
+        let createdUsername = null;
+        let passwordVisible = false;
+        let credentialsCopied = { username: false, password: false };
+        let passwordMode = 'manual'; // 'auto' or 'manual' - DEFAULT IS MANUAL
+
+        // ===== VIEW NAVIGATION =====
+        function showLanding() {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('landingView').classList.add('active');
+            displayRandomQuote();
+        }
+
+        function showRegister() {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('registerView').classList.add('active');
+            generateUsernames();
+        }
+
+        function showAccess() {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('accessView').classList.add('active');
+            
+            // Show credentials modal
+            document.getElementById('credentialsModalOverlay').style.display = 'block';
+            document.getElementById('credentialsModal').style.display = 'block';
+        }
+
+        // ===== QUOTES =====
+        function displayRandomQuote() {
+            const quote = quotesData[Math.floor(Math.random() * quotesData.length)];
+            document.getElementById('quoteText').textContent = quote.quote;
+            
+            // Handle author - could be null in some cases
+            const authorName = quote.author || 'Unknown';
+            document.getElementById('quoteAuthor').textContent = authorName;
+            
+            // Build source string with available info
+            let sourceStr = '';
+            if (quote.source) {
+                sourceStr = quote.source;
+                if (quote.year) {
+                    sourceStr += ` (${quote.year})`;
+                }
+                if (quote.page) {
+                    sourceStr += `, p. ${quote.page}`;
+                }
+            } else if (quote.year) {
+                sourceStr = quote.year;
+            }
+            
+            document.getElementById('quoteSource').textContent = sourceStr;
+        }
+
+        // ===== USERNAME GENERATION =====
+        function generateUsername() {
+            const allNouns = [
+                ...usernameData.nouns, 
+                ...usernameData.nature_nouns,
+                ...usernameData.systems_nouns,
+                ...usernameData.quantum_nouns
+            ];
+            const adjective = usernameData.adjectives[Math.floor(Math.random() * usernameData.adjectives.length)];
+            const noun = allNouns[Math.floor(Math.random() * allNouns.length)];
+            const digits = Math.floor(Math.random() * 900000) + 100000; // 6-digit random number
+            return `${adjective}${noun}${digits}`;
+        }
+
+        function generateUsernames() {
+            const grid = document.getElementById('usernameGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 4; i++) {
+                const username = generateUsername();
+                const card = document.createElement('div');
+                card.className = 'username-card';
+                card.innerHTML = `
+                    <div class="username-text">${username}</div>
+                    <div class="username-hint">@${username}:hyphae.social</div>
+                `;
+                card.onclick = () => selectUsername(card, username);
+                grid.appendChild(card);
+            }
+        }
+
+        function selectUsername(card, username) {
+            document.querySelectorAll('.username-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedUsername = username;
+            updateCreateButton();
+        }
+
+        // ===== PASSWORD GENERATION =====
+        function setPasswordMode(mode) {
+            passwordMode = mode;
+            
+            // Update button states
+            document.getElementById('autoPasswordBtn').classList.toggle('active', mode === 'auto');
+            document.getElementById('manualPasswordBtn').classList.toggle('active', mode === 'manual');
+            
+            // Toggle sections
+            document.getElementById('autoPasswordSection').style.display = mode === 'auto' ? 'block' : 'none';
+            document.getElementById('manualPasswordSection').style.display = mode === 'manual' ? 'block' : 'none';
+            
+            if (mode === 'auto') {
+                // Automatically generate password when switching to auto mode
+                generatePassword();
+                document.getElementById('manualPassword').value = '';
+            } else {
+                // Clear auto-generated password when switching to manual
+                generatedPassword = null;
+                document.getElementById('passwordText').textContent = 'Click "Auto-Generate" above';
+                document.getElementById('passwordText').classList.add('placeholder');
+                document.getElementById('copyBtn').style.display = 'none';
+                document.getElementById('regeneratePasswordBtn').style.display = 'none';
+            }
+            
+            updateCreateButton();
+        }
+
+        function handleManualPassword() {
+            const input = document.getElementById('manualPassword');
+            const password = input.value;
+            
+            if (password.length > 0) {
+                // Validate password strength
+                const isStrong = validatePasswordStrength(password);
+                
+                if (isStrong) {
+                    generatedPassword = password;
+                } else {
+                    generatedPassword = null; // Don't allow weak passwords
+                }
+                
+                updatePasswordStrength(password, 'manualStrengthBar');
+            } else {
+                generatedPassword = null;
+            }
+            
+            updateCreateButton();
+        }
+
+        function validatePasswordStrength(password) {
+            // Require: 8+ chars, uppercase, lowercase, number, special char
+            return password.length >= 8 &&
+                   /[A-Z]/.test(password) &&
+                   /[a-z]/.test(password) &&
+                   /[0-9]/.test(password) &&
+                   /[^A-Za-z0-9]/.test(password);
+        }
+
+        function generatePassword() {
+            const length = 16;
+            const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+            let password = "";
+            for (let i = 0; i < length; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            
+            generatedPassword = password;
+            const passwordText = document.getElementById('passwordText');
+            const copyBtn = document.getElementById('copyBtn');
+            const regenerateBtn = document.getElementById('regeneratePasswordBtn');
+            
+            passwordText.textContent = password;
+            passwordText.classList.remove('placeholder');
+            copyBtn.style.display = 'block';
+            regenerateBtn.style.display = 'block';
+            
+            updatePasswordStrength(password);
+            updateCreateButton();
+        }
+
+        function updatePasswordStrength(password, barId = 'strengthBar') {
+            const strengthBar = document.getElementById(barId);
+            let strength = 'weak';
+
+            if (password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) {
+                strength = 'strong';
+            } else if (password.length >= 8 && (/[A-Z]/.test(password) || /[0-9]/.test(password))) {
+                strength = 'medium';
+            }
+            strengthBar.className = `strength-bar strength-${strength}`;
+        }
+
+        async function copyPassword() {
+            const copyBtn = document.getElementById('copyBtn');
+            try {
+                await navigator.clipboard.writeText(generatedPassword);
+                copyBtn.textContent = '✓ Copied';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                showMessage('Failed to copy password', 'error');
+            }
+        }
+
+        // ===== ACCOUNT CREATION =====
+        function updateCreateButton() {
+            document.getElementById('createAccountBtn').disabled = !(selectedUsername && generatedPassword);
+        }
+
+        async function createAccount() {
+            if (!selectedUsername || !generatedPassword) {
+                showMessage('Please select username and generate password', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('createAccountBtn');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Creating...';
+
+            try {
+                // Step 1: Get the registration flows
+                const flowResponse = await fetch('https://hyphae.social/_matrix/client/r0/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+
+                const flowData = await flowResponse.json();
+                
+                // Step 2: Register with dummy auth (if server allows it)
+                const response = await fetch('https://hyphae.social/_matrix/client/r0/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: selectedUsername,
+                        password: generatedPassword,
+                        auth: {
+                            type: 'm.login.dummy',
+                            session: flowData.session
+                        }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.user_id) {
+                    createdUsername = data.user_id;
+                    displaySuccessCredentials(createdUsername, generatedPassword);
+                    showAccess();
+                } else if (data.errcode === 'M_USER_IN_USE') {
+                    btn.disabled = false;
+                    btn.innerHTML = '🚀 Create Account';
+                    showMessage('Username already taken. Try another.', 'error');
+                    generateUsernames(); // Generate new options
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = '🚀 Create Account';
+                    showMessage(data.error || data.errcode || 'Registration failed. Try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                btn.disabled = false;
+                btn.innerHTML = '🚀 Create Account';
+                showMessage('Connection error. Check internet and try again.', 'error');
+            }
+        }
+
+        // ===== SUCCESS CREDENTIALS =====
+        function displaySuccessCredentials(username, password) {
+            document.getElementById('finalUsername').textContent = username;
+            document.getElementById('finalPassword').textContent = '••••••••••••••••';
+            document.getElementById('finalPassword').dataset.password = password;
+            credentialsCopied = { username: false, password: false };
+        }
+
+        function clearCredentialsFromDOM() {
+            const passwordDisplay = document.getElementById('finalPassword');
+            if (passwordDisplay && passwordDisplay.dataset.password) {
+                delete passwordDisplay.dataset.password;
+                passwordDisplay.textContent = '••••••••••••••••';
+                passwordVisible = false;
+                document.getElementById('toggleIcon').textContent = '👁️';
+                createdUsername = null;
+                generatedPassword = null;
+                credentialsCopied = { username: false, password: false };
+                console.log('🔒 Credentials cleared from DOM');
+            }
+        }
+
+        function dismissModal() {
+            document.getElementById('credentialsModal').style.display = 'none';
+            document.getElementById('credentialsModalOverlay').style.display = 'none';
+            clearCredentialsFromDOM();
+        }
+
+        // ===== MODAL DRAG FUNCTIONALITY =====
+        let isDragging = false;
+        let currentX, currentY, initialX, initialY;
+        let xOffset = 0, yOffset = 0;
+
+        function initModalDrag() {
+            const modal = document.getElementById('credentialsModal');
+            const header = modal.querySelector('.modal-header');
+
+            header.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+        }
+
+        function dragStart(e) {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+            isDragging = true;
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                xOffset = currentX;
+                yOffset = currentY;
+                
+                const modal = document.getElementById('credentialsModal');
+                modal.style.transform = `translate(calc(-50% + ${currentX}px), calc(-50% + ${currentY}px))`;
+            }
+        }
+
+        function dragEnd() {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+        }
+
+        function togglePasswordVisibility() {
+            const passwordDisplay = document.getElementById('finalPassword');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (!passwordDisplay.dataset.password) {
+                showMessage('Credentials have been cleared for security', 'error');
+                return;
+            }
+            
+            passwordVisible = !passwordVisible;
+            
+            if (passwordVisible) {
+                passwordDisplay.textContent = passwordDisplay.dataset.password;
+                passwordDisplay.classList.remove('password-hidden');
+                toggleIcon.textContent = '🙈';
+            } else {
+                passwordDisplay.textContent = '••••••••••••••••';
+                passwordDisplay.classList.add('password-hidden');
+                toggleIcon.textContent = '👁️';
+            }
+        }
+
+        async function copyCredential(type) {
+            let textToCopy = '';
+            let button = event.target.closest('.copy-credential-btn');
+            
+            if (type === 'username') textToCopy = document.getElementById('finalUsername').textContent;
+            else if (type === 'password') textToCopy = document.getElementById('finalPassword').dataset.password;
+            else if (type === 'server') textToCopy = 'https://hyphae.social';
+            
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '<span class="copy-text">✓ Copied</span>';
+                
+                if (type === 'username') credentialsCopied.username = true;
+                if (type === 'password') credentialsCopied.password = true;
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                }, 2000);
+                
+                if (credentialsCopied.username && credentialsCopied.password) {
+                    setTimeout(() => {
+                        clearCredentialsFromDOM();
+                        showMessage('🔒 Credentials cleared from memory for security', 'success');
+                    }, 3000);
+                }
+            } catch (err) {
+                showMessage('Failed to copy', 'error');
+            }
+        }
+
+        // ===== UTILITIES =====
+        function showMessage(text, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = text;
+            messageBox.className = `message ${type}`;
+            messageBox.style.display = 'block';
+            setTimeout(() => { messageBox.style.display = 'none'; }, 5000);
+        }
+
+
+        // ===== INIT =====
+        displayRandomQuote();
+        initModalDrag();
+    </script>
+</body>
+</html>
