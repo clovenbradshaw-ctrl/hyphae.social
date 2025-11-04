@@ -600,7 +600,8 @@
             border: 2px solid #b4a5d8;
             border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            z-index: 2000;
+            z-index: 2600;
+            pointer-events: auto;
         }
 
         .modal-overlay {
@@ -610,8 +611,64 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1999;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 2550;
+            pointer-events: none;
+        }
+
+        .element-iframe-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 40px 20px;
+            background: rgba(10, 12, 20, 0.95);
+            z-index: 2500;
+        }
+
+        .element-iframe-container.active {
+            display: block;
+        }
+
+        .element-iframe-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #0f111a;
+            border: 2px solid #353849;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .element-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .element-iframe-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(26, 29, 41, 0.8);
+            border: 1px solid rgba(180, 165, 216, 0.4);
+            color: #b4a5d8;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .element-iframe-close:hover {
+            background: rgba(180, 165, 216, 0.15);
         }
 
         .modal-header {
@@ -816,6 +873,14 @@
 
     <!-- Credentials Modal Overlay -->
     <div id="credentialsModalOverlay" class="modal-overlay" onclick="dismissModal()"></div>
+
+    <!-- Element Iframe Container -->
+    <div id="elementIframeContainer" class="element-iframe-container" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Element Web Login">
+        <div class="element-iframe-wrapper">
+            <button type="button" class="element-iframe-close" onclick="closeElementIframe()">Close</button>
+            <iframe id="elementIframe" class="element-iframe" title="Element Web Login"></iframe>
+        </div>
+    </div>
 
     <!-- Credentials Modal -->
     <div id="credentialsModal" class="credentials-modal">
@@ -1039,7 +1104,7 @@
             </div>
 
             <div class="primary-action">
-                <a href="https://hyphae.social/element/#/login" class="access-link primary">
+                <a href="https://hyphae.social/element/#/login" class="access-link primary" onclick="openElementIframe(event)">
                     <div class="access-link-title">🌐 Element Web</div>
                     <div class="access-link-description">
                         Sign in through your browser
@@ -1075,7 +1140,7 @@
             </div>
 
             <div class="primary-action">
-                <a href="https://hyphae.social/element/#/login" class="access-link primary">
+                <a href="https://hyphae.social/element/#/login" class="access-link primary" onclick="openElementIframe(event)">
                     <div class="access-link-title">🚀 Log In to Element Web</div>
                     <div class="access-link-description">
                         Recommended: Access your account through your browser now
@@ -1173,6 +1238,7 @@
         let passwordVisible = false;
         let credentialsCopied = { username: false, password: false };
         let passwordMode = 'manual';
+        let lastElementIframeTrigger = null;
 
         // ===== VIEW NAVIGATION =====
         function showLanding() {
@@ -1195,13 +1261,56 @@
         function showAccess() {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('accessView').classList.add('active');
-            
+
             // Display username
             document.getElementById('accessUsername').textContent = createdUsername;
-            
+
             // Show credentials modal
             document.getElementById('credentialsModalOverlay').style.display = 'block';
             document.getElementById('credentialsModal').style.display = 'block';
+        }
+
+        // ===== EMBEDDED ELEMENT IFRAME =====
+        function openElementIframe(event) {
+            if (event) {
+                const isModifiedClick = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
+                if (isModifiedClick) return;
+                event.preventDefault();
+                lastElementIframeTrigger = event.currentTarget;
+            }
+
+            const container = document.getElementById('elementIframeContainer');
+            const iframe = document.getElementById('elementIframe');
+
+            if (iframe && !iframe.src) {
+                iframe.src = 'https://hyphae.social/element/#/login';
+            }
+
+            if (container) {
+                container.classList.add('active');
+                container.setAttribute('aria-hidden', 'false');
+
+                const closeButton = container.querySelector('.element-iframe-close');
+                if (closeButton) {
+                    closeButton.focus();
+                }
+            }
+
+            // KEEP THE MODAL OPEN - don't hide it
+            // The modal stays visible above the iframe thanks to z-index ordering
+        }
+
+        function closeElementIframe() {
+            const container = document.getElementById('elementIframeContainer');
+            if (container) {
+                container.classList.remove('active');
+                container.setAttribute('aria-hidden', 'true');
+            }
+
+            if (lastElementIframeTrigger) {
+                lastElementIframeTrigger.focus();
+                lastElementIframeTrigger = null;
+            }
         }
 
         // ===== QUOTES =====
@@ -1574,6 +1683,21 @@
         // ===== INIT =====
         displayRandomQuote();
         initModalDrag();
+
+        const elementIframeContainer = document.getElementById('elementIframeContainer');
+        if (elementIframeContainer) {
+            elementIframeContainer.addEventListener('click', (event) => {
+                if (event.target === elementIframeContainer) {
+                    closeElementIframe();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeElementIframe();
+            }
+        });
     </script>
 </body>
 </html>
