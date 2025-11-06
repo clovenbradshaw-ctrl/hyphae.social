@@ -48,6 +48,21 @@
             display: block;
         }
 
+        body.assisted-mode-active .mode-indicator {
+            top: 90px;
+            right: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        @media (max-width: 640px) {
+            body.assisted-mode-active .mode-indicator {
+                top: auto;
+                right: auto;
+                left: 20px;
+                bottom: 90px;
+            }
+        }
+
         @media (max-width: 640px) {
             .mode-indicator {
                 top: auto;
@@ -1253,6 +1268,7 @@
             document.getElementById('assistedProgress').classList.remove('visible');
             document.getElementById('assistHelper').classList.remove('visible');
             document.getElementById('assistTooltip').classList.remove('visible');
+            document.body.classList.remove('assisted-mode-active');
             currentMode = null;
             currentStep = 1;
         }
@@ -1264,7 +1280,8 @@
             document.getElementById('modeIndicator').classList.add('visible');
             document.getElementById('modeIndicatorText').textContent = 'Standard Setup';
             document.getElementById('registerContainer').classList.remove('assisted-mode');
-            
+            document.body.classList.remove('assisted-mode-active');
+
             // Hide assisted mode elements
             document.getElementById('assistedProgress').classList.remove('visible');
             document.getElementById('assistHelper').classList.remove('visible');
@@ -1296,11 +1313,12 @@
             document.getElementById('modeIndicator').classList.add('visible');
             document.getElementById('modeIndicatorText').textContent = 'Assisted Setup';
             document.getElementById('registerContainer').classList.add('assisted-mode');
-            
+            document.body.classList.add('assisted-mode-active');
+
             // Show assisted mode elements
             document.getElementById('assistedProgress').classList.add('visible');
             document.getElementById('assistHelper').classList.add('visible');
-            
+
             // Set up assisted helper
             document.getElementById('assistHelper').onclick = toggleAssistTooltip;
             
