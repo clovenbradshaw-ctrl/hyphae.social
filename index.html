@@ -512,12 +512,99 @@
             line-height: 1.5;
         }
 
+        .login-instructions {
+            background: rgba(180, 165, 216, 0.05);
+            border: 2px solid rgba(180, 165, 216, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .instruction-title {
+            font-size: 14px;
+            color: #b4a5d8;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .instruction-list {
+            margin: 0;
+            padding-left: 20px;
+            color: #d4d4d8;
+            line-height: 1.8;
+        }
+
+        .instruction-list li {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .instruction-list code {
+            background: #1a1d29;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #b4a5d8;
+            font-size: 13px;
+        }
+
         .server-info {
             background: rgba(180, 165, 216, 0.05);
             border: 2px solid rgba(180, 165, 216, 0.2);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 30px;
+        }
+
+        .qr-section {
+            background: rgba(180, 165, 216, 0.05);
+            border: 2px solid rgba(180, 165, 216, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .qr-section .section-title {
+            font-size: 16px;
+            color: #b4a5d8;
+            font-weight: 600;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        #qrcode {
+            margin: 0 auto;
+        }
+
+        .qr-username {
+            margin-top: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #1a1d29;
+            font-weight: 600;
+        }
+
+        .qr-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .qr-hint {
+            font-size: 12px;
+            color: #8a8a9e;
+            line-height: 1.5;
         }
 
         .server-info-title {
@@ -644,60 +731,6 @@
             pointer-events: none;
         }
 
-        .element-iframe-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 40px 20px;
-            background: rgba(10, 12, 20, 0.95);
-            z-index: 2500;
-        }
-
-        .element-iframe-container.active {
-            display: block;
-        }
-
-        .element-iframe-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            border-radius: 18px;
-            overflow: hidden;
-            background: #0f111a;
-            border: 2px solid #353849;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
-        }
-
-        .element-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .element-iframe-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(26, 29, 41, 0.8);
-            border: 1px solid rgba(180, 165, 216, 0.4);
-            color: #b4a5d8;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-        }
-
-        .element-iframe-close:hover {
-            background: rgba(180, 165, 216, 0.15);
-        }
 
         .modal-header {
             background: linear-gradient(135deg, #b4a5d8 0%, #8a7fb8 100%);
@@ -894,6 +927,7 @@
             line-height: 1.5;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <!-- Message Box -->
@@ -901,14 +935,6 @@
 
     <!-- Credentials Modal Overlay -->
     <div id="credentialsModalOverlay" class="modal-overlay" onclick="dismissModal()"></div>
-
-    <!-- Element Iframe Container -->
-    <div id="elementIframeContainer" class="element-iframe-container" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Element Web Login">
-        <div class="element-iframe-wrapper">
-            <button type="button" class="element-iframe-close" onclick="closeElementIframe()">Close</button>
-            <iframe id="elementIframe" class="element-iframe" title="Element Web Login"></iframe>
-        </div>
-    </div>
 
     <!-- Credentials Modal -->
     <div id="credentialsModal" class="credentials-modal">
@@ -919,7 +945,7 @@
             <div class="modal-warning">
                 <div class="warning-title">⚠️ Important</div>
                 <div class="warning-text">
-                    Copy these credentials now. They will be automatically cleared from this page for security.
+                    <strong>Keep this window open</strong> while you log in to Element. You can switch between this window and Element freely. Copy your credentials now and save them in a password manager.
                 </div>
             </div>
 
@@ -1132,7 +1158,7 @@
             </div>
 
             <div class="primary-action">
-                <a href="https://hyphae.social/element/#/login" class="access-link primary" onclick="openElementIframe(event)">
+                <a href="https://hyphae.social/element/#/login" class="access-link primary">
                     <div class="access-link-title">🌐 Element Web</div>
                     <div class="access-link-description">
                         Sign in through your browser
@@ -1171,28 +1197,31 @@
                 🔐 View Credentials Window
             </button>
 
-            <div class="primary-action">
-                <a href="https://hyphae.social/element/#/login" class="access-link primary" onclick="openElementIframe(event)">
-                    <div class="access-link-title">🚀 Log In to Element Web</div>
-                    <div class="access-link-description">
-                        Recommended: Access your account through your browser now
-                    </div>
-                </a>
-            </div>
-
             <div class="server-info">
                 <div class="server-info-title">Your Server</div>
                 <div class="server-name">hyphae.social</div>
             </div>
 
-            <div class="divider">or use any matrix app</div>
-
-            <a href="https://matrix.org/ecosystem/clients/" class="access-link">
-                <div class="access-link-title">📱 Browse Matrix Apps</div>
-                <div class="access-link-description">
-                    Download apps for iOS, Android, Desktop, or use any Matrix-compatible app. When connecting, enter <strong>hyphae.social</strong> as your homeserver.
+            <div class="qr-section">
+                <div class="section-title">
+                    📱 Share Your Profile
                 </div>
-            </a>
+                <div class="qr-container">
+                    <div id="qrcode"></div>
+                    <div class="qr-username" id="qrUsername"></div>
+                </div>
+                <div class="qr-actions">
+                    <button class="btn btn-secondary" onclick="shareQR()">
+                        📤 Share QR Code
+                    </button>
+                    <button class="btn btn-secondary" onclick="copyMatrixUri()">
+                        🔗 Copy Matrix URI
+                    </button>
+                </div>
+                <div class="qr-hint">
+                    Others can scan this in Element X to add you directly
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1271,8 +1300,86 @@
         let passwordVisible = false;
         let credentialsCopied = { username: false, password: false };
         let passwordMode = 'manual';
-        let lastElementIframeTrigger = null;
         let credentialsWindow = null;
+
+        // ===== CLIENT RECOMMENDATION =====
+        function getDeviceType() {
+            const ua = navigator.userAgent;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+            const isIOS = /iPad|iPhone|iPod/.test(ua);
+            const isAndroid = /Android/.test(ua);
+            return { isMobile, isIOS, isAndroid };
+        }
+
+        function getRecommendedClient() {
+            const device = getDeviceType();
+
+            if (device.isMobile) {
+                return {
+                    name: 'Element X',
+                    description: 'Best mobile experience',
+                    primaryUrl: 'https://matrix.org/ecosystem/clients/element-x/',
+                    icon: '📱'
+                };
+            }
+
+            return {
+                name: 'Element Web',
+                description: 'Access through your browser',
+                primaryUrl: 'https://hyphae.social/element/#/login',
+                icon: '🌐'
+            };
+        }
+
+        function renderClientRecommendation() {
+            const client = getRecommendedClient();
+            const device = getDeviceType();
+
+            return `
+        <div class="primary-action">
+            <a href="${client.primaryUrl}" class="access-link primary" target="_blank" rel="noopener noreferrer">
+                <div class="access-link-title">${client.icon} ${client.name}</div>
+                <div class="access-link-description">
+                    ${client.description}
+                </div>
+            </a>
+        </div>
+
+        <div class="login-instructions">
+            <div class="instruction-title">📋 How to Log In:</div>
+            <ol class="instruction-list">
+                <li><strong>Homeserver:</strong> Enter <code>hyphae.social</code></li>
+                <li><strong>Username:</strong> Your full username is <code>${createdUsername || '@yourusername:hyphae.social'}</code></li>
+                <li><strong>Password:</strong> Use the password from the credentials window</li>
+            </ol>
+        </div>
+
+        ${!device.isMobile ? `
+        <div class="divider">or use mobile apps</div>
+        <a href="https://matrix.org/ecosystem/clients/element-x/" class="access-link" target="_blank" rel="noopener noreferrer">
+            <div class="access-link-title">📱 Element X Mobile</div>
+            <div class="access-link-description">
+                Download for iOS or Android for the best mobile experience
+            </div>
+        </a>
+        ` : `
+        <div class="divider">or use desktop</div>
+        <a href="https://hyphae.social/element/#/login" class="access-link" target="_blank" rel="noopener noreferrer">
+            <div class="access-link-title">💻 Element Web</div>
+            <div class="access-link-description">
+                Use on desktop browser
+            </div>
+        </a>
+        `}
+        
+        <a href="https://matrix.org/ecosystem/clients/" class="access-link" target="_blank" rel="noopener noreferrer">
+            <div class="access-link-title">🔍 Browse All Matrix Apps</div>
+            <div class="access-link-description">
+                See all available clients for different platforms
+            </div>
+        </a>
+    `;
+        }
 
         // ===== VIEW NAVIGATION =====
         function showLanding() {
@@ -1296,16 +1403,36 @@
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('accessView').classList.add('active');
 
-            // Display username
             document.getElementById('accessUsername').textContent = createdUsername || '';
+
+            // Inject dynamic client recommendation
+            const container = document.querySelector('.access-container');
+            if (container) {
+                container.querySelectorAll('.login-instructions, .divider, .access-link.dynamic-client-link').forEach(el => el.remove());
+                const oldPrimaryAction = container.querySelector('.primary-action');
+                if (oldPrimaryAction) {
+                    oldPrimaryAction.remove();
+                }
+
+                const descriptionDiv = container.querySelector('.access-description');
+                if (descriptionDiv) {
+                    descriptionDiv.insertAdjacentHTML('afterend', renderClientRecommendation());
+                    container.querySelectorAll('.access-link').forEach(link => {
+                        if (!link.hasAttribute('data-static-link')) {
+                            link.classList.add('dynamic-client-link');
+                        }
+                    });
+                }
+            }
+
+            // Generate QR code after rendering container
+            setTimeout(() => generateQR(), 100);
 
             const reopenBtn = document.getElementById('reopenCredentialsBtn');
             if (reopenBtn) {
-                const hasCredentials = Boolean(createdUsername && createdPassword);
-                reopenBtn.disabled = !hasCredentials;
+                reopenBtn.disabled = !Boolean(createdUsername && createdPassword);
             }
 
-            // Hide the in-page modal and open a dedicated popup window for credentials
             document.getElementById('credentialsModalOverlay').style.display = 'none';
             document.getElementById('credentialsModal').style.display = 'none';
 
@@ -1481,11 +1608,13 @@
     <div class="popup-container" role="dialog" aria-modal="true" aria-label="Hyphae Credentials">
         <div class="popup-header">
             <div class="popup-title">🔐 Save Your Credentials</div>
-            <div class="popup-subtitle">Copy these details now. This window can stay open while you log in.</div>
+            <div class="popup-subtitle">Keep this window open while you log in. You can switch between windows.</div>
         </div>
         <div class="modal-warning">
             <div class="warning-title">⚠️ Important</div>
-            Keep this window secure. Close it or click the button below after you've saved your credentials.
+            <div class="warning-text">
+                <strong>Keep this window open</strong> while you log in to Element. You can switch between this window and Element freely. Copy your credentials now and save them in a password manager.
+            </div>
         </div>
         <div class="credential-item">
             <div class="credential-label">Username</div>
@@ -1594,46 +1723,93 @@
             }
         }
 
-        // ===== EMBEDDED ELEMENT IFRAME =====
-        function openElementIframe(event) {
-            if (event) {
-                const isModifiedClick = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
-                if (isModifiedClick) return;
-                event.preventDefault();
-                lastElementIframeTrigger = event.currentTarget;
+        function generateQR() {
+            const qrContainer = document.getElementById('qrcode');
+            const qrUsernameEl = document.getElementById('qrUsername');
+
+            if (!qrContainer) return;
+
+            qrContainer.innerHTML = '';
+            if (qrUsernameEl) {
+                qrUsernameEl.textContent = '';
             }
 
-            const container = document.getElementById('elementIframeContainer');
-            const iframe = document.getElementById('elementIframe');
+            if (!createdUsername) return;
 
-            if (iframe && !iframe.src) {
-                iframe.src = 'https://hyphae.social/element/#/login';
+            const matrixUri = `https://matrix.to/#/${createdUsername}`;
+
+            new QRCode(qrContainer, {
+                text: matrixUri,
+                width: 200,
+                height: 200,
+                colorDark: '#1a1d29',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            if (qrUsernameEl) {
+                qrUsernameEl.textContent = createdUsername;
             }
+        }
 
-            if (container) {
-                container.classList.add('active');
-                container.setAttribute('aria-hidden', 'false');
+        async function shareQR() {
+            if (!createdUsername) return;
 
-                const closeButton = container.querySelector('.element-iframe-close');
-                if (closeButton) {
-                    closeButton.focus();
+            const matrixUri = `https://matrix.to/#/${createdUsername}`;
+
+            if (navigator.share) {
+                try {
+                    const qrCanvas = document.querySelector('#qrcode canvas');
+                    if (qrCanvas && qrCanvas.toBlob) {
+                        const blob = await new Promise(resolve => qrCanvas.toBlob(resolve));
+                        if (blob) {
+                            const file = new File([blob], 'hyphae-profile-qr.png', { type: 'image/png' });
+                            await navigator.share({
+                                title: 'Add me on Hyphae',
+                                text: `Connect with me on the Hyphae Network: ${createdUsername}`,
+                                url: matrixUri,
+                                files: [file]
+                            });
+                            return;
+                        }
+                    }
+
+                    await navigator.share({
+                        title: 'Add me on Hyphae',
+                        text: `Connect with me on the Hyphae Network: ${createdUsername}`,
+                        url: matrixUri
+                    });
+                    return;
+                } catch (shareErr) {
+                    // Fall through to download if sharing fails
                 }
             }
 
-            // KEEP THE MODAL OPEN - don't hide it
-            // The modal stays visible above the iframe thanks to z-index ordering
+            downloadQR();
         }
 
-        function closeElementIframe() {
-            const container = document.getElementById('elementIframeContainer');
-            if (container) {
-                container.classList.remove('active');
-                container.setAttribute('aria-hidden', 'true');
-            }
+        function downloadQR() {
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            if (!qrCanvas) return;
 
-            if (lastElementIframeTrigger) {
-                lastElementIframeTrigger.focus();
-                lastElementIframeTrigger = null;
+            const link = document.createElement('a');
+            link.download = `hyphae-profile-${createdUsername}.png`;
+            link.href = qrCanvas.toDataURL();
+            link.click();
+
+            showMessage('QR code downloaded', 'success');
+        }
+
+        async function copyMatrixUri() {
+            if (!createdUsername) return;
+
+            const matrixUri = `https://matrix.to/#/${createdUsername}`;
+
+            try {
+                await navigator.clipboard.writeText(matrixUri);
+                showMessage('Matrix URI copied to clipboard', 'success');
+            } catch (err) {
+                showMessage('Failed to copy URI', 'error');
             }
         }
 
@@ -2049,21 +2225,6 @@
         // ===== INIT =====
         displayRandomQuote();
         initModalDrag();
-
-        const elementIframeContainer = document.getElementById('elementIframeContainer');
-        if (elementIframeContainer) {
-            elementIframeContainer.addEventListener('click', (event) => {
-                if (event.target === elementIframeContainer) {
-                    closeElementIframe();
-                }
-            });
-        }
-
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                closeElementIframe();
-            }
-        });
 
         window.addEventListener('beforeunload', () => {
             if (credentialsWindow && !credentialsWindow.closed) {
