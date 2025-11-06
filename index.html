@@ -48,6 +48,22 @@
             display: block;
         }
 
+        @media (max-width: 640px) {
+            .mode-indicator {
+                top: auto;
+                right: auto;
+                left: 20px;
+                bottom: 20px;
+                font-size: 11px;
+                padding: 6px 14px;
+            }
+
+            .assist-helper {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
         /* View Management */
         .view {
             display: none;
@@ -751,6 +767,26 @@
             color: #ef4444;
         }
 
+        .message.info {
+            background: rgba(180, 165, 216, 0.2);
+            border: 2px solid rgba(180, 165, 216, 0.6);
+            color: #b4a5d8;
+        }
+
+        .login-method-cards .method-card {
+            order: 0;
+        }
+
+        .login-method-cards .method-card.mobile-priority {
+            order: -1;
+        }
+
+        .login-method-cards .method-card.mobile-highlight {
+            border-color: #b4a5d8 !important;
+            box-shadow: 0 0 0 2px rgba(180, 165, 216, 0.3);
+            background: rgba(180, 165, 216, 0.12) !important;
+        }
+
         /* Mode toggle */
         .mode-toggle-btn {
             flex: 1;
@@ -1008,7 +1044,7 @@
                 <h3 style="color: #b4a5d8; font-size: 18px; margin-bottom: 20px;">
                     Step 1: Save Your Credentials
                 </h3>
-                
+
                 <div class="credentials-box">
                     <div class="credential-item">
                         <div class="credential-label">Username</div>
@@ -1036,25 +1072,24 @@
 
                 <div class="info-card warning">
                     <div class="info-title">⚠️ Save These Now</div>
-                    <div class="info-content">
-                        Copy your credentials to a password manager before continuing. 
-                        <strong>This window will stay open</strong> while you log in.
+                    <div class="info-content" id="credentialReminder">
+                        Copy your credentials to a password manager before continuing.
                     </div>
                 </div>
 
-                <button class="btn btn-primary" onclick="proceedToLogin()" style="width: 100%; margin-top: 20px;">
+                <button class="btn btn-primary" id="proceedToLoginBtn" onclick="proceedToLogin()" style="width: 100%; margin-top: 20px;">
                     I've Saved My Credentials →
                 </button>
             </div>
 
             <!-- Step 2: Login Instructions -->
             <div class="setup-step" id="loginInstructionsStep" style="display: none;">
-                <h3 style="color: #b4a5d8; font-size: 18px; margin-bottom: 20px;">
+                <h3 id="loginInstructionsHeading" style="color: #b4a5d8; font-size: 18px; margin-bottom: 20px;">
                     Step 2: Login to Your Account
                 </h3>
 
-                <div class="login-method-cards" style="display: grid; gap: 15px; margin-bottom: 20px;">
-                    <div class="method-card" style="background: #252836; border: 2px solid #b4a5d8; border-radius: 12px; padding: 20px;">
+                <div class="login-method-cards" id="loginMethodCards" style="display: grid; gap: 15px; margin-bottom: 20px;">
+                    <div class="method-card" id="webInstructionsCard" style="background: #252836; border: 2px solid #b4a5d8; border-radius: 12px; padding: 20px;">
                         <h4 style="color: #b4a5d8; margin-bottom: 10px;">🌐 Web Browser (Recommended)</h4>
                         <ol style="margin: 10px 0 15px 20px; font-size: 14px; line-height: 1.8; color: #d4d4d8;">
                             <li>Click "Open Element Web" below</li>
@@ -1067,12 +1102,12 @@
                         </button>
                     </div>
 
-                    <div class="method-card" style="background: #252836; border: 2px solid #353849; border-radius: 12px; padding: 20px;">
+                    <div class="method-card" id="mobileInstructionsCard" style="background: #252836; border: 2px solid #353849; border-radius: 12px; padding: 20px;">
                         <h4 style="color: #b4a5d8; margin-bottom: 10px;">📱 Mobile Setup</h4>
                         <p style="font-size: 14px; line-height: 1.6; margin-bottom: 15px; color: #8a8a9e;">
-                            For mobile, download Element X and enter your credentials manually. The QR code below is for sharing your profile.
+                            For mobile, download Element X and enter your credentials manually. Deep links from the browser often fail, so open the app yourself and follow the steps below. The QR code beneath is for sharing your profile with others.
                         </p>
-                        
+
                         <div style="background: rgba(180, 165, 216, 0.1); border: 2px solid rgba(180, 165, 216, 0.2); border-radius: 12px; padding: 15px; margin-bottom: 20px;">
                             <h5 style="color: #b4a5d8; margin-bottom: 10px; font-size: 14px;">📋 Manual Login Steps:</h5>
                             <ol style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #d4d4d8;">
@@ -1144,6 +1179,71 @@
         let passwordMode = 'manual';
         let createdUsername = null;
         let createdPassword = null;
+        let credentialsWindow = null;
+
+        function isMobileDevice() {
+            return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth <= 768;
+        }
+
+        function tailorSuccessViewForDevice(isMobile) {
+            updateCredentialReminder(isMobile);
+            updateLoginHeading(isMobile);
+            updateProceedButton(isMobile);
+            updateLoginCardsContent(isMobile);
+            prioritizeLoginInstructions(isMobile);
+        }
+
+        function updateCredentialReminder(isMobile) {
+            const reminder = document.getElementById('credentialReminder');
+            if (!reminder) return;
+
+            if (isMobile) {
+                reminder.innerHTML = 'Keep this page open while you install Element X on your phone. Your credentials are saved above so you can copy them as you sign in.';
+            } else {
+                reminder.innerHTML = 'Copy your credentials to a password manager before continuing. <strong>We opened a helper window</strong> to keep them handy while you switch tabs to log in.';
+            }
+        }
+
+        function updateLoginHeading(isMobile) {
+            const heading = document.getElementById('loginInstructionsHeading');
+            if (!heading) return;
+            heading.textContent = isMobile ? 'Step 2: Get the Element X Mobile App' : 'Step 2: Login to Your Account';
+        }
+
+        function updateProceedButton(isMobile) {
+            const btn = document.getElementById('proceedToLoginBtn');
+            if (!btn) return;
+            btn.textContent = isMobile ? 'Show Mobile Login Steps →' : "I've Saved My Credentials →";
+        }
+
+        function updateLoginCardsContent(isMobile) {
+            const webHeading = document.querySelector('#webInstructionsCard h4');
+            const mobileHeading = document.querySelector('#mobileInstructionsCard h4');
+
+            if (webHeading) {
+                webHeading.textContent = isMobile ? '💻 Sign in from a Computer (Optional)' : '🌐 Web Browser (Recommended)';
+            }
+
+            if (mobileHeading) {
+                mobileHeading.textContent = isMobile ? '📱 Mobile Setup (Start Here)' : '📱 Mobile Setup';
+            }
+        }
+
+        function prioritizeLoginInstructions(isMobile) {
+            const mobileCard = document.getElementById('mobileInstructionsCard');
+            const webCard = document.getElementById('webInstructionsCard');
+
+            if (!mobileCard || !webCard) {
+                return;
+            }
+
+            if (isMobile) {
+                mobileCard.classList.add('mobile-priority', 'mobile-highlight');
+                webCard.classList.remove('mobile-highlight');
+            } else {
+                mobileCard.classList.remove('mobile-priority', 'mobile-highlight');
+            }
+        }
 
         // ===== Mode Selection =====
         function showModeSelection() {
@@ -1528,14 +1628,19 @@
                     document.getElementById('progress3').classList.add('completed');
                     document.getElementById('progress4').classList.add('completed');
                 }
-                
+
                 showMessage('Account created successfully!', 'success');
-                
-                // Open a persistent credentials window
-                openCredentialsWindow();
-                
+
+                const mobileDevice = isMobileDevice();
+                tailorSuccessViewForDevice(mobileDevice);
+
+                if (!mobileDevice) {
+                    // Open a persistent credentials window
+                    openCredentialsWindow();
+                }
+
                 // Note: In production, this would make an actual API call to create the account
-                
+
             } catch (error) {
                 console.error('Registration error:', error);
                 btn.disabled = false;
@@ -1680,22 +1785,29 @@
         }
 
         // Open credentials window with QR code
-        let credentialsWindow = null;
         function openCredentialsWindow() {
+            if (isMobileDevice()) {
+                return;
+            }
+
             // Create a popup window with credentials that stays open
             const width = 450;
             const height = 650;
             const left = window.screen.width - width - 50;
             const top = 100;
-            
-            credentialsWindow = window.open('', 'HyphaeCredentials', 
-                `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`);
-            
+            const features = `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
+
+            if (!credentialsWindow || credentialsWindow.closed) {
+                credentialsWindow = window.open('', 'HyphaeCredentials', features);
+            } else {
+                credentialsWindow.focus();
+            }
+
             if (!credentialsWindow) {
                 showMessage('Please allow popups to keep your credentials visible while logging in.', 'error');
                 return;
             }
-            
+
             const matrixUri = `https://matrix.to/#/${createdUsername}`;
             const credentialsHTML = `
                 <!DOCTYPE html>
@@ -1924,6 +2036,20 @@
                 messageBox.style.display = 'none';
             }, 5000);
         }
+
+        window.addEventListener('resize', () => {
+            const successView = document.getElementById('successView');
+            if (!successView || !successView.classList.contains('active')) {
+                return;
+            }
+
+            const mobileDevice = isMobileDevice();
+            tailorSuccessViewForDevice(mobileDevice);
+
+            if (!mobileDevice && createdUsername && (!credentialsWindow || credentialsWindow.closed)) {
+                openCredentialsWindow();
+            }
+        });
 
         // ===== Initialize =====
         window.onload = () => {
