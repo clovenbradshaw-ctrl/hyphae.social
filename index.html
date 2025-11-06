@@ -444,6 +444,34 @@
             text-align: center;
         }
 
+        .credentials-popup-btn {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid rgba(180, 165, 216, 0.4);
+            border-radius: 12px;
+            background: rgba(180, 165, 216, 0.12);
+            color: #b4a5d8;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 35px;
+        }
+
+        .credentials-popup-btn:hover:not(:disabled) {
+            background: rgba(180, 165, 216, 0.2);
+            border-color: #b4a5d8;
+            transform: translateY(-2px);
+        }
+
+        .credentials-popup-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .primary-action {
             margin-bottom: 40px;
         }
@@ -1134,10 +1162,14 @@
             <div class="success-icon">✓</div>
             <h2>Welcome to Hyphae</h2>
             <div class="access-username" id="accessUsername"></div>
-            
+
             <div class="access-description">
                 Your account has been created. Choose how you'd like to access the network.
             </div>
+
+            <button class="credentials-popup-btn" id="reopenCredentialsBtn" onclick="handleReopenCredentials()" disabled>
+                🔐 View Credentials Window
+            </button>
 
             <div class="primary-action">
                 <a href="https://hyphae.social/element/#/login" class="access-link primary" onclick="openElementIframe(event)">
@@ -1235,10 +1267,12 @@
         let selectedUsername = null;
         let generatedPassword = null;
         let createdUsername = null;
+        let createdPassword = null;
         let passwordVisible = false;
         let credentialsCopied = { username: false, password: false };
         let passwordMode = 'manual';
         let lastElementIframeTrigger = null;
+        let credentialsWindow = null;
 
         // ===== VIEW NAVIGATION =====
         function showLanding() {
@@ -1263,11 +1297,301 @@
             document.getElementById('accessView').classList.add('active');
 
             // Display username
-            document.getElementById('accessUsername').textContent = createdUsername;
+            document.getElementById('accessUsername').textContent = createdUsername || '';
 
-            // Show credentials modal
-            document.getElementById('credentialsModalOverlay').style.display = 'block';
-            document.getElementById('credentialsModal').style.display = 'block';
+            const reopenBtn = document.getElementById('reopenCredentialsBtn');
+            if (reopenBtn) {
+                const hasCredentials = Boolean(createdUsername && createdPassword);
+                reopenBtn.disabled = !hasCredentials;
+            }
+
+            // Hide the in-page modal and open a dedicated popup window for credentials
+            document.getElementById('credentialsModalOverlay').style.display = 'none';
+            document.getElementById('credentialsModal').style.display = 'none';
+
+            if (createdUsername && createdPassword) {
+                openCredentialsWindow(createdUsername, createdPassword);
+            }
+        }
+
+        function openCredentialsWindow(username, password) {
+            if (!username || !password) {
+                return;
+            }
+
+            if (credentialsWindow && !credentialsWindow.closed) {
+                credentialsWindow.close();
+            }
+
+            const defaultWidth = 480;
+            const defaultHeight = 620;
+            const availWidth = (window.screen && window.screen.availWidth) ? window.screen.availWidth : defaultWidth;
+            const availHeight = (window.screen && window.screen.availHeight) ? window.screen.availHeight : defaultHeight;
+            const popupWidth = Math.min(defaultWidth, Math.max(360, availWidth - 80));
+            const popupHeight = Math.min(defaultHeight, Math.max(400, availHeight - 160));
+            const left = window.screenX ? window.screenX + Math.max(20, (window.outerWidth - popupWidth) / 2) : 100;
+            const top = window.screenY ? window.screenY + Math.max(20, (window.outerHeight - popupHeight) / 2) : 100;
+            const features = `width=${popupWidth},height=${popupHeight},resizable=yes,scrollbars=yes,left=${left},top=${top}`;
+
+            credentialsWindow = window.open('', 'HyphaeCredentials', features);
+
+            if (!credentialsWindow) {
+                showMessage('Please allow popups to view your credentials.', 'error');
+                return;
+            }
+
+            const credentialsData = JSON.stringify({ username, password }).replace(/</g, '\\u003c');
+            const popupHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyphae Credentials</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1d29;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        .popup-container {
+            width: 100%;
+            max-width: 420px;
+            background: #252836;
+            border: 2px solid #b4a5d8;
+            border-radius: 18px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+        }
+        .popup-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .popup-title {
+            font-size: 22px;
+            color: #b4a5d8;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .popup-subtitle {
+            font-size: 13px;
+            color: #8a8a9e;
+            line-height: 1.6;
+        }
+        .credential-item {
+            margin-bottom: 22px;
+        }
+        .credential-label {
+            font-size: 12px;
+            color: #8a8a9e;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+        .credential-value-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #1a1d29;
+            border: 2px solid #353849;
+            border-radius: 10px;
+            padding: 12px 15px;
+        }
+        .credential-value {
+            flex-grow: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            color: #e0e0e0;
+            letter-spacing: 1px;
+            word-break: break-all;
+        }
+        .password-hidden {
+            letter-spacing: 3px;
+        }
+        .credential-action-btn {
+            padding: 6px 12px;
+            background: rgba(180, 165, 216, 0.2);
+            border: none;
+            border-radius: 6px;
+            color: #b4a5d8;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .credential-action-btn:hover {
+            background: rgba(180, 165, 216, 0.3);
+        }
+        .modal-warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 12px;
+            color: #8a8a9e;
+            line-height: 1.6;
+        }
+        .warning-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 6px;
+        }
+        .modal-close-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #b4a5d8;
+            color: #1a1d29;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+        .modal-close-btn:hover {
+            background: #c4b5e8;
+        }
+        .feedback {
+            min-height: 18px;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 10px;
+            color: #8a8a9e;
+        }
+        .feedback.success {
+            color: #10b981;
+        }
+        .feedback.error {
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="popup-container" role="dialog" aria-modal="true" aria-label="Hyphae Credentials">
+        <div class="popup-header">
+            <div class="popup-title">🔐 Save Your Credentials</div>
+            <div class="popup-subtitle">Copy these details now. This window can stay open while you log in.</div>
+        </div>
+        <div class="modal-warning">
+            <div class="warning-title">⚠️ Important</div>
+            Keep this window secure. Close it or click the button below after you've saved your credentials.
+        </div>
+        <div class="credential-item">
+            <div class="credential-label">Username</div>
+            <div class="credential-value-row">
+                <div class="credential-value" id="popupUsername"></div>
+                <button class="credential-action-btn" data-copy="username">Copy</button>
+            </div>
+        </div>
+        <div class="credential-item">
+            <div class="credential-label">Password</div>
+            <div class="credential-value-row">
+                <div class="credential-value password-hidden" id="popupPassword">••••••••••••••••</div>
+                <button class="credential-action-btn" id="popupToggle">Show</button>
+                <button class="credential-action-btn" data-copy="password">Copy</button>
+            </div>
+        </div>
+        <div class="credential-item">
+            <div class="credential-label">Server</div>
+            <div class="credential-value-row">
+                <div class="credential-value" id="popupServer">hyphae.social</div>
+                <button class="credential-action-btn" data-copy="server">Copy</button>
+            </div>
+        </div>
+        <button class="modal-close-btn" id="popupDone">I've Saved My Credentials</button>
+        <div class="feedback" id="popupFeedback" aria-live="polite"></div>
+    </div>
+    <script>
+        (function() {
+            const data = ${credentialsData};
+            const usernameEl = document.getElementById('popupUsername');
+            const passwordEl = document.getElementById('popupPassword');
+            const toggleBtn = document.getElementById('popupToggle');
+            const feedbackEl = document.getElementById('popupFeedback');
+            const doneBtn = document.getElementById('popupDone');
+            const copyButtons = document.querySelectorAll('[data-copy]');
+
+            usernameEl.textContent = data.username;
+            const password = data.password;
+            const server = 'hyphae.social';
+            let visible = false;
+
+            function setFeedback(message, type) {
+                feedbackEl.textContent = message || '';
+                feedbackEl.className = 'feedback' + (type ? ' ' + type : '');
+            }
+
+            toggleBtn.addEventListener('click', () => {
+                visible = !visible;
+                if (visible) {
+                    passwordEl.textContent = password;
+                    passwordEl.classList.remove('password-hidden');
+                    toggleBtn.textContent = 'Hide';
+                } else {
+                    passwordEl.textContent = '••••••••••••••••';
+                    passwordEl.classList.add('password-hidden');
+                    toggleBtn.textContent = 'Show';
+                }
+            });
+
+            copyButtons.forEach(button => {
+                button.addEventListener('click', async () => {
+                    const type = button.getAttribute('data-copy');
+                    const value = type === 'username' ? data.username : (type === 'password' ? password : server);
+                    try {
+                        await navigator.clipboard.writeText(value);
+                        button.textContent = 'Copied!';
+                        setFeedback('Copied ' + type + ' to clipboard.', 'success');
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                            setFeedback('');
+                        }, 2000);
+                    } catch (err) {
+                        setFeedback('Copy failed. Please copy manually.', 'error');
+                    }
+                });
+            });
+
+            doneBtn.addEventListener('click', () => {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage({ type: 'credentials-saved' }, '*');
+                }
+                window.close();
+            });
+
+            window.addEventListener('unload', () => {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage({ type: 'credentials-closed' }, '*');
+                }
+            });
+        })();
+    <\/script>
+</body>
+</html>`;
+
+            credentialsWindow.document.open();
+            credentialsWindow.document.write(popupHTML);
+            credentialsWindow.document.close();
+            credentialsWindow.focus();
+        }
+
+        function handleReopenCredentials() {
+            if (createdUsername && createdPassword) {
+                openCredentialsWindow(createdUsername, createdPassword);
+            } else {
+                showMessage('Credentials are no longer available. Create a new account if needed.', 'error');
+            }
         }
 
         // ===== EMBEDDED ELEMENT IFRAME =====
@@ -1531,6 +1855,7 @@
 
                 if (response.ok && data.user_id) {
                     createdUsername = data.user_id;
+                    createdPassword = generatedPassword;
                     displaySuccessCredentials(createdUsername, generatedPassword);
                     showAccess();
                 } else if (data.errcode === 'M_USER_IN_USE') {
@@ -1561,21 +1886,44 @@
 
         function clearCredentialsFromDOM() {
             const passwordDisplay = document.getElementById('finalPassword');
-            if (passwordDisplay && passwordDisplay.dataset.password) {
-                delete passwordDisplay.dataset.password;
+            if (passwordDisplay) {
+                if (passwordDisplay.dataset.password) {
+                    delete passwordDisplay.dataset.password;
+                }
                 passwordDisplay.textContent = '••••••••••••••••';
-                passwordVisible = false;
-                document.getElementById('toggleIcon').textContent = '👁️';
-                createdUsername = null;
-                generatedPassword = null;
-                credentialsCopied = { username: false, password: false };
-                console.log('🔒 Credentials cleared from DOM');
             }
+
+            passwordVisible = false;
+            const toggleIcon = document.getElementById('toggleIcon');
+            if (toggleIcon) {
+                toggleIcon.textContent = '👁️';
+            }
+
+            if (credentialsWindow && !credentialsWindow.closed) {
+                credentialsWindow.close();
+            }
+
+            createdUsername = null;
+            generatedPassword = null;
+            createdPassword = null;
+            credentialsCopied = { username: false, password: false };
+            credentialsWindow = null;
+
+            const reopenBtn = document.getElementById('reopenCredentialsBtn');
+            if (reopenBtn) {
+                reopenBtn.disabled = true;
+            }
+
+            console.log('🔒 Credentials cleared from DOM');
         }
 
         function dismissModal() {
             document.getElementById('credentialsModal').style.display = 'none';
             document.getElementById('credentialsModalOverlay').style.display = 'none';
+            if (credentialsWindow && !credentialsWindow.closed) {
+                credentialsWindow.close();
+            }
+            credentialsWindow = null;
             clearCredentialsFromDOM();
         }
 
@@ -1680,6 +2028,24 @@
             setTimeout(() => { messageBox.style.display = 'none'; }, 5000);
         }
 
+        window.addEventListener('message', (event) => {
+            if (!event || !event.data || !event.data.type) {
+                return;
+            }
+
+            if (credentialsWindow && event.source !== credentialsWindow) {
+                return;
+            }
+
+            if (event.data.type === 'credentials-saved') {
+                showMessage('🔒 Credentials cleared from memory for security', 'success');
+                clearCredentialsFromDOM();
+                credentialsWindow = null;
+            } else if (event.data.type === 'credentials-closed') {
+                credentialsWindow = null;
+            }
+        });
+
         // ===== INIT =====
         displayRandomQuote();
         initModalDrag();
@@ -1696,6 +2062,12 @@
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 closeElementIframe();
+            }
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (credentialsWindow && !credentialsWindow.closed) {
+                credentialsWindow.close();
             }
         });
     </script>
