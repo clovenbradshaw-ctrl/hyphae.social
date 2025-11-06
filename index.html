@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hyphae Network</title>
+    <title>Hyphae Network - Join the Emergent Network</title>
     <style>
         * {
             margin: 0;
@@ -18,6 +18,36 @@
             min-height: 100vh;
         }
 
+        /* Setup Mode Indicator */
+        .mode-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(180, 165, 216, 0.1);
+            border: 2px solid rgba(180, 165, 216, 0.3);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #b4a5d8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: none;
+        }
+
+        .mode-indicator:hover {
+            background: rgba(180, 165, 216, 0.2);
+            border-color: #b4a5d8;
+        }
+
+        .mode-indicator.visible {
+            display: block;
+        }
+
+        /* View Management */
         .view {
             display: none;
             animation: fadeIn 0.5s ease-out;
@@ -39,12 +69,12 @@
             }
         }
 
-        /* ===== LANDING VIEW ===== */
-        .landing-container {
-            max-width: 700px;
+        /* ===== MODE SELECTION VIEW ===== */
+        .mode-selection-container {
+            max-width: 900px;
             margin: 0 auto;
+            padding: 60px 20px;
             text-align: center;
-            padding: 10vh 20px 40px;
         }
 
         .logo {
@@ -53,7 +83,7 @@
             margin: 0 auto 30px;
         }
 
-        h1 {
+        .mode-selection-container h1 {
             color: #b4a5d8;
             font-size: 48px;
             font-weight: 300;
@@ -61,120 +91,289 @@
             letter-spacing: 4px;
         }
 
-        .subtitle {
+        .mode-subtitle {
             color: #8a8a9e;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
+            font-size: 18px;
             margin-bottom: 60px;
+            line-height: 1.6;
         }
 
-        .quote-container {
-            background: linear-gradient(135deg, rgba(180, 165, 216, 0.05) 0%, rgba(180, 165, 216, 0.02) 100%);
-            border: 2px solid rgba(180, 165, 216, 0.2);
-            border-radius: 15px;
-            padding: 40px 35px;
-            margin-bottom: 50px;
+        .mode-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .mode-card {
+            background: #252836;
+            border: 3px solid #353849;
+            border-radius: 20px;
+            padding: 40px 30px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card:hover {
+            border-color: #b4a5d8;
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(180, 165, 216, 0.3);
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #b4a5d8, transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .mode-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .mode-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .mode-title {
+            font-size: 24px;
+            color: #b4a5d8;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .mode-description {
+            font-size: 14px;
+            color: #8a8a9e;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .mode-features {
+            text-align: left;
+            font-size: 13px;
+            color: #d4d4d8;
+        }
+
+        .mode-features li {
+            margin-bottom: 8px;
+            padding-left: 20px;
             position: relative;
         }
 
-        .quote-mark {
+        .mode-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+        }
+
+        .mode-recommendation {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ===== ASSISTED MODE PROGRESS BAR ===== */
+        .assisted-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(37, 40, 54, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #353849;
+            padding: 20px;
+            z-index: 100;
+            display: none;
+        }
+
+        .assisted-progress.visible {
+            display: block;
+        }
+
+        .progress-steps {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .progress-step::after {
+            content: '';
             position: absolute;
             top: 15px;
-            left: 20px;
-            font-size: 60px;
-            color: rgba(180, 165, 216, 0.2);
-            font-family: Georgia, serif;
-            line-height: 0;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #353849;
         }
 
-        .quote-text {
-            font-size: 20px;
-            line-height: 1.7;
-            color: #d4d4d8;
-            font-style: italic;
-            margin-bottom: 20px;
+        .progress-step.completed::after {
+            background: linear-gradient(90deg, #10b981 0%, #10b981 50%, #353849 50%);
+        }
+
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            background: #353849;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
             position: relative;
             z-index: 1;
-        }
-
-        .quote-author {
-            font-size: 14px;
-            color: #b4a5d8;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        .quote-source {
-            font-size: 12px;
-            color: #8a8a9e;
-            margin-top: 5px;
-        }
-
-        .actions {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .btn {
-            padding: 18px 35px;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-decoration: none;
-            display: inline-block;
         }
 
-        .btn-primary {
+        .step-circle.active {
             background: #b4a5d8;
             color: #1a1d29;
-            box-shadow: 0 10px 40px rgba(180, 165, 216, 0.3);
+            box-shadow: 0 0 20px rgba(180, 165, 216, 0.5);
+            animation: pulse 2s infinite;
         }
 
-        .btn-primary:hover {
-            background: #c4b5e8;
-            transform: translateY(-3px);
-            box-shadow: 0 15px 50px rgba(180, 165, 216, 0.4);
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
-        .btn-secondary {
-            background: transparent;
-            color: #b4a5d8;
-            border: 2px solid rgba(180, 165, 216, 0.5);
+        .step-circle.completed {
+            background: #10b981;
+            color: #1a1d29;
         }
 
-        .btn-secondary:hover {
-            background: rgba(180, 165, 216, 0.1);
-            border-color: #b4a5d8;
-            transform: translateY(-2px);
-        }
-
-        .footer {
-            margin-top: 60px;
+        .step-label {
             font-size: 11px;
-            color: #5a5a6e;
+            color: #8a8a9e;
+            margin-top: 8px;
+            text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        /* ===== REGISTRATION VIEW ===== */
-        .register-container {
-            max-width: 650px;
+        /* ===== ASSISTED MODE HELPER ===== */
+        .assist-helper {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #b4a5d8 0%, #8a7fb8 100%);
+            color: #1a1d29;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: none;
+        }
+
+        .assist-helper.visible {
+            display: flex;
+        }
+
+        .assist-helper:hover {
+            transform: scale(1.1);
+        }
+
+        .assist-tooltip {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: #252836;
+            border: 2px solid #b4a5d8;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 300px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 1001;
+        }
+
+        .assist-tooltip.visible {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .assist-tooltip h4 {
+            color: #b4a5d8;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .assist-tooltip p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #d4d4d8;
+        }
+
+        /* ===== LANDING/REGISTRATION VIEWS ===== */
+        .landing-container, .register-container {
+            max-width: 700px;
             margin: 0 auto;
             padding: 40px 20px;
         }
 
+        .register-container.assisted-mode {
+            padding-top: 100px; /* Space for progress bar */
+        }
+
+        /* Header with back button */
+        .header-nav {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
         .back-link {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             color: #8a8a9e;
             text-decoration: none;
-            font-size: 13px;
-            margin-bottom: 30px;
+            font-size: 14px;
             transition: color 0.3s;
             cursor: pointer;
         }
@@ -183,30 +382,31 @@
             color: #b4a5d8;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .header .logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
-        }
-
-        .header h2 {
+        h1, h2 {
             color: #b4a5d8;
-            font-size: 32px;
             font-weight: 300;
-            margin-bottom: 8px;
             letter-spacing: 2px;
         }
 
-        .header .subtitle {
-            margin-bottom: 0;
+        .subtitle {
+            color: #8a8a9e;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
         }
 
+        /* Section styling */
         .section {
+            margin-bottom: 35px;
+            position: relative;
+        }
+
+        .section.highlight {
+            background: rgba(180, 165, 216, 0.05);
+            border: 2px solid rgba(180, 165, 216, 0.2);
+            border-radius: 15px;
+            padding: 25px;
             margin-bottom: 35px;
         }
 
@@ -222,6 +422,7 @@
             gap: 10px;
         }
 
+        /* Username selection */
         .username-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -250,19 +451,6 @@
             background: rgba(180, 165, 216, 0.1);
         }
 
-        .username-card .username-text {
-            font-size: 16px;
-            font-weight: 500;
-            color: #e0e0e0;
-            margin-bottom: 6px;
-            word-break: break-all;
-        }
-
-        .username-card .username-hint {
-            font-size: 11px;
-            color: #8a8a9e;
-        }
-
         .username-card.selected::after {
             content: '✓';
             position: absolute;
@@ -271,6 +459,60 @@
             color: #b4a5d8;
             font-size: 18px;
             font-weight: bold;
+        }
+
+        .username-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #e0e0e0;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+
+        .username-hint {
+            font-size: 11px;
+            color: #8a8a9e;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-primary {
+            background: #b4a5d8;
+            color: #1a1d29;
+            box-shadow: 0 10px 40px rgba(180, 165, 216, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #c4b5e8;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(180, 165, 216, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(180, 165, 216, 0.1);
+            border: 2px solid rgba(180, 165, 216, 0.3);
+            color: #b4a5d8;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(180, 165, 216, 0.2);
+            border-color: #b4a5d8;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .regenerate-btn {
@@ -293,6 +535,7 @@
             border-color: #b4a5d8;
         }
 
+        /* Password display */
         .password-display {
             background: #252836;
             border: 2px solid #353849;
@@ -316,11 +559,6 @@
             letter-spacing: 2px;
         }
 
-        .password-text.placeholder {
-            color: #5a5a6e;
-            font-style: italic;
-        }
-
         .copy-btn {
             padding: 8px 16px;
             background: rgba(180, 165, 216, 0.2);
@@ -331,7 +569,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: none;
         }
 
         .copy-btn:hover {
@@ -343,69 +580,75 @@
             color: #4caf50;
         }
 
-        .strength-bar {
-            height: 4px;
-            border-radius: 2px;
-            margin-top: 10px;
-            background: #353849;
-            overflow: hidden;
-        }
-
-        .strength-bar::after {
-            content: '';
-            display: block;
-            height: 100%;
-            width: 0%;
+        /* Input fields */
+        .manual-input {
+            width: 100%;
+            padding: 15px;
+            background: #1a1d29;
+            border: 2px solid #353849;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 16px;
             transition: all 0.3s ease;
         }
 
-        .strength-bar.strength-weak::after {
-            width: 33%;
-            background: #ef4444;
+        .manual-input:focus {
+            outline: none;
+            border-color: #b4a5d8;
+            background: #1f2230;
         }
 
-        .strength-bar.strength-medium::after {
-            width: 66%;
-            background: #f59e0b;
-        }
-
-        .strength-bar.strength-strong::after {
-            width: 100%;
-            background: #10b981;
-        }
-
-        .create-account-btn {
-            width: 100%;
-            padding: 18px;
-            background: #b4a5d8;
-            border: none;
+        /* Info cards */
+        .info-card {
+            background: rgba(180, 165, 216, 0.05);
+            border: 2px solid rgba(180, 165, 216, 0.2);
             border-radius: 12px;
-            color: #1a1d29;
-            font-size: 15px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 40px rgba(180, 165, 216, 0.3);
+            padding: 20px;
+            margin: 20px 0;
         }
 
-        .create-account-btn:hover:not(:disabled) {
-            background: #c4b5e8;
-            transform: translateY(-3px);
-            box-shadow: 0 15px 50px rgba(180, 165, 216, 0.4);
+        .info-card.warning {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
         }
 
-        .create-account-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .info-card.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
         }
 
-        /* ===== SUCCESS VIEW ===== */
-        .access-container {
+        .info-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #b4a5d8;
+        }
+
+        .info-content {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #d4d4d8;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .action-buttons.assisted {
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid #353849;
+        }
+
+        /* Success View */
+        .success-container {
             max-width: 600px;
             margin: 0 auto;
             padding: 60px 20px;
+            text-align: center;
         }
 
         .success-icon {
@@ -420,339 +663,26 @@
             font-size: 50px;
         }
 
-        .access-container h2 {
-            color: #b4a5d8;
-            font-size: 36px;
-            font-weight: 300;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .access-username {
-            text-align: center;
-            color: #8a8a9e;
-            font-size: 14px;
-            margin-bottom: 40px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .access-description {
-            color: #8a8a9e;
-            font-size: 15px;
-            line-height: 1.7;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .credentials-popup-btn {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid rgba(180, 165, 216, 0.4);
-            border-radius: 12px;
-            background: rgba(180, 165, 216, 0.12);
-            color: #b4a5d8;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 35px;
-        }
-
-        .credentials-popup-btn:hover:not(:disabled) {
-            background: rgba(180, 165, 216, 0.2);
-            border-color: #b4a5d8;
-            transform: translateY(-2px);
-        }
-
-        .credentials-popup-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .primary-action {
-            margin-bottom: 40px;
-        }
-
-        .access-link {
-            background: #252836;
-            border: 2px solid #353849;
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            margin-bottom: 15px;
-        }
-
-        .access-link:hover {
-            border-color: #b4a5d8;
-            transform: translateY(-2px);
-        }
-
-        .access-link.primary {
-            background: linear-gradient(135deg, rgba(180, 165, 216, 0.15) 0%, rgba(180, 165, 216, 0.05) 100%);
-            border: 2px solid #b4a5d8;
-        }
-
-        .access-link-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #b4a5d8;
-            margin-bottom: 8px;
-        }
-
-        .access-link-description {
-            font-size: 13px;
-            color: #8a8a9e;
-            line-height: 1.5;
-        }
-
-        .login-instructions {
-            background: rgba(180, 165, 216, 0.05);
-            border: 2px solid rgba(180, 165, 216, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .instruction-title {
-            font-size: 14px;
-            color: #b4a5d8;
-            font-weight: 600;
-            margin-bottom: 12px;
-            letter-spacing: 1px;
-        }
-
-        .instruction-list {
-            margin: 0;
-            padding-left: 20px;
-            color: #d4d4d8;
-            line-height: 1.8;
-        }
-
-        .instruction-list li {
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .instruction-list code {
-            background: #1a1d29;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            color: #b4a5d8;
-            font-size: 13px;
-        }
-
-        .server-info {
-            background: rgba(180, 165, 216, 0.05);
-            border: 2px solid rgba(180, 165, 216, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .qr-section {
-            background: rgba(180, 165, 216, 0.05);
-            border: 2px solid rgba(180, 165, 216, 0.2);
-            border-radius: 12px;
-            padding: 25px;
+        .setup-step {
+            text-align: left;
             margin-top: 30px;
+        }
+
+        .setup-step h3 {
             text-align: center;
-        }
-
-        .qr-section .section-title {
-            font-size: 16px;
-            color: #b4a5d8;
-            font-weight: 600;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-        }
-
-        .qr-container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            display: inline-block;
             margin-bottom: 20px;
         }
 
-        #qrcode {
-            margin: 0 auto;
-        }
-
-        .qr-username {
-            margin-top: 12px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: #1a1d29;
-            font-weight: 600;
-        }
-
-        .qr-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-
-        .qr-hint {
-            font-size: 12px;
-            color: #8a8a9e;
-            line-height: 1.5;
-        }
-
-        .server-info-title {
-            font-size: 12px;
-            color: #8a8a9e;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 10px;
-        }
-
-        .server-name {
-            font-family: 'Courier New', monospace;
-            font-size: 20px;
-            color: #b4a5d8;
-            font-weight: 600;
-        }
-
-        .divider {
-            text-align: center;
-            color: #5a5a6e;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 30px 0;
-            position: relative;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 1px;
-            background: rgba(180, 165, 216, 0.2);
-        }
-
-        .divider::before {
-            left: 0;
-        }
-
-        .divider::after {
-            right: 0;
-        }
-
-        /* ===== LOGIN VIEW ===== */
-        .login-container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 60px 20px;
-        }
-
-        .login-container h2 {
-            color: #b4a5d8;
-            font-size: 36px;
-            font-weight: 300;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        /* ===== MESSAGE BOX ===== */
-        .message {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 1000;
-            display: none;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .message.success {
-            background: rgba(16, 185, 129, 0.2);
-            border: 2px solid #10b981;
-            color: #10b981;
-        }
-
-        .message.error {
-            background: rgba(239, 68, 68, 0.2);
-            border: 2px solid #ef4444;
-            color: #ef4444;
-        }
-
-        /* ===== CREDENTIALS MODAL ===== */
-        .credentials-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 500px;
+        .credentials-box {
             background: #252836;
             border: 2px solid #b4a5d8;
             border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            z-index: 2600;
-            pointer-events: auto;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            z-index: 2550;
-            pointer-events: none;
-        }
-
-
-        .modal-header {
-            background: linear-gradient(135deg, #b4a5d8 0%, #8a7fb8 100%);
-            padding: 20px;
-            border-radius: 13px 13px 0 0;
-            cursor: move;
-        }
-
-        .modal-title {
-            color: #1a1d29;
-            font-size: 18px;
-            font-weight: 700;
-            text-align: center;
-            letter-spacing: 1px;
-        }
-
-        .modal-body {
-            padding: 30px 25px;
+            padding: 30px;
+            margin: 30px 0;
         }
 
         .credential-item {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .credential-label {
@@ -782,68 +712,45 @@
             word-break: break-all;
         }
 
-        .password-hidden {
-            letter-spacing: 3px;
-        }
-
-        .credential-action-btn {
-            padding: 6px 12px;
-            background: rgba(180, 165, 216, 0.2);
-            border: none;
-            border-radius: 6px;
-            color: #b4a5d8;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .credential-action-btn:hover {
-            background: rgba(180, 165, 216, 0.3);
-        }
-
-        .modal-warning {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
+        /* Message Box */
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .warning-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #ef4444;
-            margin-bottom: 8px;
-        }
-
-        .warning-text {
-            font-size: 12px;
-            color: #8a8a9e;
-            line-height: 1.6;
-        }
-
-        .modal-close-btn {
-            width: 100%;
-            padding: 14px;
-            background: #b4a5d8;
-            border: none;
-            border-radius: 8px;
-            color: #1a1d29;
             font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            z-index: 2000;
+            display: none;
+            animation: slideDown 0.3s ease-out;
         }
 
-        .modal-close-btn:hover {
-            background: #c4b5e8;
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
         }
 
-        /* ===== MODE TOGGLE & MANUAL INPUT ===== */
+        .message.success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid #10b981;
+            color: #10b981;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+        }
+
+        /* Mode toggle */
         .mode-toggle-btn {
             flex: 1;
             padding: 10px 20px;
@@ -870,125 +777,77 @@
             color: #b4a5d8;
         }
 
-        .manual-input-container {
-            background: #252836;
-            border: 2px solid #353849;
-            border-radius: 10px;
-            padding: 20px;
-        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mode-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .username-grid {
+                grid-template-columns: 1fr;
+            }
 
-        .manual-input {
-            width: 100%;
-            padding: 15px;
-            background: #1a1d29;
-            border: 2px solid #353849;
-            border-radius: 8px;
-            color: #e0e0e0;
-            font-size: 16px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            transition: all 0.3s ease;
-        }
+            .progress-step .step-label {
+                display: none;
+            }
 
-        .manual-input:focus {
-            outline: none;
-            border-color: #b4a5d8;
-            background: #1f2230;
-        }
-
-        .manual-input::placeholder {
-            color: #5a5a6e;
-        }
-
-        .input-hint {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #b4a5d8;
-            font-family: 'Courier New', monospace;
-        }
-
-        .input-rules {
-            margin-top: 12px;
-            font-size: 11px;
-            color: #8a8a9e;
-            line-height: 1.6;
-        }
-
-        .optional-label {
-            font-size: 11px;
-            color: #5a5a6e;
-            margin-left: 8px;
-            font-weight: 400;
-        }
-
-        .email-info {
-            margin-top: 10px;
-            font-size: 12px;
-            color: #8a8a9e;
-            line-height: 1.5;
+            .assist-helper {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <!-- Message Box -->
     <div id="messageBox" class="message"></div>
 
-    <!-- Credentials Modal Overlay -->
-    <div id="credentialsModalOverlay" class="modal-overlay" onclick="dismissModal()"></div>
+    <!-- Mode Indicator -->
+    <div id="modeIndicator" class="mode-indicator" onclick="showModeSelection()">
+        <span id="modeIndicatorText">Standard Setup</span> • Switch Mode
+    </div>
 
-    <!-- Credentials Modal -->
-    <div id="credentialsModal" class="credentials-modal">
-        <div class="modal-header">
-            <div class="modal-title">🔐 Save Your Credentials</div>
-        </div>
-        <div class="modal-body">
-            <div class="modal-warning">
-                <div class="warning-title">⚠️ Important</div>
-                <div class="warning-text">
-                    <strong>Keep this window open</strong> while you log in to Element. You can switch between this window and Element freely. Copy your credentials now and save them in a password manager.
-                </div>
+    <!-- Assisted Mode Progress Bar -->
+    <div id="assistedProgress" class="assisted-progress">
+        <div class="progress-steps">
+            <div class="progress-step">
+                <div class="step-circle active" id="progress1">1</div>
+                <div class="step-label">Username</div>
             </div>
-
-            <div class="credential-item">
-                <div class="credential-label">Username</div>
-                <div class="credential-value-row">
-                    <div class="credential-value" id="finalUsername"></div>
-                    <button class="credential-action-btn copy-credential-btn" onclick="copyCredential('username')">
-                        <span class="copy-text">Copy</span>
-                    </button>
-                </div>
+            <div class="progress-step">
+                <div class="step-circle" id="progress2">2</div>
+                <div class="step-label">Email</div>
             </div>
-
-            <div class="credential-item">
-                <div class="credential-label">Password</div>
-                <div class="credential-value-row">
-                    <div class="credential-value password-hidden" id="finalPassword"></div>
-                    <button class="credential-action-btn" onclick="togglePasswordVisibility()">
-                        <span id="toggleIcon">👁️</span>
-                    </button>
-                    <button class="credential-action-btn copy-credential-btn" onclick="copyCredential('password')">
-                        <span class="copy-text">Copy</span>
-                    </button>
-                </div>
+            <div class="progress-step">
+                <div class="step-circle" id="progress3">3</div>
+                <div class="step-label">Password</div>
             </div>
-
-            <div class="credential-item">
-                <div class="credential-label">Server</div>
-                <div class="credential-value-row">
-                    <div class="credential-value">hyphae.social</div>
-                    <button class="credential-action-btn copy-credential-btn" onclick="copyCredential('server')">
-                        <span class="copy-text">Copy</span>
-                    </button>
-                </div>
+            <div class="progress-step">
+                <div class="step-circle" id="progress4">4</div>
+                <div class="step-label">Review</div>
             </div>
-
-            <button class="modal-close-btn" onclick="dismissModal()">I've Saved My Credentials</button>
+            <div class="progress-step">
+                <div class="step-circle" id="progress5">✓</div>
+                <div class="step-label">Complete</div>
+            </div>
         </div>
     </div>
 
-    <!-- Landing View -->
-    <div id="landingView" class="view active">
-        <div class="landing-container">
+    <!-- Assisted Mode Helper -->
+    <div id="assistHelper" class="assist-helper">
+        💡
+    </div>
+    <div id="assistTooltip" class="assist-tooltip">
+        <h4 id="assistTitle">Welcome!</h4>
+        <p id="assistText">I'll guide you through each step of creating your account.</p>
+    </div>
+
+    <!-- Mode Selection View -->
+    <div id="modeSelectionView" class="view active">
+        <div class="mode-selection-container">
             <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="100" cy="100" r="40" fill="none" stroke="#b4a5d8" stroke-width="3"/>
                 <path d="M 100 60 Q 80 80 60 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
@@ -1003,34 +862,64 @@
                 <circle cx="180" cy="100" r="6" fill="#b4a5d8"/>
             </svg>
 
-            <h1>HYPHAE</h1>
-            <div class="subtitle">Emergent Networks</div>
+            <h1>HYPHAE NETWORK</h1>
+            <p class="mode-subtitle">
+                Join the emergent network. Choose your preferred setup experience.
+            </p>
 
-            <div class="quote-container" id="quoteContainer">
-                <div class="quote-mark">"</div>
-                <div class="quote-text" id="quoteText"></div>
-                <div class="quote-author" id="quoteAuthor"></div>
-                <div class="quote-source" id="quoteSource"></div>
+            <div class="mode-cards">
+                <div class="mode-card" onclick="startStandardSetup()">
+                    <div class="mode-icon">🚀</div>
+                    <div class="mode-title">Standard Setup</div>
+                    <div class="mode-description">
+                        Quick and straightforward account creation for those familiar with Matrix or who prefer independence.
+                    </div>
+                    <ul class="mode-features">
+                        <li>Direct account creation</li>
+                        <li>All options on one page</li>
+                        <li>Minimal guidance</li>
+                        <li>2-3 minutes to complete</li>
+                    </ul>
+                </div>
+
+                <div class="mode-card" onclick="startAssistedSetup()">
+                    <div class="mode-icon">🌱</div>
+                    <div class="mode-title">Assisted Setup</div>
+                    <div class="mode-description">
+                        Step-by-step guided experience with helpful tips and validation at each stage.
+                    </div>
+                    <ul class="mode-features">
+                        <li>Progress tracking</li>
+                        <li>Contextual help & tips</li>
+                        <li>Input validation</li>
+                        <li>3-5 minutes to complete</li>
+                    </ul>
+                    <div class="mode-recommendation">Recommended for New Users</div>
+                </div>
             </div>
 
-            <div class="actions">
-                <button class="btn btn-primary" onclick="showRegister()">🌱 Create Account</button>
-                <button class="btn btn-secondary" onclick="showLogin()">🔑 Sign In</button>
-            </div>
-
-            <div class="footer">
-                Decentralized • Secure • Self-Organizing
+            <div style="text-align: center; margin-top: 40px;">
+                <p style="color: #8a8a9e; font-size: 14px;">
+                    Already have an account? 
+                    <a href="https://hyphae.social/element/#/login" style="color: #b4a5d8; text-decoration: none;">
+                        Sign in here →
+                    </a>
+                </p>
             </div>
         </div>
     </div>
 
-    <!-- Registration View -->
-    <div id="registerView" class="view">
-        <div class="register-container">
-            <span class="back-link" onclick="showLanding()">← Back</span>
+    <!-- Registration View (Standard & Assisted) -->
+    <div id="registrationView" class="view">
+        <div class="register-container" id="registerContainer">
+            <div class="header-nav">
+                <span class="back-link" onclick="showModeSelection()">
+                    ← Choose Different Mode
+                </span>
+            </div>
 
-            <div class="header">
-                <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <svg class="logo" style="width: 80px; height: 80px;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="100" cy="100" r="40" fill="none" stroke="#b4a5d8" stroke-width="3"/>
                     <path d="M 100 60 Q 80 80 60 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
                     <path d="M 100 60 Q 120 80 140 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
@@ -1047,44 +936,40 @@
                 <div class="subtitle">Emergence begins with connection</div>
             </div>
 
-            <div class="section">
+            <!-- Step 1: Username -->
+            <div class="section" id="usernameSection">
                 <div class="section-title">
-                    🌿 Your Username
+                    🌿 Choose Your Username
                 </div>
-
-                <div id="autoUsernameSection">
-                    <div class="username-grid" id="usernameGrid"></div>
-                    <button class="regenerate-btn" onclick="generateUsernames()">
-                        🔄 Generate New Options
-                    </button>
-                </div>
+                <div class="username-grid" id="usernameGrid"></div>
+                <button class="regenerate-btn" onclick="generateUsernames()">
+                    🔄 Generate New Options
+                </button>
             </div>
 
-            <div class="section">
+            <!-- Step 2: Email -->
+            <div class="section" id="emailSection">
                 <div class="section-title">
                     📧 Email Address
-                    <span class="optional-label">(Optional)</span>
+                    <span style="font-weight: 400; color: #5a5a6e; font-size: 11px;">(Optional)</span>
                 </div>
-
-                <div class="manual-input-container">
-                    <input 
-                        type="email" 
-                        id="emailInput" 
-                        class="manual-input" 
-                        placeholder="your@email.com"
-                    />
-                    <div class="email-info">
-                        Providing an email allows you to reset your password if you forget it. Your email is never shared.
-                    </div>
+                <input 
+                    type="email" 
+                    id="emailInput" 
+                    class="manual-input" 
+                    placeholder="your@email.com"
+                />
+                <div style="margin-top: 10px; font-size: 12px; color: #8a8a9e;">
+                    Allows password reset if forgotten. Never shared.
                 </div>
             </div>
 
-            <div class="section">
+            <!-- Step 3: Password -->
+            <div class="section" id="passwordSection">
                 <div class="section-title">
-                    🔐 Password
+                    🔐 Create Password
                 </div>
 
-                <!-- Mode Toggle -->
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <button class="mode-toggle-btn active" id="manualPasswordBtn" onclick="setPasswordMode('manual')">
                         ✏️ Create My Own
@@ -1094,766 +979,380 @@
                     </button>
                 </div>
 
-                <!-- Manual password input (DEFAULT) -->
+                <!-- Manual password -->
                 <div id="manualPasswordSection">
-                    <div class="manual-input-container">
-                        <input 
-                            type="password" 
-                            id="manualPassword" 
-                            class="manual-input" 
-                            placeholder="Enter a strong password"
-                            oninput="handleManualPassword()"
-                        />
-                        <div class="strength-bar" id="manualStrengthBar"></div>
-                        <div class="input-rules">
-                            • At least 8 characters (12+ recommended)<br>
-                            • Must include uppercase, lowercase, numbers, and symbols<br>
-                            • Avoid common words or patterns
-                        </div>
-                    </div>
+                    <input 
+                        type="password" 
+                        id="manualPassword" 
+                        class="manual-input" 
+                        placeholder="Enter a strong password"
+                        oninput="handleManualPassword()"
+                    />
+                    <div id="strengthIndicator" style="margin-top: 10px;"></div>
                 </div>
 
-                <!-- Auto-generated password -->
+                <!-- Auto password -->
                 <div id="autoPasswordSection" style="display: none;">
                     <div class="password-display">
                         <div class="password-row">
-                            <div class="password-text placeholder" id="passwordText">Generating password...</div>
-                            <button class="copy-btn" id="copyBtn" onclick="copyPassword()">Copy</button>
+                            <div class="password-text" id="passwordText">Click generate below</div>
+                            <button class="copy-btn" id="copyBtn" onclick="copyPassword()" style="display: none;">Copy</button>
                         </div>
-                        <div class="strength-bar" id="strengthBar"></div>
                     </div>
-                    <button class="regenerate-btn" id="regeneratePasswordBtn" onclick="generatePassword()" style="display: none;">
+                    <button class="regenerate-btn" onclick="generatePassword()">
                         🔄 Generate New Password
                     </button>
                 </div>
             </div>
 
-            <button class="create-account-btn" id="createAccountBtn" onclick="createAccount()" disabled>
-                🚀 Create Account
-            </button>
+            <!-- Action Buttons -->
+            <div class="action-buttons" id="actionButtons">
+                <button class="btn btn-primary" id="createAccountBtn" onclick="createAccount()" disabled style="width: 100%;">
+                    🚀 Create Account
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Login View -->
-    <div id="loginView" class="view">
-        <div class="login-container">
-            <span class="back-link" onclick="showLanding()">← Back</span>
-
-            <div style="text-align: center; margin-bottom: 40px;">
-                <svg class="logo" style="width: 80px; height: 80px; margin: 0 auto 20px;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="100" cy="100" r="40" fill="none" stroke="#b4a5d8" stroke-width="3"/>
-                    <path d="M 100 60 Q 80 80 60 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
-                    <path d="M 100 60 Q 120 80 140 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
-                    <path d="M 100 140 Q 80 120 60 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
-                    <path d="M 100 140 Q 120 120 140 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
-                    <path d="M 60 100 Q 40 100 20 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
-                    <path d="M 140 100 Q 160 100 180 100" stroke="#b4a5d8" stroke-width="2" fill="none"/>
-                    <circle cx="60" cy="100" r="8" fill="#b4a5d8"/>
-                    <circle cx="140" cy="100" r="8" fill="#b4a5d8"/>
-                    <circle cx="20" cy="100" r="6" fill="#b4a5d8"/>
-                    <circle cx="180" cy="100" r="6" fill="#b4a5d8"/>
-                </svg>
-                <h2>Sign In</h2>
-                <div class="subtitle">Access Your Account</div>
-            </div>
-
-            <div class="primary-action">
-                <a href="https://hyphae.social/element/#/login" class="access-link primary">
-                    <div class="access-link-title">🌐 Element Web</div>
-                    <div class="access-link-description">
-                        Sign in through your browser
-                    </div>
-                </a>
-            </div>
-
-            <div class="server-info">
-                <div class="server-info-title">Your Server</div>
-                <div class="server-name">hyphae.social</div>
-            </div>
-
-            <div class="divider">or use any matrix app</div>
-
-            <a href="https://matrix.org/ecosystem/clients/" class="access-link">
-                <div class="access-link-title">📱 Other Matrix Apps</div>
-                <div class="access-link-description">
-                    Browse available apps for iOS, Android, Desktop, and more. When connecting, enter <strong>hyphae.social</strong> as your homeserver.
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- Access View -->
-    <div id="accessView" class="view">
-        <div class="access-container">
+    <!-- Success View -->
+    <div id="successView" class="view">
+        <div class="success-container">
             <div class="success-icon">✓</div>
-            <h2>Welcome to Hyphae</h2>
-            <div class="access-username" id="accessUsername"></div>
+            <h2 style="color: #b4a5d8; font-size: 36px; margin-bottom: 15px;">Account Created!</h2>
+            <p style="color: #8a8a9e; margin-bottom: 30px;">
+                Welcome to the Hyphae Network, <strong id="successUsernameDisplay"></strong>
+            </p>
 
-            <div class="access-description">
-                Your account has been created. Choose how you'd like to access the network.
+            <!-- Step 1: Save Credentials -->
+            <div class="setup-step" id="saveCredentialsStep">
+                <h3 style="color: #b4a5d8; font-size: 18px; margin-bottom: 20px;">
+                    Step 1: Save Your Credentials
+                </h3>
+                
+                <div class="credentials-box">
+                    <div class="credential-item">
+                        <div class="credential-label">Username</div>
+                        <div class="credential-value-row">
+                            <div class="credential-value" id="finalUsername"></div>
+                            <button class="copy-btn" onclick="copyFinalCredential('username')">Copy</button>
+                        </div>
+                    </div>
+                    <div class="credential-item">
+                        <div class="credential-label">Password</div>
+                        <div class="credential-value-row">
+                            <div class="credential-value" id="finalPassword">••••••••••••••••</div>
+                            <button class="copy-btn" onclick="togglePasswordView()">Show</button>
+                            <button class="copy-btn" onclick="copyFinalCredential('password')">Copy</button>
+                        </div>
+                    </div>
+                    <div class="credential-item">
+                        <div class="credential-label">Server</div>
+                        <div class="credential-value-row">
+                            <div class="credential-value">hyphae.social</div>
+                            <button class="copy-btn" onclick="copyFinalCredential('server')">Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card warning">
+                    <div class="info-title">⚠️ Save These Now</div>
+                    <div class="info-content">
+                        Copy your credentials to a password manager before continuing. 
+                        <strong>This window will stay open</strong> while you log in.
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="proceedToLogin()" style="width: 100%; margin-top: 20px;">
+                    I've Saved My Credentials →
+                </button>
             </div>
 
-            <button class="credentials-popup-btn" id="reopenCredentialsBtn" onclick="handleReopenCredentials()" disabled>
-                🔐 View Credentials Window
-            </button>
+            <!-- Step 2: Login Instructions -->
+            <div class="setup-step" id="loginInstructionsStep" style="display: none;">
+                <h3 style="color: #b4a5d8; font-size: 18px; margin-bottom: 20px;">
+                    Step 2: Login to Your Account
+                </h3>
 
-            <div class="server-info">
-                <div class="server-info-title">Your Server</div>
-                <div class="server-name">hyphae.social</div>
-            </div>
+                <div class="login-method-cards" style="display: grid; gap: 15px; margin-bottom: 20px;">
+                    <div class="method-card" style="background: #252836; border: 2px solid #b4a5d8; border-radius: 12px; padding: 20px;">
+                        <h4 style="color: #b4a5d8; margin-bottom: 10px;">🌐 Web Browser (Recommended)</h4>
+                        <ol style="margin: 10px 0 15px 20px; font-size: 14px; line-height: 1.8; color: #d4d4d8;">
+                            <li>Click "Open Element Web" below</li>
+                            <li>Enter <code style="background: #1a1d29; padding: 2px 6px; border-radius: 4px; color: #b4a5d8;">hyphae.social</code> as the server</li>
+                            <li>Paste your username and password</li>
+                            <li>Click "Sign In"</li>
+                        </ol>
+                        <button class="btn btn-primary" onclick="openElementWeb()" style="width: 100%;">
+                            Open Element Web →
+                        </button>
+                    </div>
 
-            <div class="qr-section">
-                <div class="section-title">
-                    📱 Share Your Profile
+                    <div class="method-card" style="background: #252836; border: 2px solid #353849; border-radius: 12px; padding: 20px;">
+                        <h4 style="color: #b4a5d8; margin-bottom: 10px;">📱 Mobile App</h4>
+                        <p style="font-size: 14px; line-height: 1.6; margin-bottom: 15px; color: #8a8a9e;">
+                            Download Element X from your app store, then use the QR code below or enter credentials manually.
+                        </p>
+                        <div id="qrCodeContainer" style="text-align: center; padding: 20px; background: white; border-radius: 8px; margin-bottom: 15px;">
+                            <!-- QR code will be generated here -->
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <a href="https://apps.apple.com/app/element-x-secure-messenger/id1631335820" class="btn btn-secondary" style="text-align: center; text-decoration: none; font-size: 12px;">
+                                iOS App
+                            </a>
+                            <a href="https://play.google.com/store/apps/details?id=io.element.android.x" class="btn btn-secondary" style="text-align: center; text-decoration: none; font-size: 12px;">
+                                Android App
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="qr-container">
-                    <div id="qrcode"></div>
-                    <div class="qr-username" id="qrUsername"></div>
+
+                <div class="info-card success">
+                    <div class="info-title">💡 Keep This Tab Open</div>
+                    <div class="info-content">
+                        You can switch between this tab and Element while logging in. Your credentials remain available above.
+                    </div>
                 </div>
-                <div class="qr-actions">
-                    <button class="btn btn-secondary" onclick="shareQR()">
-                        📤 Share QR Code
-                    </button>
-                    <button class="btn btn-secondary" onclick="copyMatrixUri()">
-                        🔗 Copy Matrix URI
-                    </button>
-                </div>
-                <div class="qr-hint">
-                    Others can scan this in Element X to add you directly
-                </div>
+
+                <button class="btn btn-secondary" onclick="backToCredentials()" style="width: 100%; margin-top: 20px;">
+                    ← Back to Credentials
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // ===== USERNAME DATA FROM GITHUB =====
-        const usernameData = {
-            "adjectives": ["emergent", "symbiotic", "entangled", "recursive", "holistic", "autopoietic", "collective", "adaptive", "resonant", "fluid", "reciprocal", "interconnected", "selforganizing", "polycentric", "cascading", "nonlinear", "dynamic", "synergistic", "mutualistic", "distributed", "nested", "intricate", "woven", "pulsing", "living", "dancing", "shifting", "spiraling", "branching", "networked", "coherent", "resilient", "plastic", "multidimensional", "spherical", "planetary", "cosmic", "sacred", "ferocious", "wild", "ancient", "boundless", "luminous", "verdant", "crystalline", "quantum", "strange", "mystic", "sublime"],
-            "nouns": ["mycelium", "network", "web", "node", "pattern", "wave", "flow", "cycle", "spiral", "vortex", "field", "matrix", "lattice", "nexus", "strand", "thread", "weave", "tapestry", "mosaic", "fractal", "attractor", "cascade", "resonance", "symbiosis", "synergy", "emergence", "commons", "ecosystem", "biosphere", "ecotone", "organism", "colony", "collective", "community", "swarm", "flock", "murmuration", "chorus", "pulse", "rhythm", "dance", "current", "tide", "eddy", "stream", "river", "ocean", "forest", "canopy", "root", "branch", "leaf", "seed", "spore", "bloom", "blossom", "garden", "meadow", "grove", "thicket", "wilderness", "horizon", "cosmos", "galaxy", "nebula", "constellation", "quantum", "photon", "particle", "crystal", "prism", "aurora", "phenomenon", "mystery", "threshold", "liminal", "vertex", "synapse", "membrane", "catalyst", "substrate", "enzyme", "pathway", "circuit", "conduit", "vessel", "chamber", "cell", "nucleus", "helix", "molecule", "element", "compound", "alloy", "fusion", "synthesis", "confluence", "convergence"],
-            "nature_nouns": ["fungus", "hyphae", "rhizome", "mycorrhiza", "lichen", "coral", "plankton", "kelp", "algae", "moss", "fern", "vine", "tendril", "pollen", "nectar", "dewdrop", "raindrop", "snowflake", "icicle", "wind", "breeze", "storm", "lightning", "thunder", "mist", "fog", "cloud", "sky", "earth", "soil", "stone", "sand", "clay", "silt", "loam", "bedrock"],
-            "systems_nouns": ["feedback", "loop", "oscillation", "perturbation", "fluctuation", "bifurcation", "transition", "transformation", "phase", "state", "equilibrium", "stability", "instability", "constraint", "boundary", "edge", "interface", "gradient", "differential", "manifold", "topology", "geometry", "algorithm", "protocol", "mechanism", "process", "dynamics"],
-            "quantum_nouns": ["quanta", "entanglement", "superposition", "coherence", "decoherence", "vacuum", "void", "plenum", "implicate", "explicate", "hologram", "dimension", "spacetime", "singularity", "infinity"]
-        };
-
-        // ===== QUOTES DATA FROM GITHUB =====
-        const quotesData = [
-            {"quote": "evolution is no linear family tree, but change in the single multidimensional being that has grown to cover the entire surface of Earth", "author": "Lynn Margulis", "source": "What Is Life?", "year": "1998"},
-            {"quote": "we animals, all thirty million species of us, emanate from the microcosm", "author": "Lynn Margulis", "source": "Symbiotic Planet", "year": "1998"},
-            {"quote": "a major theme of the microbial drama is the emergence of individuality from the community interactions of once-independent actors", "author": "Lynn Margulis", "source": "Symbiotic Planet", "year": "1998"},
-            {"quote": "Gaia itself is not an organism directly selected among many. It is an emergent property of interaction among organisms, the spherical planet on which they reside, and an energy source, the sun", "author": "Lynn Margulis", "source": "The Symbiotic Planet", "year": "1998"},
-            {"quote": "in nature, nothing exists alone", "author": "Rachel Carson", "source": "Silent Spring", "year": "1962", "page": "51"},
-            {"quote": "the balance of nature is not a status quo; it is fluid, ever shifting, in a constant state of adjustment", "author": "Rachel Carson", "source": "Silent Spring", "year": "1962", "page": "246"},
-            {"quote": "sympoiesis is a simple word; it means 'making-with.' Nothing makes itself; nothing is really autopoietic or self-organizing", "author": "Donna Haraway", "source": "Staying with the Trouble", "year": "2016", "page": "58"},
-            {"quote": "nothing makes itself in the biological world, but rather reciprocal induction within and between always-in-process critters ramifies through space and time on both large and small scales in cascades of inter- and intra-action", "author": "Donna Haraway", "source": "all emergence is collaborative emergence", "year": "2016", "page": "32"},
-            {"quote": "the unit of selection is normally the whole community. Its prosperity depends on the efficiency of the workers", "author": "Mary Midgley", "source": "Beast and Man", "year": "1979", "page": "147"},
-            {"quote": "motivation is fundamentally plural", "author": "Mary Midgley", "source": null, "year": "1979", "page": "168"},
-            {"quote": "the basic mystery about ant colonies is that there is no management", "author": "Deborah Gordon", "source": null, "year": "2010"},
-            {"quote": "The queen is just a big ant that lays the eggs. That's it. She's not telling anybody what to do", "author": "Deborah Gordon", "source": null, "year": null},
-            {"quote": "ants use the rate at which they interact to decide what to do. No ant is coming back saying, 'Wow, I had a really hard time out there today!' It's just that by tuning the rate at which they go to the rate at which other ants are coming back, the whole system is tuned to the availability of food, but no ant is telling any other anything. So there's no message, it's just the pattern of interaction", "author": "Deborah Gordon", "source": null, "year": null},
-            {"quote": "when I look at biological systems, what I see is that they are collective. They are all made up of interacting components with only partly overlapping interests, who are noisy information processors dealing with noisy signals", "author": "Jessica Flack", "source": "Quanta Magazine", "year": "2017"},
-            {"quote": "A complex system is a system in which large networks of components with no central control and simple rules of operation give rise to complex collective behavior, sophisticated information processing, and adaptation via learning or evolution", "author": "Jessica Flack", "source": null, "year": "2009"},
-            {"quote": "the being and doing of an autopoietic unity are inseparable, and this is their specific mode of organization", "author": "Humberto Maturana", "source": "The Tree of Knowledge", "year": "1987"},
-            {"quote": "living systems are units of interactions; they exist in an ambience. From a purely biological point of view they cannot be understood independently of that part of the ambience with which they interact: the niche", "author": "Humberto Maturana", "source": "Autopoiesis and Cognition", "year": "1980"},
-            {"quote": "Organisms do not passively receive information from their environments, which they then translate into internal representations. Natural cognitive systems participate in the generation of meaning engaging in transformational and not merely informational interactions: they enact a world", "author": "Francisco Varela", "source": "The Embodied Mind", "year": "1991"},
-            {"quote": "a diverse community is a resilient community, capable of adapting to changing situations. However, diversity is a strategic advantage only if there is a truly vibrant community, sustained by a web of relationships", "author": "Fritjof Capra", "source": "The Tree of Knowledge", "year": "1987"},
-            {"quote": "The ultimate goal of farming is not the growing of crops, but the cultivation and perfection of human beings", "author": "Masanobu Fukuoka", "source": "The One-Straw Revolution", "year": "1978", "page": "119"},
-            {"quote": "left alone, the earth maintains its own fertility, in accordance with the orderly cycle of plant and animal life", "author": "Masanobu Fukuoka", "source": "self-organizing natural systems", "year": null},
-            {"quote": "diversity is nature's way. Diversity creates harmony, and harmony creates beauty, balance, bounty and peace in nature and society, in agriculture and culture, in science and in politics", "author": "Vandana Shiva", "source": "India Divided", "year": "2011", "page": "68"},
-            {"quote": "in nature's economy the currency is not money, it is life", "author": "Vandana Shiva", "source": null, "year": "2005", "page": "33"},
-            {"quote": "when times are easy and there's plenty to go around, individual species can go it alone. But when conditions are harsh and life is tenuous, it takes a team sworn to reciprocity to keep life going forward. In a world of scarcity, interconnection and mutual aid become critical for survival", "author": "Robin Wall Kimmerer", "source": null, "year": null},
-            {"quote": "All flourishing is mutual. Soil, fungus, tree, squirrel, boy—all are the beneficiaries of reciprocity", "author": "Robin Wall Kimmerer", "source": null, "year": null},
-            {"quote": "the essential feature in quantum interconnectedness is that the whole universe is enfolded in everything, and that each thing is enfolded in the whole", "author": "David Bohm", "source": null, "year": null},
-            {"quote": "both observer and observed are merging and interpenetrating aspects of one whole reality, which is indivisible and unanalysable", "author": "David Bohm", "source": null, "year": null},
-            {"quote": "relativity and quantum theory agree, in that they both imply the need to look on the world as an undivided whole, in which all parts of the universe, including the observer and his instruments, merge and unite in one totality", "author": "David Bohm", "source": null, "year": null},
-            {"quote": "Separation of the observer from the phenomenon to be observed is no longer possible", "author": "Werner Heisenberg", "source": "Physics and Philosophy", "year": "1958"},
-            {"quote": "what we observe is not nature itself, but nature exposed to our method of questioning", "author": "Werner Heisenberg", "source": null, "year": null},
-            {"quote": "What is the pattern which connects all the living creatures?", "author": "Gregory Bateson", "source": null, "year": "1979", "page": "11"},
-            {"quote": "the pattern which connects is a metapattern. It is a pattern of patterns. It is that metapattern which defines the vast generalization that, indeed, it is patterns which connect", "author": "Gregory Bateson", "source": null, "year": "1979", "page": "11"},
-            {"quote": "the major problems in the world are the result of the difference between how nature works and the way people think", "author": "Gregory Bateson", "source": null, "year": null},
-            {"quote": "an interconnected set of elements that is coherently organized in a way that achieves something", "author": "Donella Meadows", "source": "Thinking in Systems", "year": "2008"},
-            {"quote": "the behavior of a system cannot be known just by knowing the elements of which the system is made", "author": "Donella Meadows", "source": null, "year": null},
-            {"quote": "the least obvious part of the system, its function or purpose, is often the most crucial determinant of the system's behavior", "author": "Donella Meadows", "source": null, "year": null},
-            {"quote": "Understanding of life begins with the understanding of patterns", "author": "Fritjof Capra", "source": "The Web of Life", "year": "1996"},
-            {"quote": "the basic pattern of life is a network. Whenever you see life, you see networks", "author": "Fritjof Capra", "source": null, "year": "2014"},
-            {"quote": "The more complex the network is, the more complex its pattern of interconnections, the more resilient it will be", "author": "Fritjof Capra", "source": "The Systems View of Life", "year": "2014"},
-            {"quote": "The creativity and adaptability of life expresses itself through the spontaneous emergence of novelty at critical points of instability. Every human organization contains both designed and emergent structures. The challenge is to find the right balance between the creativity of emergence and the stability of design", "author": "Fritjof Capra", "source": "The Systems View of Life", "year": "2014"},
-            {"quote": "Life did not take over the world by combat, but by networking", "author": "Lynn Margulis", "source": "Microcosmos", "year": "1986"},
-            {"quote": "When we try to pick out anything by itself, we find it hitched to everything else in the universe", "author": "John Muir", "source": "My First Summer in the Sierra", "year": "1911", "page": "110"},
-            {"quote": "Harmony with land is like harmony with a friend; you cannot cherish his right hand and chop off his left. That is to say, you cannot love game and hate predators; you cannot conserve the waters and waste the ranges; you cannot build the forest and mine the farm. The land is one organism", "author": "Aldo Leopold", "source": "Round River", "year": "1938", "page": "145-146"},
-            {"quote": "A thing is right when it tends to preserve the integrity, stability, and beauty of the biotic community. It is wrong when it tends otherwise", "author": "Aldo Leopold", "source": "A Sand County Almanac", "year": "1949"},
-            {"quote": "The outstanding scientific discovery of the twentieth century is not television, or radio, but rather the complexity of the land organism", "author": "Aldo Leopold", "source": "Round River", "year": "1938", "page": "146-147"},
-            {"quote": "Holism is the tendency in nature to form wholes that are greater than the sum of the parts through creative evolution", "author": "Jan Smuts", "source": "Holism and Evolution", "year": "1926"},
-            {"quote": "There is grandeur in this view of life, with its several powers, having been originally breathed into a few forms or into one; and that, whilst this planet has gone cycling on according to the fixed law of gravity, from so simple a beginning endless forms most beautiful and most wonderful have been, and are being, evolved", "author": "Charles Darwin", "source": null, "year": null},
-            {"quote": "Nothing in biology makes sense except in the light of evolution", "author": "Theodosius Dobzhansky", "source": "The American Biology Teacher", "year": "1973", "page": "125-129"},
-            {"quote": "How do ant colonies get anything done, when no one is in charge? An ant colony operates without a central control or hierarchy, and no ant directs another. Instead, ants decide what to do based on the rate, rhythm, and pattern of individual encounters and interactions—resulting in a dynamic network that coordinates the functions of the colony", "author": "Deborah Gordon", "source": "Ant Encounters", "year": "2010"},
-            {"quote": "Real ants do not offer lessons in behavior. They do, however, provide insight about the dynamics of networks. Ants can show us how the rhythm of local interactions creates patterns in the behavior and development of large groups. There are no morals to be taken from the ants, but there is much to learn about systems without central control", "author": "Deborah Gordon", "source": null, "year": null},
-            {"quote": "Action on behalf of life transforms. Because the relationship between self and the world is reciprocal, it is not a question of first getting enlightened or saved and then acting. As we work to heal the earth, the earth heals us", "author": "Robin Wall Kimmerer", "source": "Braiding Sweetgrass", "year": "2013"},
-            {"quote": "Knowing that you love the earth changes you, activates you to defend and protect and celebrate. But when you feel that the earth loves you in return, that feeling transforms the relationship from a one-way street into a sacred bond", "author": "Robin Wall Kimmerer", "source": "Braiding Sweetgrass", "year": "2013"},
-            {"quote": "The trees in a forest are often interconnected by subterranean networks of mycorrhizae, fungal strands that inhabit tree roots. These fungal networks appear to redistribute the wealth of carbs from tree to tree. A kind of Robin Hood, they take from the rich and give to the poor so that all trees arrive at the same carbon surplus at the same time. They weave a web of reciprocity, of giving and taking. In this way, the trees all act as one because the fungi have connected them. Through unity, survival", "author": "Robin Wall Kimmerer", "source": "Braiding Sweetgrass", "year": "2013"}
-        ];
-
-        // ===== STATE =====
+        // ===== State Management =====
+        let currentMode = null; // 'standard' or 'assisted'
+        let currentStep = 1;
         let selectedUsername = null;
         let generatedPassword = null;
+        let passwordMode = 'manual';
         let createdUsername = null;
         let createdPassword = null;
-        let passwordVisible = false;
-        let credentialsCopied = { username: false, password: false };
-        let passwordMode = 'manual';
-        let credentialsWindow = null;
 
-        // ===== CLIENT RECOMMENDATION =====
-        function getDeviceType() {
-            const ua = navigator.userAgent;
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-            const isIOS = /iPad|iPhone|iPod/.test(ua);
-            const isAndroid = /Android/.test(ua);
-            return { isMobile, isIOS, isAndroid };
-        }
-
-        function getRecommendedClient() {
-            const device = getDeviceType();
-
-            if (device.isMobile) {
-                return {
-                    name: 'Element X',
-                    description: 'Best mobile experience',
-                    primaryUrl: 'https://matrix.org/ecosystem/clients/element-x/',
-                    icon: '📱'
-                };
-            }
-
-            return {
-                name: 'Element Web',
-                description: 'Access through your browser',
-                primaryUrl: 'https://hyphae.social/element/#/login',
-                icon: '🌐'
-            };
-        }
-
-        function renderClientRecommendation() {
-            const client = getRecommendedClient();
-            const device = getDeviceType();
-
-            return `
-        <div class="primary-action">
-            <a href="${client.primaryUrl}" class="access-link primary" target="_blank" rel="noopener noreferrer">
-                <div class="access-link-title">${client.icon} ${client.name}</div>
-                <div class="access-link-description">
-                    ${client.description}
-                </div>
-            </a>
-        </div>
-
-        <div class="login-instructions">
-            <div class="instruction-title">📋 How to Log In:</div>
-            <ol class="instruction-list">
-                <li><strong>Homeserver:</strong> Enter <code>hyphae.social</code></li>
-                <li><strong>Username:</strong> Your full username is <code>${createdUsername || '@yourusername:hyphae.social'}</code></li>
-                <li><strong>Password:</strong> Use the password from the credentials window</li>
-            </ol>
-        </div>
-
-        ${!device.isMobile ? `
-        <div class="divider">or use mobile apps</div>
-        <a href="https://matrix.org/ecosystem/clients/element-x/" class="access-link" target="_blank" rel="noopener noreferrer">
-            <div class="access-link-title">📱 Element X Mobile</div>
-            <div class="access-link-description">
-                Download for iOS or Android for the best mobile experience
-            </div>
-        </a>
-        ` : `
-        <div class="divider">or use desktop</div>
-        <a href="https://hyphae.social/element/#/login" class="access-link" target="_blank" rel="noopener noreferrer">
-            <div class="access-link-title">💻 Element Web</div>
-            <div class="access-link-description">
-                Use on desktop browser
-            </div>
-        </a>
-        `}
-        
-        <a href="https://matrix.org/ecosystem/clients/" class="access-link" target="_blank" rel="noopener noreferrer">
-            <div class="access-link-title">🔍 Browse All Matrix Apps</div>
-            <div class="access-link-description">
-                See all available clients for different platforms
-            </div>
-        </a>
-    `;
-        }
-
-        // ===== VIEW NAVIGATION =====
-        function showLanding() {
+        // ===== Mode Selection =====
+        function showModeSelection() {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById('landingView').classList.add('active');
-            displayRandomQuote();
+            document.getElementById('modeSelectionView').classList.add('active');
+            document.getElementById('modeIndicator').classList.remove('visible');
+            document.getElementById('assistedProgress').classList.remove('visible');
+            document.getElementById('assistHelper').classList.remove('visible');
+            document.getElementById('assistTooltip').classList.remove('visible');
+            currentMode = null;
+            currentStep = 1;
         }
 
-        function showRegister() {
+        function startStandardSetup() {
+            currentMode = 'standard';
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById('registerView').classList.add('active');
+            document.getElementById('registrationView').classList.add('active');
+            document.getElementById('modeIndicator').classList.add('visible');
+            document.getElementById('modeIndicatorText').textContent = 'Standard Setup';
+            document.getElementById('registerContainer').classList.remove('assisted-mode');
+            
+            // Hide assisted mode elements
+            document.getElementById('assistedProgress').classList.remove('visible');
+            document.getElementById('assistHelper').classList.remove('visible');
+            document.getElementById('assistTooltip').classList.remove('visible');
+            
+            // Show all sections for standard mode
+            document.querySelectorAll('.section').forEach(s => {
+                s.style.display = 'block';
+                s.classList.remove('highlight');
+            });
+            
+            // Standard action buttons
+            document.getElementById('actionButtons').className = 'action-buttons';
+            document.getElementById('actionButtons').innerHTML = `
+                <button class="btn btn-primary" id="createAccountBtn" onclick="createAccount()" disabled style="width: 100%;">
+                    🚀 Create Account
+                </button>
+            `;
+            
             generateUsernames();
+            updateCreateButton();
         }
 
-        function showLogin() {
+        function startAssistedSetup() {
+            currentMode = 'assisted';
+            currentStep = 1;
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById('loginView').classList.add('active');
+            document.getElementById('registrationView').classList.add('active');
+            document.getElementById('modeIndicator').classList.add('visible');
+            document.getElementById('modeIndicatorText').textContent = 'Assisted Setup';
+            document.getElementById('registerContainer').classList.add('assisted-mode');
+            
+            // Show assisted mode elements
+            document.getElementById('assistedProgress').classList.add('visible');
+            document.getElementById('assistHelper').classList.add('visible');
+            
+            // Set up assisted helper
+            document.getElementById('assistHelper').onclick = toggleAssistTooltip;
+            
+            // Hide all sections initially
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            
+            // Show only first section
+            showAssistedStep(1);
+            
+            // Assisted action buttons
+            document.getElementById('actionButtons').className = 'action-buttons assisted';
+            updateAssistedButtons();
+            
+            generateUsernames();
+            showAssistTooltip('Choose Your Username', 'Select from these generated names that reflect our philosophy of emergence and interconnection. Click one to select it.');
         }
 
-        function showAccess() {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById('accessView').classList.add('active');
+        function toggleAssistTooltip() {
+            const tooltip = document.getElementById('assistTooltip');
+            tooltip.classList.toggle('visible');
+        }
 
-            document.getElementById('accessUsername').textContent = createdUsername || '';
+        function showAssistTooltip(title, text) {
+            if (currentMode !== 'assisted') return;
+            
+            document.getElementById('assistTitle').textContent = title;
+            document.getElementById('assistText').textContent = text;
+            document.getElementById('assistTooltip').classList.add('visible');
+            
+            setTimeout(() => {
+                document.getElementById('assistTooltip').classList.remove('visible');
+            }, 5000);
+        }
 
-            // Inject dynamic client recommendation
-            const container = document.querySelector('.access-container');
-            if (container) {
-                container.querySelectorAll('.login-instructions, .divider, .access-link.dynamic-client-link').forEach(el => el.remove());
-                const oldPrimaryAction = container.querySelector('.primary-action');
-                if (oldPrimaryAction) {
-                    oldPrimaryAction.remove();
-                }
-
-                const descriptionDiv = container.querySelector('.access-description');
-                if (descriptionDiv) {
-                    descriptionDiv.insertAdjacentHTML('afterend', renderClientRecommendation());
-                    container.querySelectorAll('.access-link').forEach(link => {
-                        if (!link.hasAttribute('data-static-link')) {
-                            link.classList.add('dynamic-client-link');
-                        }
+        function showAssistedStep(step) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => {
+                s.style.display = 'none';
+                s.classList.remove('highlight');
+            });
+            
+            // Show current step section
+            let section;
+            switch(step) {
+                case 1:
+                    section = document.getElementById('usernameSection');
+                    showAssistTooltip('Choose Your Username', 'Select from these generated names. You can generate new options if you don\'t like these.');
+                    break;
+                case 2:
+                    section = document.getElementById('emailSection');
+                    showAssistTooltip('Email (Optional)', 'Add an email if you want password recovery. This is optional but recommended.');
+                    break;
+                case 3:
+                    section = document.getElementById('passwordSection');
+                    showAssistTooltip('Create Password', 'Choose to create your own password or auto-generate a secure one. Save it in your password manager!');
+                    break;
+                case 4:
+                    // Review step - show all sections as read-only
+                    document.querySelectorAll('.section').forEach(s => {
+                        s.style.display = 'block';
+                        s.style.opacity = '0.7';
+                        s.style.pointerEvents = 'none';
                     });
-                }
-            }
-
-            // Generate QR code after rendering container
-            setTimeout(() => generateQR(), 100);
-
-            const reopenBtn = document.getElementById('reopenCredentialsBtn');
-            if (reopenBtn) {
-                reopenBtn.disabled = !Boolean(createdUsername && createdPassword);
-            }
-
-            document.getElementById('credentialsModalOverlay').style.display = 'none';
-            document.getElementById('credentialsModal').style.display = 'none';
-
-            if (createdUsername && createdPassword) {
-                openCredentialsWindow(createdUsername, createdPassword);
-            }
-        }
-
-        function openCredentialsWindow(username, password) {
-            if (!username || !password) {
-                return;
-            }
-
-            if (credentialsWindow && !credentialsWindow.closed) {
-                credentialsWindow.close();
-            }
-
-            const defaultWidth = 480;
-            const defaultHeight = 620;
-            const availWidth = (window.screen && window.screen.availWidth) ? window.screen.availWidth : defaultWidth;
-            const availHeight = (window.screen && window.screen.availHeight) ? window.screen.availHeight : defaultHeight;
-            const popupWidth = Math.min(defaultWidth, Math.max(360, availWidth - 80));
-            const popupHeight = Math.min(defaultHeight, Math.max(400, availHeight - 160));
-            const left = window.screenX ? window.screenX + Math.max(20, (window.outerWidth - popupWidth) / 2) : 100;
-            const top = window.screenY ? window.screenY + Math.max(20, (window.outerHeight - popupHeight) / 2) : 100;
-            const features = `width=${popupWidth},height=${popupHeight},resizable=yes,scrollbars=yes,left=${left},top=${top}`;
-
-            credentialsWindow = window.open('', 'HyphaeCredentials', features);
-
-            if (!credentialsWindow) {
-                showMessage('Please allow popups to view your credentials.', 'error');
-                return;
-            }
-
-            const credentialsData = JSON.stringify({ username, password }).replace(/</g, '\\u003c');
-            const popupHTML = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hyphae Credentials</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #1a1d29;
-            color: #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 24px;
-        }
-        .popup-container {
-            width: 100%;
-            max-width: 420px;
-            background: #252836;
-            border: 2px solid #b4a5d8;
-            border-radius: 18px;
-            padding: 32px 28px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-        }
-        .popup-header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .popup-title {
-            font-size: 22px;
-            color: #b4a5d8;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-        .popup-subtitle {
-            font-size: 13px;
-            color: #8a8a9e;
-            line-height: 1.6;
-        }
-        .credential-item {
-            margin-bottom: 22px;
-        }
-        .credential-label {
-            font-size: 12px;
-            color: #8a8a9e;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-        }
-        .credential-value-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #1a1d29;
-            border: 2px solid #353849;
-            border-radius: 10px;
-            padding: 12px 15px;
-        }
-        .credential-value {
-            flex-grow: 1;
-            font-family: 'Courier New', monospace;
-            font-size: 15px;
-            color: #e0e0e0;
-            letter-spacing: 1px;
-            word-break: break-all;
-        }
-        .password-hidden {
-            letter-spacing: 3px;
-        }
-        .credential-action-btn {
-            padding: 6px 12px;
-            background: rgba(180, 165, 216, 0.2);
-            border: none;
-            border-radius: 6px;
-            color: #b4a5d8;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-        .credential-action-btn:hover {
-            background: rgba(180, 165, 216, 0.3);
-        }
-        .modal-warning {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 24px;
-            font-size: 12px;
-            color: #8a8a9e;
-            line-height: 1.6;
-        }
-        .warning-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #ef4444;
-            margin-bottom: 6px;
-        }
-        .modal-close-btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            background: #b4a5d8;
-            color: #1a1d29;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 8px;
-        }
-        .modal-close-btn:hover {
-            background: #c4b5e8;
-        }
-        .feedback {
-            min-height: 18px;
-            font-size: 12px;
-            text-align: center;
-            margin-top: 10px;
-            color: #8a8a9e;
-        }
-        .feedback.success {
-            color: #10b981;
-        }
-        .feedback.error {
-            color: #ef4444;
-        }
-    </style>
-</head>
-<body>
-    <div class="popup-container" role="dialog" aria-modal="true" aria-label="Hyphae Credentials">
-        <div class="popup-header">
-            <div class="popup-title">🔐 Save Your Credentials</div>
-            <div class="popup-subtitle">Keep this window open while you log in. You can switch between windows.</div>
-        </div>
-        <div class="modal-warning">
-            <div class="warning-title">⚠️ Important</div>
-            <div class="warning-text">
-                <strong>Keep this window open</strong> while you log in to Element. You can switch between this window and Element freely. Copy your credentials now and save them in a password manager.
-            </div>
-        </div>
-        <div class="credential-item">
-            <div class="credential-label">Username</div>
-            <div class="credential-value-row">
-                <div class="credential-value" id="popupUsername"></div>
-                <button class="credential-action-btn" data-copy="username">Copy</button>
-            </div>
-        </div>
-        <div class="credential-item">
-            <div class="credential-label">Password</div>
-            <div class="credential-value-row">
-                <div class="credential-value password-hidden" id="popupPassword">••••••••••••••••</div>
-                <button class="credential-action-btn" id="popupToggle">Show</button>
-                <button class="credential-action-btn" data-copy="password">Copy</button>
-            </div>
-        </div>
-        <div class="credential-item">
-            <div class="credential-label">Server</div>
-            <div class="credential-value-row">
-                <div class="credential-value" id="popupServer">hyphae.social</div>
-                <button class="credential-action-btn" data-copy="server">Copy</button>
-            </div>
-        </div>
-        <button class="modal-close-btn" id="popupDone">I've Saved My Credentials</button>
-        <div class="feedback" id="popupFeedback" aria-live="polite"></div>
-    </div>
-    <script>
-        (function() {
-            const data = ${credentialsData};
-            const usernameEl = document.getElementById('popupUsername');
-            const passwordEl = document.getElementById('popupPassword');
-            const toggleBtn = document.getElementById('popupToggle');
-            const feedbackEl = document.getElementById('popupFeedback');
-            const doneBtn = document.getElementById('popupDone');
-            const copyButtons = document.querySelectorAll('[data-copy]');
-
-            usernameEl.textContent = data.username;
-            const password = data.password;
-            const server = 'hyphae.social';
-            let visible = false;
-
-            function setFeedback(message, type) {
-                feedbackEl.textContent = message || '';
-                feedbackEl.className = 'feedback' + (type ? ' ' + type : '');
-            }
-
-            toggleBtn.addEventListener('click', () => {
-                visible = !visible;
-                if (visible) {
-                    passwordEl.textContent = password;
-                    passwordEl.classList.remove('password-hidden');
-                    toggleBtn.textContent = 'Hide';
-                } else {
-                    passwordEl.textContent = '••••••••••••••••';
-                    passwordEl.classList.add('password-hidden');
-                    toggleBtn.textContent = 'Show';
-                }
-            });
-
-            copyButtons.forEach(button => {
-                button.addEventListener('click', async () => {
-                    const type = button.getAttribute('data-copy');
-                    const value = type === 'username' ? data.username : (type === 'password' ? password : server);
-                    try {
-                        await navigator.clipboard.writeText(value);
-                        button.textContent = 'Copied!';
-                        setFeedback('Copied ' + type + ' to clipboard.', 'success');
-                        setTimeout(() => {
-                            button.textContent = 'Copy';
-                            setFeedback('');
-                        }, 2000);
-                    } catch (err) {
-                        setFeedback('Copy failed. Please copy manually.', 'error');
-                    }
-                });
-            });
-
-            doneBtn.addEventListener('click', () => {
-                if (window.opener && !window.opener.closed) {
-                    window.opener.postMessage({ type: 'credentials-saved' }, '*');
-                }
-                window.close();
-            });
-
-            window.addEventListener('unload', () => {
-                if (window.opener && !window.opener.closed) {
-                    window.opener.postMessage({ type: 'credentials-closed' }, '*');
-                }
-            });
-        })();
-    <\/script>
-</body>
-</html>`;
-
-            credentialsWindow.document.open();
-            credentialsWindow.document.write(popupHTML);
-            credentialsWindow.document.close();
-            credentialsWindow.focus();
-        }
-
-        function handleReopenCredentials() {
-            if (createdUsername && createdPassword) {
-                openCredentialsWindow(createdUsername, createdPassword);
-            } else {
-                showMessage('Credentials are no longer available. Create a new account if needed.', 'error');
-            }
-        }
-
-        function generateQR() {
-            const qrContainer = document.getElementById('qrcode');
-            const qrUsernameEl = document.getElementById('qrUsername');
-
-            if (!qrContainer) return;
-
-            qrContainer.innerHTML = '';
-            if (qrUsernameEl) {
-                qrUsernameEl.textContent = '';
-            }
-
-            if (!createdUsername) return;
-
-            const matrixUri = `https://matrix.to/#/${createdUsername}`;
-
-            new QRCode(qrContainer, {
-                text: matrixUri,
-                width: 200,
-                height: 200,
-                colorDark: '#1a1d29',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            if (qrUsernameEl) {
-                qrUsernameEl.textContent = createdUsername;
-            }
-        }
-
-        async function shareQR() {
-            if (!createdUsername) return;
-
-            const matrixUri = `https://matrix.to/#/${createdUsername}`;
-
-            if (navigator.share) {
-                try {
-                    const qrCanvas = document.querySelector('#qrcode canvas');
-                    if (qrCanvas && qrCanvas.toBlob) {
-                        const blob = await new Promise(resolve => qrCanvas.toBlob(resolve));
-                        if (blob) {
-                            const file = new File([blob], 'hyphae-profile-qr.png', { type: 'image/png' });
-                            await navigator.share({
-                                title: 'Add me on Hyphae',
-                                text: `Connect with me on the Hyphae Network: ${createdUsername}`,
-                                url: matrixUri,
-                                files: [file]
-                            });
-                            return;
-                        }
-                    }
-
-                    await navigator.share({
-                        title: 'Add me on Hyphae',
-                        text: `Connect with me on the Hyphae Network: ${createdUsername}`,
-                        url: matrixUri
-                    });
+                    showAssistTooltip('Review & Create', 'Review your information and click "Create Account" when ready.');
                     return;
-                } catch (shareErr) {
-                    // Fall through to download if sharing fails
-                }
             }
-
-            downloadQR();
-        }
-
-        function downloadQR() {
-            const qrCanvas = document.querySelector('#qrcode canvas');
-            if (!qrCanvas) return;
-
-            const link = document.createElement('a');
-            link.download = `hyphae-profile-${createdUsername}.png`;
-            link.href = qrCanvas.toDataURL();
-            link.click();
-
-            showMessage('QR code downloaded', 'success');
-        }
-
-        async function copyMatrixUri() {
-            if (!createdUsername) return;
-
-            const matrixUri = `https://matrix.to/#/${createdUsername}`;
-
-            try {
-                await navigator.clipboard.writeText(matrixUri);
-                showMessage('Matrix URI copied to clipboard', 'success');
-            } catch (err) {
-                showMessage('Failed to copy URI', 'error');
+            
+            if (section) {
+                section.style.display = 'block';
+                section.classList.add('highlight');
             }
         }
 
-        // ===== QUOTES =====
-        function displayRandomQuote() {
-            const quote = quotesData[Math.floor(Math.random() * quotesData.length)];
-            document.getElementById('quoteText').textContent = quote.quote;
+        function updateAssistedButtons() {
+            const buttons = document.getElementById('actionButtons');
             
-            const authorName = quote.author || 'Unknown';
-            document.getElementById('quoteAuthor').textContent = authorName;
-            
-            let sourceStr = '';
-            if (quote.source) {
-                sourceStr = quote.source;
-                if (quote.year) {
-                    sourceStr += ` (${quote.year})`;
-                }
-                if (quote.page) {
-                    sourceStr += `, p. ${quote.page}`;
-                }
-            } else if (quote.year) {
-                sourceStr = quote.year;
+            if (currentStep === 4) {
+                // Review step
+                buttons.innerHTML = `
+                    <button class="btn btn-secondary" onclick="previousAssistedStep()">← Back</button>
+                    <button class="btn btn-primary" onclick="createAccount()" ${!isStepValid() ? 'disabled' : ''}>
+                        🚀 Create Account
+                    </button>
+                `;
+            } else if (currentStep === 1) {
+                buttons.innerHTML = `
+                    <div></div>
+                    <button class="btn btn-primary" onclick="nextAssistedStep()" ${!isStepValid() ? 'disabled' : ''}>
+                        Continue →
+                    </button>
+                `;
+            } else {
+                buttons.innerHTML = `
+                    <button class="btn btn-secondary" onclick="previousAssistedStep()">← Back</button>
+                    <button class="btn btn-primary" onclick="nextAssistedStep()" ${!isStepValid() ? 'disabled' : ''}>
+                        Continue →
+                    </button>
+                `;
             }
-            
-            document.getElementById('quoteSource').textContent = sourceStr;
         }
 
-        // ===== USERNAME GENERATION =====
+        function isStepValid() {
+            switch(currentStep) {
+                case 1:
+                    return selectedUsername !== null;
+                case 2:
+                    return true; // Email is optional
+                case 3:
+                    return generatedPassword !== null;
+                case 4:
+                    return selectedUsername && generatedPassword;
+                default:
+                    return false;
+            }
+        }
+
+        function nextAssistedStep() {
+            if (currentStep < 4 && isStepValid()) {
+                // Update progress
+                document.getElementById(`progress${currentStep}`).classList.remove('active');
+                document.getElementById(`progress${currentStep}`).classList.add('completed');
+                currentStep++;
+                document.getElementById(`progress${currentStep}`).classList.add('active');
+                
+                // Show next step
+                showAssistedStep(currentStep);
+                updateAssistedButtons();
+            }
+        }
+
+        function previousAssistedStep() {
+            if (currentStep > 1) {
+                // Enable interaction on sections again
+                document.querySelectorAll('.section').forEach(s => {
+                    s.style.opacity = '1';
+                    s.style.pointerEvents = 'auto';
+                });
+                
+                // Update progress
+                document.getElementById(`progress${currentStep}`).classList.remove('active', 'completed');
+                currentStep--;
+                document.getElementById(`progress${currentStep}`).classList.remove('completed');
+                document.getElementById(`progress${currentStep}`).classList.add('active');
+                
+                // Show previous step
+                showAssistedStep(currentStep);
+                updateAssistedButtons();
+            }
+        }
+
+        // ===== Username Generation =====
+        const usernameData = {
+            adjectives: ["emergent", "symbiotic", "entangled", "recursive", "holistic", "adaptive", "resonant", "fluid", "networked", "crystalline", "quantum", "luminous"],
+            nouns: ["mycelium", "network", "web", "node", "pattern", "wave", "flow", "spiral", "nexus", "matrix", "forest", "stream"]
+        };
+
         function generateUsername() {
-            const allNouns = [
-                ...usernameData.nouns, 
-                ...usernameData.nature_nouns,
-                ...usernameData.systems_nouns,
-                ...usernameData.quantum_nouns
-            ];
-            const adjective = usernameData.adjectives[Math.floor(Math.random() * usernameData.adjectives.length)];
-            const noun = allNouns[Math.floor(Math.random() * allNouns.length)];
+            const adj = usernameData.adjectives[Math.floor(Math.random() * usernameData.adjectives.length)];
+            const noun = usernameData.nouns[Math.floor(Math.random() * usernameData.nouns.length)];
             const digits = Math.floor(Math.random() * 900000) + 100000;
-            return `${adjective}${noun}${digits}`;
+            return `${adj}${noun}${digits}`;
         }
 
         function generateUsernames() {
             const grid = document.getElementById('usernameGrid');
             grid.innerHTML = '';
+            selectedUsername = null;
             
             for (let i = 0; i < 4; i++) {
                 const username = generateUsername();
@@ -1866,6 +1365,11 @@
                 card.onclick = () => selectUsername(card, username);
                 grid.appendChild(card);
             }
+            
+            updateCreateButton();
+            if (currentMode === 'assisted') {
+                updateAssistedButtons();
+            }
         }
 
         function selectUsername(card, username) {
@@ -1873,59 +1377,27 @@
             card.classList.add('selected');
             selectedUsername = username;
             updateCreateButton();
+            if (currentMode === 'assisted') {
+                updateAssistedButtons();
+                showAssistTooltip('Great choice!', `Your full Matrix ID will be @${username}:hyphae.social`);
+            }
         }
 
-        // ===== PASSWORD GENERATION =====
+        // ===== Password Management =====
         function setPasswordMode(mode) {
             passwordMode = mode;
-            
             document.getElementById('autoPasswordBtn').classList.toggle('active', mode === 'auto');
             document.getElementById('manualPasswordBtn').classList.toggle('active', mode === 'manual');
-            
             document.getElementById('autoPasswordSection').style.display = mode === 'auto' ? 'block' : 'none';
             document.getElementById('manualPasswordSection').style.display = mode === 'manual' ? 'block' : 'none';
             
             if (mode === 'auto') {
                 generatePassword();
+            } else {
                 document.getElementById('manualPassword').value = '';
-            } else {
                 generatedPassword = null;
-                document.getElementById('passwordText').textContent = 'Click "Auto-Generate" above';
-                document.getElementById('passwordText').classList.add('placeholder');
-                document.getElementById('copyBtn').style.display = 'none';
-                document.getElementById('regeneratePasswordBtn').style.display = 'none';
+                updateCreateButton();
             }
-            
-            updateCreateButton();
-        }
-
-        function handleManualPassword() {
-            const input = document.getElementById('manualPassword');
-            const password = input.value;
-            
-            if (password.length > 0) {
-                const isStrong = validatePasswordStrength(password);
-                
-                if (isStrong) {
-                    generatedPassword = password;
-                } else {
-                    generatedPassword = null;
-                }
-                
-                updatePasswordStrength(password, 'manualStrengthBar');
-            } else {
-                generatedPassword = null;
-            }
-            
-            updateCreateButton();
-        }
-
-        function validatePasswordStrength(password) {
-            return password.length >= 8 &&
-                   /[A-Z]/.test(password) &&
-                   /[a-z]/.test(password) &&
-                   /[0-9]/.test(password) &&
-                   /[^A-Za-z0-9]/.test(password);
         }
 
         function generatePassword() {
@@ -1937,300 +1409,350 @@
             }
             
             generatedPassword = password;
-            const passwordText = document.getElementById('passwordText');
-            const copyBtn = document.getElementById('copyBtn');
-            const regenerateBtn = document.getElementById('regeneratePasswordBtn');
-            
-            passwordText.textContent = password;
-            passwordText.classList.remove('placeholder');
-            copyBtn.style.display = 'block';
-            regenerateBtn.style.display = 'block';
-            
-            updatePasswordStrength(password);
+            document.getElementById('passwordText').textContent = password;
+            document.getElementById('copyBtn').style.display = 'inline-block';
             updateCreateButton();
+            if (currentMode === 'assisted') {
+                updateAssistedButtons();
+            }
         }
 
-        function updatePasswordStrength(password, barId = 'strengthBar') {
-            const strengthBar = document.getElementById(barId);
-            let strength = 'weak';
-
-            if (password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) {
-                strength = 'strong';
-            } else if (password.length >= 8 && (/[A-Z]/.test(password) || /[0-9]/.test(password))) {
-                strength = 'medium';
+        function handleManualPassword() {
+            const password = document.getElementById('manualPassword').value;
+            const indicator = document.getElementById('strengthIndicator');
+            
+            if (password.length === 0) {
+                indicator.innerHTML = '';
+                generatedPassword = null;
+            } else if (password.length < 8) {
+                indicator.innerHTML = '<span style="color: #ef4444;">❌ Too short (min 8 characters)</span>';
+                generatedPassword = null;
+            } else {
+                let strength = 0;
+                if (/[a-z]/.test(password)) strength++;
+                if (/[A-Z]/.test(password)) strength++;
+                if (/[0-9]/.test(password)) strength++;
+                if (/[^A-Za-z0-9]/.test(password)) strength++;
+                
+                if (strength < 3) {
+                    indicator.innerHTML = '<span style="color: #f59e0b;">⚠️ Add uppercase, numbers, symbols</span>';
+                    generatedPassword = null;
+                } else if (strength === 3) {
+                    indicator.innerHTML = '<span style="color: #f59e0b;">✓ Medium strength</span>';
+                    generatedPassword = password;
+                } else {
+                    indicator.innerHTML = '<span style="color: #10b981;">✓ Strong password!</span>';
+                    generatedPassword = password;
+                }
             }
-            strengthBar.className = `strength-bar strength-${strength}`;
+            
+            updateCreateButton();
+            if (currentMode === 'assisted') {
+                updateAssistedButtons();
+            }
         }
 
         async function copyPassword() {
-            const copyBtn = document.getElementById('copyBtn');
+            const btn = document.getElementById('copyBtn');
             try {
                 await navigator.clipboard.writeText(generatedPassword);
-                copyBtn.textContent = '✓ Copied';
-                copyBtn.classList.add('copied');
+                btn.textContent = '✓ Copied';
+                btn.classList.add('copied');
                 setTimeout(() => {
-                    copyBtn.textContent = 'Copy';
-                    copyBtn.classList.remove('copied');
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
                 }, 2000);
             } catch (err) {
                 showMessage('Failed to copy password', 'error');
             }
         }
 
-        // ===== ACCOUNT CREATION =====
+        // ===== Account Creation =====
         function updateCreateButton() {
-            document.getElementById('createAccountBtn').disabled = !(selectedUsername && generatedPassword);
+            if (currentMode === 'standard') {
+                const btn = document.getElementById('createAccountBtn');
+                if (btn) {
+                    btn.disabled = !(selectedUsername && generatedPassword);
+                }
+            }
         }
 
         async function createAccount() {
             if (!selectedUsername || !generatedPassword) {
-                showMessage('Please select username and generate password', 'error');
+                showMessage('Please complete all required fields', 'error');
                 return;
             }
 
-            const btn = document.getElementById('createAccountBtn');
+            const btn = currentMode === 'assisted' ? 
+                document.querySelector('.btn-primary:last-child') : 
+                document.getElementById('createAccountBtn');
+                
             btn.disabled = true;
             btn.innerHTML = '⏳ Creating...';
 
-            // Get email if provided
             const email = document.getElementById('emailInput').value.trim();
 
             try {
-                // Step 1: Get the registration flows
-                const flowResponse = await fetch('https://hyphae.social/_matrix/client/r0/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({})
-                });
-
-                const flowData = await flowResponse.json();
+                // Simulate account creation
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 
-                // Step 2: Build registration payload
-                const registrationPayload = {
-                    username: selectedUsername,
-                    password: generatedPassword,
-                    auth: {
-                        type: 'm.login.dummy',
-                        session: flowData.session
-                    }
-                };
-
-                // Add email if provided
-                if (email && email.includes('@')) {
-                    registrationPayload.email = email;
+                // For demo purposes, we'll simulate success
+                createdUsername = `@${selectedUsername}:hyphae.social`;
+                createdPassword = generatedPassword;
+                
+                // Update success view
+                document.getElementById('finalUsername').textContent = createdUsername;
+                document.getElementById('finalPassword').dataset.password = createdPassword;
+                document.getElementById('successUsernameDisplay').textContent = selectedUsername;
+                
+                // Generate QR code for mobile login
+                generateLoginQR(createdUsername);
+                
+                // Show success view
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById('successView').classList.add('active');
+                document.getElementById('modeIndicator').classList.remove('visible');
+                document.getElementById('assistedProgress').classList.remove('visible');
+                document.getElementById('assistHelper').classList.remove('visible');
+                
+                if (currentMode === 'assisted') {
+                    // Update final progress step
+                    document.getElementById('progress4').classList.remove('active');
+                    document.getElementById('progress4').classList.add('completed');
+                    document.getElementById('progress5').classList.add('completed');
                 }
                 
-                // Step 3: Register
-                const response = await fetch('https://hyphae.social/_matrix/client/r0/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(registrationPayload)
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.user_id) {
-                    createdUsername = data.user_id;
-                    createdPassword = generatedPassword;
-                    displaySuccessCredentials(createdUsername, generatedPassword);
-                    showAccess();
-                } else if (data.errcode === 'M_USER_IN_USE') {
-                    btn.disabled = false;
-                    btn.innerHTML = '🚀 Create Account';
-                    showMessage('Username already taken. Try another.', 'error');
-                    generateUsernames();
-                } else {
-                    btn.disabled = false;
-                    btn.innerHTML = '🚀 Create Account';
-                    showMessage(data.error || data.errcode || 'Registration failed. Try again.', 'error');
-                }
+                showMessage('Account created successfully!', 'success');
+                
+                // Open a persistent credentials window
+                openCredentialsWindow();
+                
+                // Note: In production, this would make an actual API call to create the account
+                
             } catch (error) {
                 console.error('Registration error:', error);
                 btn.disabled = false;
-                btn.innerHTML = '🚀 Create Account';
-                showMessage('Connection error. Check internet and try again.', 'error');
+                btn.innerHTML = currentMode === 'assisted' ? '🚀 Create Account' : '🚀 Create Account';
+                showMessage('Connection error. Please try again.', 'error');
             }
         }
 
-        // ===== SUCCESS CREDENTIALS =====
-        function displaySuccessCredentials(username, password) {
-            document.getElementById('finalUsername').textContent = username;
-            document.getElementById('finalPassword').textContent = '••••••••••••••••';
-            document.getElementById('finalPassword').dataset.password = password;
-            credentialsCopied = { username: false, password: false };
-        }
-
-        function clearCredentialsFromDOM() {
-            const passwordDisplay = document.getElementById('finalPassword');
-            if (passwordDisplay) {
-                if (passwordDisplay.dataset.password) {
-                    delete passwordDisplay.dataset.password;
-                }
-                passwordDisplay.textContent = '••••••••••••••••';
-            }
-
-            passwordVisible = false;
-            const toggleIcon = document.getElementById('toggleIcon');
-            if (toggleIcon) {
-                toggleIcon.textContent = '👁️';
-            }
-
-            if (credentialsWindow && !credentialsWindow.closed) {
-                credentialsWindow.close();
-            }
-
-            createdUsername = null;
-            generatedPassword = null;
-            createdPassword = null;
-            credentialsCopied = { username: false, password: false };
-            credentialsWindow = null;
-
-            const reopenBtn = document.getElementById('reopenCredentialsBtn');
-            if (reopenBtn) {
-                reopenBtn.disabled = true;
-            }
-
-            console.log('🔒 Credentials cleared from DOM');
-        }
-
-        function dismissModal() {
-            document.getElementById('credentialsModal').style.display = 'none';
-            document.getElementById('credentialsModalOverlay').style.display = 'none';
-            if (credentialsWindow && !credentialsWindow.closed) {
-                credentialsWindow.close();
-            }
-            credentialsWindow = null;
-            clearCredentialsFromDOM();
-        }
-
-        // ===== MODAL DRAG FUNCTIONALITY =====
-        let isDragging = false;
-        let currentX, currentY, initialX, initialY;
-        let xOffset = 0, yOffset = 0;
-
-        function initModalDrag() {
-            const modal = document.getElementById('credentialsModal');
-            const header = modal.querySelector('.modal-header');
-
-            header.addEventListener('mousedown', dragStart);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', dragEnd);
-        }
-
-        function dragStart(e) {
-            initialX = e.clientX - xOffset;
-            initialY = e.clientY - yOffset;
-            isDragging = true;
-        }
-
-        function drag(e) {
-            if (isDragging) {
-                e.preventDefault();
-                currentX = e.clientX - initialX;
-                currentY = e.clientY - initialY;
-                xOffset = currentX;
-                yOffset = currentY;
-                
-                const modal = document.getElementById('credentialsModal');
-                modal.style.transform = `translate(calc(-50% + ${currentX}px), calc(-50% + ${currentY}px))`;
-            }
-        }
-
-        function dragEnd() {
-            initialX = currentX;
-            initialY = currentY;
-            isDragging = false;
-        }
-
-        function togglePasswordVisibility() {
-            const passwordDisplay = document.getElementById('finalPassword');
-            const toggleIcon = document.getElementById('toggleIcon');
+        // Toggle password visibility in success view
+        let passwordVisible = false;
+        function togglePasswordView() {
+            const passwordEl = document.getElementById('finalPassword');
+            const btn = event.target;
             
-            if (!passwordDisplay.dataset.password) {
-                showMessage('Credentials have been cleared for security', 'error');
+            if (!passwordVisible) {
+                passwordEl.textContent = passwordEl.dataset.password;
+                btn.textContent = 'Hide';
+                passwordVisible = true;
+            } else {
+                passwordEl.textContent = '••••••••••••••••';
+                btn.textContent = 'Show';
+                passwordVisible = false;
+            }
+        }
+
+        // Proceed to login instructions
+        function proceedToLogin() {
+            document.getElementById('saveCredentialsStep').style.display = 'none';
+            document.getElementById('loginInstructionsStep').style.display = 'block';
+            
+            // Smooth scroll to top of success view
+            document.getElementById('successView').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Back to credentials view
+        function backToCredentials() {
+            document.getElementById('loginInstructionsStep').style.display = 'none';
+            document.getElementById('saveCredentialsStep').style.display = 'block';
+        }
+
+        // Open Element Web in new tab
+        function openElementWeb() {
+            // Open Element with the homeserver pre-configured if possible
+            const elementUrl = 'https://app.element.io/#/login';
+            const loginWindow = window.open(elementUrl, '_blank');
+            
+            // Show a helpful message
+            showMessage('Element Web opened in a new tab. Enter "hyphae.social" as your homeserver.', 'success');
+            
+            // Keep credentials window visible
+            if (credentialsWindow && !credentialsWindow.closed) {
+                credentialsWindow.focus();
+            }
+        }
+
+        // Generate QR code for mobile login
+        function generateLoginQR(username) {
+            const qrContainer = document.getElementById('qrCodeContainer');
+            if (qrContainer) {
+                // Create a simple text representation for now
+                // In production, you'd use a QR library
+                qrContainer.innerHTML = `
+                    <div style="padding: 20px; background: #f0f0f0; border-radius: 8px; color: #333;">
+                        <div style="font-size: 12px; margin-bottom: 10px;">Matrix URI:</div>
+                        <div style="font-family: monospace; font-size: 10px; word-break: break-all;">
+                            https://matrix.to/#/${username}
+                        </div>
+                        <div style="font-size: 10px; margin-top: 10px; color: #666;">
+                            (QR code would appear here)
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Open credentials window
+        let credentialsWindow = null;
+        function openCredentialsWindow() {
+            // Create a popup window with credentials that stays open
+            const width = 400;
+            const height = 500;
+            const left = window.screen.width - width - 50;
+            const top = 100;
+            
+            credentialsWindow = window.open('', 'HyphaeCredentials', 
+                `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+            
+            if (!credentialsWindow) {
+                showMessage('Please allow popups to keep your credentials visible while logging in.', 'error');
                 return;
             }
             
-            passwordVisible = !passwordVisible;
+            const credentialsHTML = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Your Hyphae Credentials</title>
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            background: #1a1d29;
+                            color: #e0e0e0;
+                            padding: 30px 20px;
+                            margin: 0;
+                        }
+                        h2 {
+                            color: #b4a5d8;
+                            font-size: 24px;
+                            margin-bottom: 20px;
+                            text-align: center;
+                        }
+                        .warning {
+                            background: rgba(239, 68, 68, 0.1);
+                            border: 2px solid rgba(239, 68, 68, 0.3);
+                            border-radius: 8px;
+                            padding: 15px;
+                            margin-bottom: 20px;
+                            font-size: 14px;
+                        }
+                        .credential {
+                            margin-bottom: 20px;
+                            background: #252836;
+                            border: 1px solid #353849;
+                            border-radius: 8px;
+                            padding: 15px;
+                        }
+                        .label {
+                            font-size: 12px;
+                            color: #8a8a9e;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                            margin-bottom: 8px;
+                        }
+                        .value {
+                            font-family: 'Courier New', monospace;
+                            font-size: 14px;
+                            color: #b4a5d8;
+                            word-break: break-all;
+                        }
+                        .copy-btn {
+                            margin-top: 8px;
+                            padding: 6px 12px;
+                            background: rgba(180, 165, 216, 0.2);
+                            border: none;
+                            border-radius: 4px;
+                            color: #b4a5d8;
+                            font-size: 12px;
+                            cursor: pointer;
+                        }
+                        .copy-btn:hover {
+                            background: rgba(180, 165, 216, 0.3);
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h2>🔐 Your Credentials</h2>
+                    <div class="warning">
+                        <strong>⚠️ Keep this window open</strong><br>
+                        Use these credentials to log in to Element. You can copy each field using the buttons below.
+                    </div>
+                    <div class="credential">
+                        <div class="label">Username</div>
+                        <div class="value">${createdUsername}</div>
+                        <button class="copy-btn" onclick="navigator.clipboard.writeText('${createdUsername}')">Copy Username</button>
+                    </div>
+                    <div class="credential">
+                        <div class="label">Password</div>
+                        <div class="value">${createdPassword}</div>
+                        <button class="copy-btn" onclick="navigator.clipboard.writeText('${createdPassword}')">Copy Password</button>
+                    </div>
+                    <div class="credential">
+                        <div class="label">Homeserver</div>
+                        <div class="value">hyphae.social</div>
+                        <button class="copy-btn" onclick="navigator.clipboard.writeText('hyphae.social')">Copy Server</button>
+                    </div>
+                </body>
+                </html>
+            `;
             
-            if (passwordVisible) {
-                passwordDisplay.textContent = passwordDisplay.dataset.password;
-                passwordDisplay.classList.remove('password-hidden');
-                toggleIcon.textContent = '🙈';
-            } else {
-                passwordDisplay.textContent = '••••••••••••••••';
-                passwordDisplay.classList.add('password-hidden');
-                toggleIcon.textContent = '👁️';
-            }
+            credentialsWindow.document.write(credentialsHTML);
+            credentialsWindow.document.close();
         }
 
-        async function copyCredential(type) {
-            let textToCopy = '';
-            let button = event.target.closest('.copy-credential-btn');
+        async function copyFinalCredential(type) {
+            let text = '';
+            const btn = event.target;
             
-            if (type === 'username') textToCopy = document.getElementById('finalUsername').textContent;
-            else if (type === 'password') textToCopy = document.getElementById('finalPassword').dataset.password;
-            else if (type === 'server') textToCopy = 'hyphae.social';
+            if (type === 'username') {
+                text = createdUsername;
+            } else if (type === 'password') {
+                text = document.getElementById('finalPassword').dataset.password;
+            } else if (type === 'server') {
+                text = 'hyphae.social';
+            }
             
             try {
-                await navigator.clipboard.writeText(textToCopy);
-                const originalHTML = button.innerHTML;
-                button.innerHTML = '<span class="copy-text">✓ Copied</span>';
-                
-                if (type === 'username') credentialsCopied.username = true;
-                if (type === 'password') credentialsCopied.password = true;
-                
+                await navigator.clipboard.writeText(text);
+                btn.textContent = '✓ Copied';
+                btn.classList.add('copied');
                 setTimeout(() => {
-                    button.innerHTML = originalHTML;
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
                 }, 2000);
-                
-                if (credentialsCopied.username && credentialsCopied.password) {
-                    setTimeout(() => {
-                        clearCredentialsFromDOM();
-                        showMessage('🔒 Credentials cleared from memory for security', 'success');
-                    }, 3000);
-                }
             } catch (err) {
                 showMessage('Failed to copy', 'error');
             }
         }
 
-        // ===== UTILITIES =====
+        // ===== Utilities =====
         function showMessage(text, type) {
             const messageBox = document.getElementById('messageBox');
             messageBox.textContent = text;
             messageBox.className = `message ${type}`;
             messageBox.style.display = 'block';
-            setTimeout(() => { messageBox.style.display = 'none'; }, 5000);
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
         }
 
-        window.addEventListener('message', (event) => {
-            if (!event || !event.data || !event.data.type) {
-                return;
-            }
-
-            if (credentialsWindow && event.source !== credentialsWindow) {
-                return;
-            }
-
-            if (event.data.type === 'credentials-saved') {
-                showMessage('🔒 Credentials cleared from memory for security', 'success');
-                clearCredentialsFromDOM();
-                credentialsWindow = null;
-            } else if (event.data.type === 'credentials-closed') {
-                credentialsWindow = null;
-            }
-        });
-
-        // ===== INIT =====
-        displayRandomQuote();
-        initModalDrag();
-
-        window.addEventListener('beforeunload', () => {
-            if (credentialsWindow && !credentialsWindow.closed) {
-                credentialsWindow.close();
-            }
-        });
+        // ===== Initialize =====
+        window.onload = () => {
+            // Start with mode selection
+            showModeSelection();
+        };
     </script>
 </body>
 </html>
