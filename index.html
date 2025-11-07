@@ -2742,6 +2742,29 @@
                 <button class="regenerate-btn" onclick="generatePassword()">🔄 Generate Password</button>
             </div>
 
+            <!-- Email Field (Optional) -->
+            <div style="margin-top: 25px;">
+                <div class="info-card" style="background: rgba(180, 165, 216, 0.05); border-color: rgba(180, 165, 216, 0.15); padding: 15px; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <div style="font-size: 14px; font-weight: 600; color: #e0e0e0;">📧 Email Address (Optional)</div>
+                        <span style="background: rgba(180, 165, 216, 0.2); color: #b4a5d8; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Optional</span>
+                    </div>
+                    <p style="font-size: 13px; color: #a8a8b8; line-height: 1.5; margin-bottom: 0;">
+                        Add an email for future password reset functionality (not yet available)
+                    </p>
+                </div>
+
+                <input 
+                    type="email" 
+                    id="emailInput" 
+                    class="manual-input" 
+                    placeholder="your.email@example.com" 
+                    oninput="handleEmailInput()"
+                    style="margin-bottom: 8px;"
+                />
+                <div id="emailValidation" style="font-size: 12px; margin-top: 8px;"></div>
+            </div>
+
             <button class="btn btn-primary" id="createBtn" onclick="createAccount()" disabled style="width: 100%; margin-top: 30px;">🚀 Create Account</button>
         </div>
     </div>
@@ -3123,6 +3146,13 @@
                             <button class="copy-btn" onclick="copyCredential('server')">Copy</button>
                         </div>
                     </div>
+                    <div class="credential-item" id="emailCredentialItem" style="display: none;">
+                        <div class="credential-label">Email (For Future Password Reset)</div>
+                        <div class="credential-value-row">
+                            <div class="credential-value" id="finalEmail"></div>
+                            <button class="copy-btn" onclick="copyCredential('email')">Copy</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="save-confirmation">
@@ -3135,7 +3165,7 @@
                             <li>Write on paper</li>
                         </ul>
                         <p style="color: #ef4444; font-weight: 600; margin-top: 15px;">
-                            If you lose these, you cannot recover your account.
+                            If you lose these, you cannot recover your account.<span id="emailRecoveryNote" style="display: none;"> Password reset via email is not yet implemented.</span>
                         </p>
                     </div>
                     <div class="checkbox-container">
@@ -3178,6 +3208,13 @@
                             <div class="credential-value" id="step2Password">••••••••••••</div>
                             <button class="copy-btn" onclick="togglePassword2()">Show</button>
                             <button class="copy-btn" onclick="copyCredential('password')">Copy</button>
+                        </div>
+                    </div>
+                    <div class="credential-item" id="step2EmailItem" style="display: none; margin-bottom: 0;">
+                        <div class="credential-label">Email</div>
+                        <div class="credential-value-row">
+                            <div class="credential-value" id="step2Email"></div>
+                            <button class="copy-btn" onclick="copyCredential('email')">Copy</button>
                         </div>
                     </div>
                 </div>
@@ -3351,6 +3388,8 @@
         let selectedUsername = null;
         let selectedUsernameDisplay = null;
         let generatedPassword = null;
+        let providedEmail = null;
+        let emailIsValid = true;
         let passwordMode = 'manual';
         let createdUsername = null;
         let createdPassword = null;
@@ -4109,6 +4148,18 @@
         function backToUsernameStep() {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('registrationUsernameView').classList.add('active');
+
+            const emailField = document.getElementById('emailInput');
+            if (emailField) {
+                emailField.value = '';
+            }
+            const validation = document.getElementById('emailValidation');
+            if (validation) {
+                validation.innerHTML = '';
+            }
+            providedEmail = null;
+            emailIsValid = true;
+            updateCreateButton();
         }
 
         function setPasswordMode(mode) {
@@ -4170,10 +4221,39 @@
             await copyText(generatedPassword);
         }
 
+        // Email validation state handlers
+        function handleEmailInput() {
+            const emailField = document.getElementById('emailInput');
+            const validation = document.getElementById('emailValidation');
+            const email = emailField.value.trim();
+
+            if (email === '') {
+                providedEmail = null;
+                emailIsValid = true;
+                validation.innerHTML = '';
+                updateCreateButton();
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (emailRegex.test(email)) {
+                providedEmail = email;
+                emailIsValid = true;
+                validation.innerHTML = '<span style="color: #10b981;">✓ Valid email format</span>';
+            } else {
+                providedEmail = null;
+                emailIsValid = false;
+                validation.innerHTML = '<span style="color: #ef4444;">✗ Invalid email format</span>';
+            }
+
+            updateCreateButton();
+        }
+
         function updateCreateButton() {
             const btn = document.getElementById('createBtn');
             const rateCheck = checkRateLimit();
-            btn.disabled = !generatedPassword || !rateCheck.allowed;
+            btn.disabled = !generatedPassword || !rateCheck.allowed || !emailIsValid;
         }
 
         async function createAccount() {
@@ -4190,14 +4270,22 @@
             btn.innerHTML = '⏳ Creating...';
 
             try {
+                const registrationData = {
+                    username: selectedUsername,
+                    password: generatedPassword,
+                    auth: { type: 'm.login.dummy' }
+                };
+
+                if (providedEmail) {
+                    // Note: This stores the email with Matrix, but password reset flow needs to be implemented separately
+                    // on the homeserver. The homeserver may or may not persist it depending on configuration.
+                    registrationData.email = providedEmail;
+                }
+
                 const response = await fetch(`${HOMESERVER}/_matrix/client/r0/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: selectedUsername,
-                        password: generatedPassword,
-                        auth: { type: 'm.login.dummy' }
-                    })
+                    body: JSON.stringify(registrationData)
                 });
 
                 const data = await response.json();
@@ -4222,6 +4310,28 @@
                 document.getElementById('finalUsername').textContent = createdUsername;
                 document.getElementById('finalPassword').dataset.password = createdPassword;
                 document.getElementById('successUsername').textContent = selectedUsernameDisplay;
+
+                if (providedEmail) {
+                    document.getElementById('finalEmail').textContent = providedEmail;
+                    document.getElementById('emailCredentialItem').style.display = 'block';
+                    const recoveryNote = document.getElementById('emailRecoveryNote');
+                    if (recoveryNote) {
+                        recoveryNote.style.display = 'inline';
+                    }
+                } else {
+                    const emailItem = document.getElementById('emailCredentialItem');
+                    if (emailItem) {
+                        emailItem.style.display = 'none';
+                    }
+                    const finalEmail = document.getElementById('finalEmail');
+                    if (finalEmail) {
+                        finalEmail.textContent = '';
+                    }
+                    const recoveryNote = document.getElementById('emailRecoveryNote');
+                    if (recoveryNote) {
+                        recoveryNote.style.display = 'none';
+                    }
+                }
                 
                 document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
                 document.getElementById('successView').classList.add('active');
@@ -4257,15 +4367,27 @@
         function goToStep2() {
             document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').style.display = 'block';
-            
+
             // Populate Step 2 credentials
             document.getElementById('step2Username').textContent = createdUsername;
             document.getElementById('step2Password').dataset.password = createdPassword;
-            
+
+            const step2EmailItem = document.getElementById('step2EmailItem');
+            const step2Email = document.getElementById('step2Email');
+            if (step2EmailItem && step2Email) {
+                if (providedEmail) {
+                    step2Email.textContent = providedEmail;
+                    step2EmailItem.style.display = 'block';
+                } else {
+                    step2Email.textContent = '';
+                    step2EmailItem.style.display = 'none';
+                }
+            }
+
             const mobile = isMobile();
             document.getElementById('desktopInstructions').style.display = mobile ? 'none' : 'block';
             document.getElementById('mobileInstructions').style.display = mobile ? 'block' : 'none';
-            
+
             document.getElementById('successView').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -4326,7 +4448,8 @@
             if (type === 'username') text = createdUsername;
             else if (type === 'password') text = document.getElementById('finalPassword').dataset.password;
             else if (type === 'server') text = 'hyphae.social';
-            
+            else if (type === 'email') text = providedEmail;
+
             const btn = event.target;
             const orig = btn.textContent;
             await copyText(text);
@@ -4406,7 +4529,23 @@
             }
 
             const matrixUri = `https://matrix.to/#/${createdUsername}`;
-            
+
+            let emailCredentialHTML = '';
+            if (providedEmail) {
+                const escapedEmail = providedEmail
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+                const emailForOnclick = providedEmail.replace(/'/g, "\\'");
+                emailCredentialHTML = `
+    <div class="credential">
+        <div class="label">Email (For Password Reset)</div>
+        <div class="value">${escapedEmail}</div>
+        <button class="copy-btn" onclick="copyToClipboard('${emailForOnclick}', this)">Copy Email</button>
+    </div>
+    `;
+            }
+
             const credentialsHTML = `
 <!DOCTYPE html>
 <html>
@@ -4505,7 +4644,8 @@
         <div class="value">hyphae.social</div>
         <button class="copy-btn" onclick="copyToClipboard('hyphae.social', this)">Copy Server</button>
     </div>
-    
+    ${emailCredentialHTML}
+
     <div class="qr-section">
         <div style="color: #333; font-size: 14px; margin-bottom: 15px;">
             <strong>Your Profile QR Code</strong>
