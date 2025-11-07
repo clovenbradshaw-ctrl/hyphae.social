@@ -1494,28 +1494,33 @@
                 <div id="individualModeInfo" class="info-card" style="background: rgba(180, 165, 216, 0.1); border-color: rgba(180, 165, 216, 0.3);">
                     <div class="info-title">👤 1-on-1 Verification</div>
                     <div class="info-content">
-                        <p style="margin-bottom: 12px;"><strong>Best for:</strong> Verifying someone's Matrix identity via Signal DM</p>
-                        
-                        <p style="margin-bottom: 8px; font-weight: 600; font-size: 13px;">Option A: One-Way Verification</p>
-                        <p style="margin-bottom: 8px; font-size: 13px;">You verify them (they don't verify you):</p>
-                        <ol style="margin-left: 20px; line-height: 1.6; font-size: 13px;">
-                            <li>Send this URL privately via Signal DM</li>
-                            <li>They open it and read you the code on Matrix</li>
-                            <li>You confirm it matches - their identity verified!</li>
-                        </ol>
-                        
-                        <p style="margin-top: 15px; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Option B: Mutual Verification (Recommended)</p>
-                        <p style="margin-bottom: 8px; font-size: 13px;">You both verify each other:</p>
-                        <ol style="margin-left: 20px; line-height: 1.6; font-size: 13px;">
-                            <li>You each generate a verification URL</li>
-                            <li>Trade URLs via Signal DM</li>
-                            <li>Each person reads their code back on Matrix</li>
-                            <li>Both identities verified! ✓</li>
-                        </ol>
-                        
-                        <p style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(180, 165, 216, 0.2); font-size: 12px; color: #8a8a9e;">
-                            <strong>⚠️ Security:</strong> Always send verification links privately in Signal DMs, never in group chats.
+                        <p style="margin-bottom: 16px; font-size: 13px; color: #d4d4d8;">
+                            Verify someone's Matrix account via Signal DM
                         </p>
+
+                        <!-- One-Way -->
+                        <div style="background: rgba(180, 165, 216, 0.05); border-left: 3px solid #b4a5d8; padding: 12px 15px; border-radius: 6px; margin-bottom: 12px;">
+                            <div style="font-weight: 600; font-size: 12px; color: #b4a5d8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                One-Way
+                            </div>
+                            <ol style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 13px; color: #d4d4d8;">
+                                <li style="margin-bottom: 4px;">Send URL via Signal DM</li>
+                                <li style="margin-bottom: 4px;">They read you the code</li>
+                                <li style="margin-bottom: 0;">Verify it matches</li>
+                            </ol>
+                        </div>
+
+                        <!-- Mutual -->
+                        <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981; padding: 12px 15px; border-radius: 6px;">
+                            <div style="font-weight: 600; font-size: 12px; color: #10b981; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Mutual <span style="font-size: 9px; background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 3px; margin-left: 4px;">RECOMMENDED</span>
+                            </div>
+                            <ol style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 13px; color: #d4d4d8;">
+                                <li style="margin-bottom: 4px;">Each generate and trade URLs</li>
+                                <li style="margin-bottom: 4px;">Both read codes to each other</li>
+                                <li style="margin-bottom: 0;">Both verify matches</li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
 
@@ -1523,17 +1528,18 @@
                 <div id="groupModeInfo" class="info-card" style="display: none; background: rgba(180, 165, 216, 0.1); border-color: rgba(180, 165, 216, 0.3);">
                     <div class="info-title">👥 Group Verification</div>
                     <div class="info-content">
-                        <p style="margin-bottom: 12px;"><strong>Best for:</strong> Onboarding multiple people from Signal to Matrix</p>
-                        <p style="margin-bottom: 12px;"><strong>How it works:</strong></p>
-                        <ol style="margin-left: 20px; line-height: 1.8; font-size: 13px;">
-                            <li>Post the verification URL in your trusted Signal group</li>
-                            <li>Each person opens it and picks a code number</li>
-                            <li>On video call, each person reads their code</li>
-                            <li>Everyone verifies codes match - group verified!</li>
-                        </ol>
-                        <p style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(180, 165, 216, 0.2); font-size: 12px; color: #8a8a9e;">
-                            <strong>Note:</strong> Everyone in the Signal group can see all codes. This proves group membership, not individual identity.
+                        <p style="margin-bottom: 16px; font-size: 13px; color: #d4d4d8;">
+                            Onboard multiple people from Signal to Matrix
                         </p>
+
+                        <div style="background: rgba(180, 165, 216, 0.05); border-left: 3px solid #b4a5d8; padding: 12px 15px; border-radius: 6px;">
+                            <ol style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 13px; color: #d4d4d8;">
+                                <li style="margin-bottom: 4px;">Post URL in Signal group</li>
+                                <li style="margin-bottom: 4px;">Each person picks a code</li>
+                                <li style="margin-bottom: 4px;">On video, each reads their code</li>
+                                <li style="margin-bottom: 0;">Everyone verifies matches</li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
 
@@ -1569,31 +1575,20 @@
                 <div id="individualVerificationReady" style="display: none;">
                     <div class="info-card success" style="margin-bottom: 20px;">
                         <div class="info-content">
-                            <strong>✓ 1-on-1 Verification Ready</strong><br><br>
-                            
-                            <strong>One-Way Verification:</strong>
-                            <ol style="margin-left: 20px; line-height: 1.8; margin-top: 10px; font-size: 13px;">
-                                <li>Send the URL above via Signal DM</li>
-                                <li>They read you the code on Matrix</li>
-                                <li>Verify it matches below - done! ✓</li>
-                            </ol>
-                            
-                            <strong style="margin-top: 15px; display: block;">Mutual Verification (Recommended):</strong>
-                            <ol style="margin-left: 20px; line-height: 1.8; margin-top: 10px; font-size: 13px;">
-                                <li><strong>You:</strong> Send this URL to them via Signal DM</li>
-                                <li><strong>Them:</strong> They generate their own URL and send to you via Signal</li>
-                                <li><strong>Both:</strong> Open each other's URLs</li>
-                                <li><strong>You:</strong> Read your code to them on Matrix</li>
-                                <li><strong>Them:</strong> They read their code to you on Matrix</li>
-                                <li><strong>Both verify codes match</strong> - mutual trust established! ✓✓</li>
-                            </ol>
-                            
-                            <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(16, 185, 129, 0.2); font-size: 12px; color: #e0e0e0;">
-                                <strong>💡 Why mutual?</strong> One-way only proves their Matrix = their Signal. Mutual proves BOTH of you control both accounts.
-                            </p>
-                            
-                            <p style="margin-top: 10px; font-size: 12px; color: #e0e0e0;">
-                                <strong>🔐 Security:</strong> Always use private Signal DMs, never group chats.
+                            <div style="font-size: 15px; font-weight: 600; color: #10b981; margin-bottom: 16px;">
+                                ✓ Verification Ready
+                            </div>
+
+                            <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981; padding: 12px 15px; border-radius: 6px;">
+                                <ol style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 13px; color: #d4d4d8;">
+                                    <li style="margin-bottom: 4px;">Send URL via Signal DM</li>
+                                    <li style="margin-bottom: 4px;">They read you the code</li>
+                                    <li style="margin-bottom: 0;">Verify it matches below</li>
+                                </ol>
+                            </div>
+
+                            <p style="margin: 12px 0 0 0; font-size: 12px; color: #8a8a9e;">
+                                For mutual verification, have them generate their own URL and trade.
                             </p>
                         </div>
                     </div>
@@ -1603,19 +1598,21 @@
                 <div id="groupVerificationReady" style="display: none;">
                     <div class="info-card success" style="margin-bottom: 20px;">
                         <div class="info-content">
-                            <strong>✓ Group Verification Ready</strong><br><br>
-                            
-                            <strong>Next steps:</strong>
-                            <ol style="margin-left: 20px; line-height: 1.8; margin-top: 10px; font-size: 14px;">
-                                <li><strong>Copy the URL above</strong> (already done ✓)</li>
-                                <li><strong>Post in your Signal group</strong> so everyone can access it</li>
-                                <li><strong>Each person picks a code number</strong> (1, 2, 3, etc.)</li>
-                                <li><strong>On video call:</strong> each person reads their code out loud</li>
-                                <li><strong>Everyone verifies</strong> the codes match</li>
-                            </ol>
-                            
-                            <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(16, 185, 129, 0.2); font-size: 13px; color: #e0e0e0;">
-                                <strong>Note:</strong> Everyone with the URL sees all codes. This proves they were in the Signal group, but doesn't verify individual identity - use 1-on-1 mode for that.
+                            <div style="font-size: 15px; font-weight: 600; color: #10b981; margin-bottom: 16px;">
+                                ✓ Group Verification Ready
+                            </div>
+
+                            <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981; padding: 12px 15px; border-radius: 6px;">
+                                <ol style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 13px; color: #d4d4d8;">
+                                    <li style="margin-bottom: 4px;">Post URL in Signal group</li>
+                                    <li style="margin-bottom: 4px;">Each person picks a code</li>
+                                    <li style="margin-bottom: 4px;">On video call, read codes</li>
+                                    <li style="margin-bottom: 0;">Everyone verifies matches</li>
+                                </ol>
+                            </div>
+
+                            <p style="margin: 12px 0 0 0; font-size: 12px; color: #8a8a9e;">
+                                Tip: Use as Matrix widget for real-time code claiming in large groups.
                             </p>
                         </div>
                     </div>
@@ -1626,17 +1623,16 @@
 
                 <!-- Widget Usage Instructions -->
                 <div class="info-card" style="background: rgba(180, 165, 216, 0.05); border-color: rgba(180, 165, 216, 0.2); margin-top: 20px;">
-                    <div class="info-title">📱 Optional: Use in Matrix Room</div>
+                    <div class="info-title">📱 Use as Matrix Widget</div>
                     <div class="info-content" style="font-size: 13px;">
-                        <p style="margin-bottom: 12px;">For large groups, you can embed this verification tool in a Matrix room as a widget. When someone clicks a code, everyone sees it claimed in real-time.</p>
-                        <p style="margin-bottom: 12px;"><strong>How to add:</strong></p>
-                        <ol style="margin-left: 20px; line-height: 1.6; font-size: 13px;">
-                            <li>Click the button below to copy the URL</li>
-                            <li>In your Matrix room: Room Info → Widgets → Add Widget</li>
-                            <li>Paste the URL and click Add</li>
+                        <p style="margin-bottom: 10px;">Embed in a Matrix room for real-time code claiming:</p>
+                        <ol style="margin: 0 0 12px 20px; padding: 0; line-height: 1.6; font-size: 13px;">
+                            <li style="margin-bottom: 4px;">Copy URL below</li>
+                            <li style="margin-bottom: 4px;">Room Info → Widgets → Add Widget</li>
+                            <li style="margin-bottom: 0;">Paste URL and add</li>
                         </ol>
                         <button class="btn btn-secondary" onclick="copyWidgetUrl()" 
-                                style="width: 100%; margin-top: 12px; font-size: 12px;">
+                                style="width: 100%; margin-top: 8px; font-size: 12px;">
                             📋 Copy Widget URL
                         </button>
                     </div>
@@ -2829,16 +2825,16 @@
         function updateCodeCardDisplay(codeIndex, displayName, shouldAnimate) {
             const card = document.querySelector(`[data-code-index="${codeIndex}"]`);
             if (!card) return;
-            
+
             // Add claimed class
             card.classList.add('claimed');
-            
-            // Update label
+
+            // Update label - just show "Claimed"
             const label = card.querySelector('.verification-code-label');
             if (label) {
-                label.textContent = `✓ Claimed by ${displayName}`;
+                label.textContent = '✓ Claimed';
             }
-            
+
             // Animate if this was a local claim
             if (shouldAnimate) {
                 card.style.transform = 'scale(1.05)';
