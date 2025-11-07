@@ -711,6 +711,201 @@
             color: #ef4444;
         }
 
+        .verification-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 80px 20px 60px;
+            text-align: center;
+        }
+
+        .verification-logo {
+            margin-bottom: 30px;
+        }
+
+        .verification-title {
+            color: #b4a5d8;
+            font-size: 42px;
+            font-weight: 200;
+            margin-bottom: 15px;
+            letter-spacing: 6px;
+        }
+
+        .verification-subtitle {
+            color: #8a8a9e;
+            font-size: 14px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .verification-section {
+            display: none;
+        }
+
+        .verification-section.active {
+            display: block;
+        }
+
+        .verification-input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .verification-input-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #8a8a9e;
+            font-weight: 400;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .verification-number-input {
+            width: 100%;
+            padding: 15px;
+            background: #252836;
+            border: 2px solid #353849;
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 16px;
+            font-weight: 300;
+            transition: border-color 0.3s;
+        }
+
+        .verification-number-input:focus {
+            outline: none;
+            border-color: #b4a5d8;
+        }
+
+        .verification-url-box {
+            background: #252836;
+            border: 2px solid #b4a5d8;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .verification-url-label {
+            font-size: 11px;
+            color: #8a8a9e;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .verification-url-text {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #b4a5d8;
+            word-break: break-all;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            font-weight: 600;
+        }
+
+        .verification-codes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .verification-code-card {
+            background: #252836;
+            border: 2px solid #353849;
+            border-radius: 15px;
+            padding: 30px 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: visible;
+            min-width: 0;
+        }
+
+        .verification-code-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(180, 165, 216, 0.05) 0%, rgba(180, 165, 216, 0) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .verification-code-card:hover::before {
+            opacity: 1;
+        }
+
+        .verification-code-card:hover {
+            border-color: #b4a5d8;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(180, 165, 216, 0.2);
+        }
+
+        .verification-code-number {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            color: #b4a5d8;
+            position: relative;
+            z-index: 1;
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        .verification-code-label {
+            font-size: 11px;
+            color: #8a8a9e;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .verification-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #8a8a9e;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 30px;
+            font-weight: 300;
+            transition: color 0.3s;
+        }
+
+        .verification-back-link:hover {
+            color: #b4a5d8;
+        }
+
+        @media (max-width: 640px) {
+            .verification-title {
+                font-size: 32px;
+                letter-spacing: 4px;
+            }
+
+            .verification-codes-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            }
+
+            .verification-code-number {
+                font-size: 28px;
+                letter-spacing: 1px;
+            }
+
+            .verification-code-card {
+                padding: 25px 10px;
+            }
+        }
+
         @media (max-width: 768px) {
             .username-grid { grid-template-columns: 1fr; }
             .mode-cards { grid-template-columns: 1fr; }
@@ -1125,6 +1320,146 @@
                     </ul>
                     <div class="mode-recommendation">Start Here</div>
                 </div>
+                <div class="mode-card" onclick="showVerificationView()">
+                    <div class="mode-icon">🔐</div>
+                    <div class="mode-title">Group Verification</div>
+                    <div class="mode-description">
+                        Generate deterministic codes for remote check-ins and shareable sessions.
+                    </div>
+                    <ul class="mode-features">
+                        <li>Create clean verification URLs</li>
+                        <li>Everyone sees the same codes</li>
+                        <li>Clipboard copy helpers</li>
+                        <li>No database or tracking required</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Tool -->
+    <div id="verificationView" class="view">
+        <div class="verification-container">
+            <div style="text-align: left;">
+                <span class="verification-back-link" onclick="navigateHomeFromVerification()">← Back to Home</span>
+            </div>
+
+            <svg class="logo verification-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <g opacity="0.8">
+                    <g transform="translate(70, 70)">
+                        <animateTransform
+                            attributeName="transform"
+                            type="translate"
+                            dur="19s"
+                            repeatCount="indefinite"
+                            values="70,70;73,68;76,67;79,68;82,70;84,73;85,76;84,79;82,81;79,83;76,84;73,83;70,81;67,79;65,76;64,73;65,70;67,67;70,65;73,67;70,70"
+                            calcMode="spline"
+                            keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"
+                            additive="replace"/>
+                        <circle cx="0" cy="0" r="20" fill="none" stroke="#b4a5d8" stroke-width="1" opacity="0.2"/>
+                        <circle cx="0" cy="0" r="35" fill="none" stroke="#b4a5d8" stroke-width="1" opacity="0.15"/>
+                        <circle cx="0" cy="0" r="6" fill="#b4a5d8"/>
+                        <g>
+                            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="30s" repeatCount="indefinite"/>
+                            <g transform="translate(0, -20)">
+                                <circle cx="0" cy="0" r="2.5" fill="#b4a5d8" opacity="0.7"/>
+                                <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="3s" repeatCount="indefinite"/><circle cx="4" cy="0" r="0.5" fill="#b4a5d8" opacity="0.6"/></g>
+                                <g><animateTransform attributeName="transform" type="rotate" from="120" to="480" dur="5s" repeatCount="indefinite"/><circle cx="6" cy="0" r="0.6" fill="#b4a5d8" opacity="0.5"/></g>
+                                <g><animateTransform attributeName="transform" type="rotate" from="240" to="-120" dur="8s" repeatCount="indefinite"/><circle cx="8" cy="0" r="0.4" fill="#b4a5d8" opacity="0.45"/></g>
+                            </g>
+                            <g transform="translate(20, 0)">
+                                <circle cx="0" cy="0" r="1.5" fill="#b4a5d8" opacity="0.6"/>
+                                <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite"/><circle cx="3" cy="0" r="0.4" fill="#b4a5d8" opacity="0.5"/></g>
+                                <g><animateTransform attributeName="transform" type="rotate" from="180" to="540" dur="7s" repeatCount="indefinite"/><circle cx="4.5" cy="0" r="0.3" fill="#b4a5d8" opacity="0.4"/></g>
+                            </g>
+                            <g transform="translate(0, 35)">
+                                <circle cx="0" cy="0" r="2" fill="#b4a5d8" opacity="0.6"/>
+                                <g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="3s" repeatCount="indefinite"/><circle cx="3.5" cy="0" r="0.4" fill="#b4a5d8" opacity="0.5"/></g>
+                                <g><animateTransform attributeName="transform" type="rotate" from="90" to="450" dur="5s" repeatCount="indefinite"/><circle cx="5" cy="0" r="0.5" fill="#b4a5d8" opacity="0.45"/></g>
+                                <g><animateTransform attributeName="transform" type="rotate" from="180" to="540" dur="7s" repeatCount="indefinite"/><circle cx="6.5" cy="0" r="0.4" fill="#b4a5d8" opacity="0.4"/></g>
+                                <g><animateTransform attributeName="transform" type="rotate" from="270" to="630" dur="10s" repeatCount="indefinite"/><circle cx="8" cy="0" r="0.3" fill="#b4a5d8" opacity="0.35"/></g>
+                            </g>
+                        </g>
+                    </g>
+                    <g transform="translate(130, 70)">
+                        <animateTransform
+                            attributeName="transform"
+                            type="translate"
+                            dur="23s"
+                            repeatCount="indefinite"
+                            values="130,70;128,67;125,65;122,64;118,65;115,67;113,70;112,73;113,76;115,79;118,81;122,82;125,81;128,79;131,76;133,73;134,70;133,67;131,65;128,64;130,70"
+                            calcMode="spline"
+                            keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"
+                            additive="replace"/>
+                        <circle cx="0" cy="0" r="20" fill="none" stroke="#b4a5d8" stroke-width="1" opacity="0.2"/>
+                        <circle cx="0" cy="0" r="35" fill="none" stroke="#b4a5d8" stroke-width="1" opacity="0.15"/>
+                        <circle cx="0" cy="0" r="6" fill="#b4a5d8"/>
+                        <g>
+                            <animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="25s" repeatCount="indefinite"/>
+                            <g transform="translate(0, -20)"><circle cx="0" cy="0" r="2" fill="#b4a5d8" opacity="0.7"/><g><animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="3s" repeatCount="indefinite"/><circle cx="4" cy="0" r="0.5" fill="#b4a5d8" opacity="0.6"/></g><g><animateTransform attributeName="transform" type="rotate" from="180" to="-180" dur="6s" repeatCount="indefinite"/><circle cx="6" cy="0" r="0.4" fill="#b4a5d8" opacity="0.5"/></g></g>
+                            <g transform="translate(20, 0)"><circle cx="0" cy="0" r="1.5" fill="#b4a5d8" opacity="0.6"/></g>
+                        </g>
+                    </g>
+                    <g transform="translate(100, 120)">
+                        <animateTransform
+                            attributeName="transform"
+                            type="translate"
+                            dur="29s"
+                            repeatCount="indefinite"
+                            values="100,120;103,119;106,119;108,120;110,122;111,125;110,128;108,130;106,132;103,133;100,133;97,132;94,130;92,128;91,125;91,122;92,119;94,117;97,116;100,116;100,120"
+                            calcMode="spline"
+                            keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"
+                            additive="replace"/>
+                        <circle cx="0" cy="0" r="20" fill="none" stroke="#b4a5d8" stroke-width="1" opacity="0.2"/>
+                        <circle cx="0" cy="0" r="6" fill="#b4a5d8"/>
+                        <g>
+                            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="35s" repeatCount="indefinite"/>
+                            <g transform="translate(0, -20)"><circle cx="0" cy="0" r="2.5" fill="#b4a5d8" opacity="0.7"/></g>
+                        </g>
+                    </g>
+                    <line x1="70" y1="70" x2="130" y2="70" stroke="#b4a5d8" stroke-width="0.5" opacity="0.15" stroke-dasharray="2,4"><animate attributeName="opacity" values="0.15;0.25;0.15" dur="7s" repeatCount="indefinite"/></line>
+                    <line x1="130" y1="70" x2="100" y2="120" stroke="#b4a5d8" stroke-width="0.5" opacity="0.15" stroke-dasharray="2,4"><animate attributeName="opacity" values="0.15;0.25;0.15" dur="9s" repeatCount="indefinite"/></line>
+                    <line x1="100" y1="120" x2="70" y2="70" stroke="#b4a5d8" stroke-width="0.5" opacity="0.15" stroke-dasharray="2,4"><animate attributeName="opacity" values="0.15;0.25;0.15" dur="11s" repeatCount="indefinite"/></line>
+                </g>
+            </svg>
+
+            <h1 class="verification-title">VERIFICATION</h1>
+            <p id="verificationSubtitle" class="verification-subtitle">Create secure verification codes</p>
+
+            <div id="verificationGenerateSection" class="verification-section active">
+                <div class="info-banner">
+                    <h3>🔐 How it works</h3>
+                    <p>Generate a unique URL with verification codes. Anyone with the URL will see the same codes. Share in your group chat, then have participants read codes on video to verify they're in the verified group.</p>
+                </div>
+
+                <div class="verification-input-group">
+                    <label for="verificationCountInput" class="verification-input-label">Number of Codes</label>
+                    <input type="number" id="verificationCountInput" class="verification-number-input" value="5" min="3" max="20">
+                </div>
+
+                <button class="btn btn-primary" onclick="generateVerificationSession()" style="width: 100%;">Generate Session</button>
+            </div>
+
+            <div id="verificationCodesSection" class="verification-section">
+                <div style="text-align: left;">
+                    <span class="verification-back-link" onclick="startNewVerificationSetup()">← New Session</span>
+                </div>
+
+                <div class="verification-url-box">
+                    <div class="verification-url-label">Share this link:</div>
+                    <div class="verification-url-text" id="verificationUrlText"></div>
+                    <button class="btn btn-secondary" onclick="copyVerificationUrl()">📋 Copy URL</button>
+                </div>
+
+                <div class="verification-codes-grid" id="verificationCodesGrid"></div>
+
+                <div class="info-card">
+                    <div class="info-content">
+                        <strong>Verification process:</strong> Have each person read out one of these codes on video to verify they're in the group. Everyone with this URL sees identical codes.
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="startNewVerificationSetup()" style="width: 100%;">Create Another Session</button>
             </div>
         </div>
     </div>
@@ -2190,6 +2525,268 @@
         let credentialsWindow = null;
         let quotesData = null;
 
+        const VERIFICATION_MIN_COUNT = 3;
+        const VERIFICATION_MAX_COUNT = 20;
+        let verificationPathPrefix = '';
+        let verificationLastCount = 5;
+
+        class SeededRandom {
+            constructor(seed) {
+                this.seed = this.hashCode(seed);
+            }
+
+            hashCode(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash |= 0;
+                }
+                return Math.abs(hash);
+            }
+
+            next() {
+                this.seed = (this.seed * 1103515245 + 12345) & 0x7fffffff;
+                return this.seed / 0x7fffffff;
+            }
+
+            nextInt(min, max) {
+                return Math.floor(this.next() * (max - min + 1)) + min;
+            }
+        }
+
+        function generateVerificationSeed() {
+            const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+            let seed = '';
+            for (let i = 0; i < 10; i++) {
+                seed += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return seed;
+        }
+
+        function generateVerificationCodes(seed, count) {
+            const rng = new SeededRandom(seed);
+            const codes = [];
+
+            for (let i = 0; i < count; i++) {
+                const code = rng.nextInt(100000, 999999);
+                codes.push(code.toString().padStart(6, '0'));
+            }
+
+            return codes;
+        }
+
+        function clampVerificationCount(value) {
+            if (Number.isNaN(value)) return VERIFICATION_MIN_COUNT;
+            return Math.min(VERIFICATION_MAX_COUNT, Math.max(VERIFICATION_MIN_COUNT, value));
+        }
+
+        function buildVerificationPath(seed, count) {
+            const prefix = verificationPathPrefix ? `${verificationPathPrefix}` : '';
+            return `/${prefix}${seed}-${count}`;
+        }
+
+        function setVerificationSection(section) {
+            document.querySelectorAll('.verification-section').forEach(el => el.classList.remove('active'));
+            const targetId = section === 'codes' ? 'verificationCodesSection' : 'verificationGenerateSection';
+            const target = document.getElementById(targetId);
+            if (target) target.classList.add('active');
+
+            const subtitle = document.getElementById('verificationSubtitle');
+            if (subtitle) {
+                subtitle.textContent = section === 'codes'
+                    ? 'Share this URL with your group'
+                    : 'Create secure verification codes';
+            }
+        }
+
+        function showVerificationView(fromRoute = false) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            const view = document.getElementById('verificationView');
+            if (view) view.classList.add('active');
+
+            const input = document.getElementById('verificationCountInput');
+            if (input) input.value = verificationLastCount;
+
+            if (!fromRoute) {
+                verificationPathPrefix = '';
+                setVerificationSection('generate');
+            }
+        }
+
+        function navigateHomeFromVerification() {
+            if (window.location.pathname !== '/') {
+                history.pushState({}, '', '/');
+            }
+            verificationPathPrefix = '';
+            setVerificationSection('generate');
+            showModeSelection();
+        }
+
+        function generateVerificationSession() {
+            const input = document.getElementById('verificationCountInput');
+            if (!input) return;
+
+            const rawCount = parseInt(input.value, 10);
+            if (Number.isNaN(rawCount)) {
+                showMessage('Please enter a number between 3 and 20', 'error');
+                return;
+            }
+
+            const clampedCount = clampVerificationCount(rawCount);
+            if (clampedCount !== rawCount) {
+                input.value = clampedCount;
+            }
+
+            verificationLastCount = clampedCount;
+            const seed = generateVerificationSeed();
+            displayVerificationCodes(seed, clampedCount);
+        }
+
+        function displayVerificationCodes(seed, count, options = {}) {
+            const normalizedCount = clampVerificationCount(count);
+            verificationLastCount = normalizedCount;
+
+            const input = document.getElementById('verificationCountInput');
+            if (input) input.value = normalizedCount;
+
+            const sharePath = options.sharePath || buildVerificationPath(seed, normalizedCount);
+            const state = { view: 'verification', seed, count: normalizedCount, prefix: verificationPathPrefix };
+
+            if (options.updateHistory !== false) {
+                if (options.replaceHistory) {
+                    history.replaceState(state, '', sharePath);
+                } else {
+                    history.pushState(state, '', sharePath);
+                }
+            }
+
+            const shareUrl = `${window.location.origin}${sharePath}`;
+            const urlText = document.getElementById('verificationUrlText');
+            if (urlText) urlText.textContent = shareUrl;
+
+            const grid = document.getElementById('verificationCodesGrid');
+            if (grid) {
+                grid.innerHTML = '';
+                const codes = generateVerificationCodes(seed, normalizedCount);
+                codes.forEach((code, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'verification-code-card';
+                    card.innerHTML = `
+                        <div class="verification-code-number">${code}</div>
+                        <div class="verification-code-label">Code ${index + 1}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            setVerificationSection('codes');
+        }
+
+        function copyVerificationUrl() {
+            const urlText = document.getElementById('verificationUrlText');
+            if (urlText && urlText.textContent) {
+                copyText(urlText.textContent);
+            }
+        }
+
+        function startNewVerificationSetup() {
+            const grid = document.getElementById('verificationCodesGrid');
+            if (grid) grid.innerHTML = '';
+
+            const urlText = document.getElementById('verificationUrlText');
+            if (urlText) urlText.textContent = '';
+
+            if (window.location.pathname !== '/') {
+                history.pushState({}, '', '/');
+            }
+
+            setVerificationSection('generate');
+
+            const input = document.getElementById('verificationCountInput');
+            if (input) {
+                input.value = verificationLastCount;
+                input.focus();
+            }
+        }
+
+        function getVerificationPathParams(pathname = window.location.pathname) {
+            const trimmed = pathname.replace(/^\/+|\/+$/g, '');
+            if (!trimmed) return null;
+
+            const segments = trimmed.split('/');
+            let index = 0;
+            let prefix = '';
+
+            if (segments[index] === 'v') {
+                prefix = 'v/';
+                index += 1;
+            }
+
+            if (index !== segments.length - 1) return null;
+
+            const candidate = segments[index];
+            if (!candidate) return null;
+
+            let seed = candidate;
+            let parsedCount = null;
+            let hasExplicitCount = false;
+
+            if (candidate.includes('-')) {
+                const parts = candidate.split('-');
+                if (parts.length !== 2) return null;
+                seed = parts[0];
+                parsedCount = parseInt(parts[1], 10);
+                if (Number.isNaN(parsedCount)) return null;
+                hasExplicitCount = true;
+            }
+
+            if (!/^[A-Za-z0-9]+$/.test(seed)) return null;
+            if (seed.length < 6) return null;
+            if (!/\d/.test(seed)) return null;
+
+            const normalizedCount = clampVerificationCount(parsedCount ?? 5);
+            const shouldNormalize = !hasExplicitCount || normalizedCount !== (parsedCount ?? normalizedCount);
+
+            return { seed, count: normalizedCount, prefix, shouldNormalize };
+        }
+
+        function handleRouteChange() {
+            const params = getVerificationPathParams();
+            if (params) {
+                verificationPathPrefix = params.prefix;
+                verificationLastCount = params.count;
+                showVerificationView(true);
+                displayVerificationCodes(params.seed, params.count, {
+                    updateHistory: false,
+                    sharePath: window.location.pathname
+                });
+            } else if (document.getElementById('verificationView')?.classList.contains('active')) {
+                verificationPathPrefix = '';
+                setVerificationSection('generate');
+                showModeSelection();
+            }
+        }
+
+        function handleInitialLoad() {
+            const params = getVerificationPathParams();
+            if (params) {
+                verificationPathPrefix = params.prefix;
+                verificationLastCount = params.count;
+                showVerificationView(true);
+
+                const options = params.shouldNormalize
+                    ? { replaceHistory: true }
+                    : { updateHistory: false, sharePath: window.location.pathname };
+
+                displayVerificationCodes(params.seed, params.count, options);
+            } else {
+                showModeSelection();
+            }
+
+            loadQuotes();
+        }
+
         const adjectiveMeanings = {
             "emergent": "arising naturally",
             "symbiotic": "mutually beneficial",
@@ -2773,10 +3370,8 @@
             credentialsWindow.document.close();
         }
 
-        window.onload = () => {
-            showModeSelection();
-            loadQuotes();
-        };
+        window.addEventListener('popstate', handleRouteChange);
+        window.onload = handleInitialLoad;
     </script>
 </body>
 </html>
