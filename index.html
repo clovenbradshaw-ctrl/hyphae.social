@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="https://imgur.com/ExiUtGS">
     <link rel="shortcut icon" href="https://imgur.com/ExiUtGS">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/matrix-widget-api@^1.0.0/dist/browser.js"></script>
     <style>
         * {
             margin: 0;
@@ -921,6 +922,62 @@
                 margin-bottom: 20px;
             }
         }
+
+        /* NEW STYLES START HERE */
+        
+        /* Claimed code styling */
+        .verification-code-card.claimed {
+            opacity: 0.6;
+            border-color: #10b981 !important;
+            background: rgba(16, 185, 129, 0.1);
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+
+        .verification-code-card.claimed .verification-code-number {
+            color: #10b981;
+        }
+
+        .verification-code-card.claimed .verification-code-label {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* Make cards clickable when not claimed */
+        .verification-code-card:not(.claimed) {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .verification-code-card:not(.claimed):hover {
+            transform: translateY(-5px);
+            border-color: #b4a5d8;
+            box-shadow: 0 15px 40px rgba(180, 165, 216, 0.3);
+        }
+
+        .verification-code-card:not(.claimed):active {
+            transform: translateY(-2px);
+        }
+
+        /* Widget mode indicator */
+        .widget-mode-badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        /* Verification input group visibility */
+        .verification-input-group.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -1324,15 +1381,15 @@
                 </div>
                 <div class="mode-card" onclick="showVerificationView()">
                     <div class="mode-icon">🔐</div>
-                    <div class="mode-title">Group Verification</div>
+                    <div class="mode-title">Identity Verification</div>
                     <div class="mode-description">
-                        Generate deterministic codes for remote check-ins and shareable sessions.
+                        Confirm someone's identity across platforms. Perfect for verifying Matrix accounts when migrating from Signal.
                     </div>
                     <ul class="mode-features">
-                        <li>Create clean verification URLs</li>
-                        <li>Everyone sees the same codes</li>
-                        <li>Clipboard copy helpers</li>
-                        <li>No database or tracking required</li>
+                        <li>Generate unique verification codes</li>
+                        <li>Send via trusted channel (Signal/email)</li>
+                        <li>They prove identity by reading code</li>
+                        <li>Real-time sync in Matrix rooms</li>
                     </ul>
                 </div>
             </div>
@@ -1426,42 +1483,180 @@
             </svg>
 
             <h1 class="verification-title">VERIFICATION</h1>
-            <p id="verificationSubtitle" class="verification-subtitle">Create secure verification codes</p>
+            <p id="verificationSubtitle" class="verification-subtitle">Confirm identities across platforms</p>
 
             <div id="verificationGenerateSection" class="verification-section active">
-                <div class="info-banner">
-                    <h3>🔐 How it works</h3>
-                    <p>Generate a unique URL with verification codes. Anyone with the URL will see the same codes. Share in your group chat, then have participants read codes on video to verify they're in the verified group.</p>
+                <!-- Verification Mode Selector -->
+                <div class="info-card" style="margin-bottom: 25px;">
+                    <div class="info-title">🔐 What are you verifying?</div>
+                    <div class="info-content" style="margin-bottom: 15px;">
+                        Choose your verification scenario:
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="mode-toggle-btn active" id="individualModeBtn" onclick="setVerificationMode('individual')">
+                            👤 1-on-1
+                        </button>
+                        <button class="mode-toggle-btn" id="groupModeBtn" onclick="setVerificationMode('group')">
+                            👥 Group
+                        </button>
+                    </div>
                 </div>
 
-                <div class="verification-input-group">
-                    <label for="verificationCountInput" class="verification-input-label">Number of Codes</label>
-                    <input type="number" id="verificationCountInput" class="verification-number-input" value="5" min="3" max="20">
+                <!-- Individual Mode Instructions -->
+                <div id="individualModeInfo" class="info-card" style="background: rgba(180, 165, 216, 0.1); border-color: rgba(180, 165, 216, 0.3);">
+                    <div class="info-title">👤 1-on-1 Verification</div>
+                    <div class="info-content">
+                        <p style="margin-bottom: 12px;"><strong>Best for:</strong> Verifying someone's Matrix identity via Signal DM</p>
+                        
+                        <p style="margin-bottom: 8px; font-weight: 600; font-size: 13px;">Option A: One-Way Verification</p>
+                        <p style="margin-bottom: 8px; font-size: 13px;">You verify them (they don't verify you):</p>
+                        <ol style="margin-left: 20px; line-height: 1.6; font-size: 13px;">
+                            <li>Send this URL privately via Signal DM</li>
+                            <li>They open it and read you the code on Matrix</li>
+                            <li>You confirm it matches - their identity verified!</li>
+                        </ol>
+                        
+                        <p style="margin-top: 15px; margin-bottom: 8px; font-weight: 600; font-size: 13px;">Option B: Mutual Verification (Recommended)</p>
+                        <p style="margin-bottom: 8px; font-size: 13px;">You both verify each other:</p>
+                        <ol style="margin-left: 20px; line-height: 1.6; font-size: 13px;">
+                            <li>You each generate a verification URL</li>
+                            <li>Trade URLs via Signal DM</li>
+                            <li>Each person reads their code back on Matrix</li>
+                            <li>Both identities verified! ✓</li>
+                        </ol>
+                        
+                        <p style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(180, 165, 216, 0.2); font-size: 12px; color: #8a8a9e;">
+                            <strong>⚠️ Security:</strong> Always send verification links privately in Signal DMs, never in group chats.
+                        </p>
+                    </div>
                 </div>
 
-                <button class="btn btn-primary" onclick="generateVerificationSession()" style="width: 100%;">Generate Session</button>
+                <!-- Group Mode Instructions -->
+                <div id="groupModeInfo" class="info-card" style="display: none; background: rgba(180, 165, 216, 0.1); border-color: rgba(180, 165, 216, 0.3);">
+                    <div class="info-title">👥 Group Verification</div>
+                    <div class="info-content">
+                        <p style="margin-bottom: 12px;"><strong>Best for:</strong> Onboarding multiple people from Signal to Matrix</p>
+                        <p style="margin-bottom: 12px;"><strong>How it works:</strong></p>
+                        <ol style="margin-left: 20px; line-height: 1.8; font-size: 13px;">
+                            <li>Post the verification URL in your trusted Signal group</li>
+                            <li>Each person opens it and picks a code number</li>
+                            <li>On video call, each person reads their code</li>
+                            <li>Everyone verifies codes match - group verified!</li>
+                        </ol>
+                        <p style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(180, 165, 216, 0.2); font-size: 12px; color: #8a8a9e;">
+                            <strong>Note:</strong> Everyone in the Signal group can see all codes. This proves group membership, not individual identity.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Number of People Input -->
+                <div class="verification-input-group" id="countInputGroup" style="margin-bottom: 25px;">
+                    <label for="verificationCountInput" class="verification-input-label">Number of People</label>
+                    <input type="number" id="verificationCountInput" class="verification-number-input" value="5" min="1" max="20">
+                    <p style="font-size: 12px; color: #8a8a9e; margin-top: 8px;">
+                        Generate one code per person in your group.
+                    </p>
+                </div>
+
+                <button class="btn btn-primary" onclick="generateVerificationSession()" style="width: 100%;">Generate Verification URL</button>
             </div>
 
             <div id="verificationCodesSection" class="verification-section">
                 <div style="text-align: left;">
-                    <span class="verification-back-link" onclick="startNewVerificationSetup()">← New Session</span>
+                    <span class="verification-back-link" onclick="startNewVerificationSetup()">← New Verification</span>
+                </div>
+
+                <!-- Widget Mode Badge (shown only when in widget) -->
+                <div id="widgetModeBadge" style="display: none; text-align: center;">
+                    <span class="widget-mode-badge">🔗 Matrix Widget Mode - Real-Time Sync Active</span>
                 </div>
 
                 <div class="verification-url-box">
-                    <div class="verification-url-label">Share this link:</div>
+                    <div class="verification-url-label">Share this URL via your trusted channel:</div>
                     <div class="verification-url-text" id="verificationUrlText"></div>
                     <button class="btn btn-secondary" onclick="copyVerificationUrl()">📋 Copy URL</button>
                 </div>
 
-                <div class="verification-codes-grid" id="verificationCodesGrid"></div>
-
-                <div class="info-card">
-                    <div class="info-content">
-                        <strong>Verification process:</strong> Have each person read out one of these codes on video to verify they're in the group. Everyone with this URL sees identical codes.
+                <!-- Individual Mode Instructions -->
+                <div id="individualVerificationReady" style="display: none;">
+                    <div class="info-card success" style="margin-bottom: 20px;">
+                        <div class="info-content">
+                            <strong>✓ 1-on-1 Verification Ready</strong><br><br>
+                            
+                            <strong>One-Way Verification:</strong>
+                            <ol style="margin-left: 20px; line-height: 1.8; margin-top: 10px; font-size: 13px;">
+                                <li>Send the URL above via Signal DM</li>
+                                <li>They read you the code on Matrix</li>
+                                <li>Verify it matches below - done! ✓</li>
+                            </ol>
+                            
+                            <strong style="margin-top: 15px; display: block;">Mutual Verification (Recommended):</strong>
+                            <ol style="margin-left: 20px; line-height: 1.8; margin-top: 10px; font-size: 13px;">
+                                <li><strong>You:</strong> Send this URL to them via Signal DM</li>
+                                <li><strong>Them:</strong> They generate their own URL and send to you via Signal</li>
+                                <li><strong>Both:</strong> Open each other's URLs</li>
+                                <li><strong>You:</strong> Read your code to them on Matrix</li>
+                                <li><strong>Them:</strong> They read their code to you on Matrix</li>
+                                <li><strong>Both verify codes match</strong> - mutual trust established! ✓✓</li>
+                            </ol>
+                            
+                            <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(16, 185, 129, 0.2); font-size: 12px; color: #e0e0e0;">
+                                <strong>💡 Why mutual?</strong> One-way only proves their Matrix = their Signal. Mutual proves BOTH of you control both accounts.
+                            </p>
+                            
+                            <p style="margin-top: 10px; font-size: 12px; color: #e0e0e0;">
+                                <strong>🔐 Security:</strong> Always use private Signal DMs, never group chats.
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <button class="btn btn-secondary" onclick="startNewVerificationSetup()" style="width: 100%;">Create Another Session</button>
+                <!-- Group Mode Instructions -->
+                <div id="groupVerificationReady" style="display: none;">
+                    <div class="info-card success" style="margin-bottom: 20px;">
+                        <div class="info-content">
+                            <strong>✓ Group Verification Ready</strong><br><br>
+                            
+                            <strong>Next steps:</strong>
+                            <ol style="margin-left: 20px; line-height: 1.8; margin-top: 10px; font-size: 14px;">
+                                <li><strong>Copy the URL above</strong> (already done ✓)</li>
+                                <li><strong>Post in your Signal group</strong> so everyone can access it</li>
+                                <li><strong>Each person picks a code number</strong> (1, 2, 3, etc.)</li>
+                                <li><strong>On video call:</strong> each person reads their code out loud</li>
+                                <li><strong>Everyone verifies</strong> the codes match</li>
+                            </ol>
+                            
+                            <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(16, 185, 129, 0.2); font-size: 13px; color: #e0e0e0;">
+                                <strong>Note:</strong> Everyone with the URL sees all codes. This proves they were in the Signal group, but doesn't verify individual identity - use 1-on-1 mode for that.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Codes Grid -->
+                <div class="verification-codes-grid" id="verificationCodesGrid"></div>
+
+                <!-- Widget Usage Instructions -->
+                <div class="info-card" style="background: rgba(180, 165, 216, 0.05); border-color: rgba(180, 165, 216, 0.2); margin-top: 20px;">
+                    <div class="info-title">📱 Optional: Use in Matrix Room</div>
+                    <div class="info-content" style="font-size: 13px;">
+                        <p style="margin-bottom: 12px;">For large groups, you can embed this verification tool in a Matrix room as a widget. When someone clicks a code, everyone sees it claimed in real-time.</p>
+                        <p style="margin-bottom: 12px;"><strong>How to add:</strong></p>
+                        <ol style="margin-left: 20px; line-height: 1.6; font-size: 13px;">
+                            <li>Click the button below to copy the URL</li>
+                            <li>In your Matrix room: Room Info → Widgets → Add Widget</li>
+                            <li>Paste the URL and click Add</li>
+                        </ol>
+                        <button class="btn btn-secondary" onclick="copyWidgetUrl()" 
+                                style="width: 100%; margin-top: 12px; font-size: 12px;">
+                            📋 Copy Widget URL
+                        </button>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="startNewVerificationSetup()" style="width: 100%; margin-top: 20px;">
+                    Generate Another Verification
+                </button>
             </div>
         </div>
     </div>
@@ -2527,10 +2722,222 @@
         let credentialsWindow = null;
         let quotesData = null;
 
-        const VERIFICATION_MIN_COUNT = 3;
+        const VERIFICATION_MIN_COUNT = 1;
         const VERIFICATION_MAX_COUNT = 20;
         let verificationPathPrefix = '';
         let verificationLastCount = 5;
+        let verificationMode = 'individual'; // 'individual' or 'group'
+
+        // Widget API integration
+        let widgetApi = null;
+        let isWidget = false;
+        let widgetRoomId = null;
+        let currentVerificationSeed = null;
+        let claimedCodes = new Map(); // Maps code index to {userId, timestamp, displayName}
+
+        // ============================================
+        // WIDGET API INITIALIZATION
+        // ============================================
+
+        // Initialize widget mode if running in iframe
+        async function initWidgetMode() {
+            // Check if we're in a widget context (iframe)
+            if (window.parent === window || !window.location.search.includes('widgetId')) {
+                isWidget = false;
+                return;
+            }
+            
+            try {
+                // Check if Widget API is available
+                if (typeof window.mxwidgets === 'undefined') {
+                    console.warn('Widget API not loaded');
+                    isWidget = false;
+                    return;
+                }
+                
+                // Initialize widget API
+                widgetApi = new window.mxwidgets.WidgetApi();
+                
+                // Request necessary capabilities
+                await widgetApi.requestCapabilityForRoomTimeline(widgetApi.widgetId);
+                await widgetApi.requestCapabilityToSendEvent('social.hyphae.verification.claim');
+                await widgetApi.requestCapabilityToReceiveEvent('social.hyphae.verification.claim');
+                
+                // Listen for claim events from other users
+                widgetApi.on('action:send_event', (event) => {
+                    if (event.detail?.data?.type === 'social.hyphae.verification.claim') {
+                        handleRemoteClaim(event.detail.data.content);
+                    }
+                });
+                
+                // Start the widget API
+                await widgetApi.start();
+                isWidget = true;
+                
+                // Show widget mode badge
+                const badge = document.getElementById('widgetModeBadge');
+                if (badge) badge.style.display = 'block';
+                
+                console.log('Widget mode initialized successfully');
+                
+            } catch (error) {
+                console.warn('Widget API initialization failed:', error);
+                isWidget = false;
+            }
+        }
+
+        // Handle claim event from another user
+        function handleRemoteClaim(content) {
+            if (!content || content.seed !== currentVerificationSeed) return;
+            
+            const { codeIndex, userId, displayName, timestamp } = content;
+            
+            // Update our local state
+            if (!claimedCodes.has(codeIndex)) {
+                claimedCodes.set(codeIndex, { userId, displayName, timestamp });
+                updateCodeCardDisplay(codeIndex, displayName, false); // false = don't broadcast
+            }
+        }
+
+        // Claim a code (called when user clicks)
+        async function claimCode(codeIndex) {
+            // Prevent claiming if already claimed
+            if (claimedCodes.has(codeIndex)) {
+                showMessage('This code is already claimed', 'error');
+                return;
+            }
+            
+            const codeCard = document.querySelector(`[data-code-index="${codeIndex}"]`);
+            if (!codeCard) return;
+            
+            const codeNumber = codeCard.querySelector('.verification-code-number').textContent;
+            
+            // Determine display name
+            let displayName = 'You';
+            let userId = 'anonymous';
+            
+            if (isWidget && widgetApi) {
+                try {
+                    // Try to get user info from widget API
+                    const userInfo = await widgetApi.requestOpenIDConnectToken();
+                    userId = userInfo.matrix_server_name ? `@user:${userInfo.matrix_server_name}` : 'anonymous';
+                    displayName = userId.split(':')[0].replace('@', '');
+                } catch (error) {
+                    console.warn('Could not get user info:', error);
+                }
+            }
+            
+            // Mark locally first for immediate feedback
+            claimedCodes.set(codeIndex, {
+                userId: userId,
+                displayName: displayName,
+                timestamp: Date.now()
+            });
+            updateCodeCardDisplay(codeIndex, displayName, true); // true = broadcast to others
+            
+            // If in widget mode, broadcast the claim
+            if (isWidget && widgetApi) {
+                try {
+                    await widgetApi.sendRoomEvent('social.hyphae.verification.claim', {
+                        seed: currentVerificationSeed,
+                        codeIndex: codeIndex,
+                        codeNumber: codeNumber,
+                        userId: userId,
+                        displayName: displayName,
+                        timestamp: Date.now()
+                    });
+                } catch (error) {
+                    console.error('Failed to broadcast claim:', error);
+                    showMessage('Could not sync claim to room', 'error');
+                }
+            }
+            
+            showMessage(`Code ${codeIndex + 1} claimed!`, 'success');
+        }
+
+        // Update the visual display of a code card
+        function updateCodeCardDisplay(codeIndex, displayName, shouldAnimate) {
+            const card = document.querySelector(`[data-code-index="${codeIndex}"]`);
+            if (!card) return;
+            
+            // Add claimed class
+            card.classList.add('claimed');
+            
+            // Update label
+            const label = card.querySelector('.verification-code-label');
+            if (label) {
+                label.textContent = `✓ Claimed by ${displayName}`;
+            }
+            
+            // Animate if this was a local claim
+            if (shouldAnimate) {
+                card.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    card.style.transform = '';
+                }, 200);
+            }
+        }
+
+        // Load existing claims from widget room timeline
+        async function loadExistingClaims() {
+            if (!isWidget || !widgetApi || !currentVerificationSeed) return;
+            
+            try {
+                // Note: Actual implementation would need to read room timeline
+                // This is a placeholder - Matrix Widget API may not support full timeline access
+                console.log('Would load existing claims from room timeline');
+            } catch (error) {
+                console.warn('Could not load existing claims:', error);
+            }
+        }
+
+        // ============================================
+        // VERIFICATION MODE MANAGEMENT
+        // ============================================
+
+        // Set verification mode (individual or group)
+        function setVerificationMode(mode) {
+            verificationMode = mode;
+            
+            // Update button states
+            const individualBtn = document.getElementById('individualModeBtn');
+            const groupBtn = document.getElementById('groupModeBtn');
+            
+            if (individualBtn && groupBtn) {
+                individualBtn.classList.toggle('active', mode === 'individual');
+                groupBtn.classList.toggle('active', mode === 'group');
+            }
+            
+            // Show/hide mode-specific info
+            const individualInfo = document.getElementById('individualModeInfo');
+            const groupInfo = document.getElementById('groupModeInfo');
+            
+            if (individualInfo && groupInfo) {
+                individualInfo.style.display = mode === 'individual' ? 'block' : 'none';
+                groupInfo.style.display = mode === 'group' ? 'block' : 'none';
+            }
+            
+            // Show/hide count input
+            const countGroup = document.getElementById('countInputGroup');
+            const countInput = document.getElementById('verificationCountInput');
+            
+            if (countGroup && countInput) {
+                if (mode === 'individual') {
+                    countGroup.style.display = 'none';
+                    countInput.value = 1;
+                } else {
+                    countGroup.style.display = 'block';
+                    countInput.value = 5;
+                }
+            }
+        }
+
+        // Copy widget URL to clipboard
+        function copyWidgetUrl() {
+            const currentUrl = window.location.href;
+            copyText(currentUrl);
+            showMessage('Widget URL copied! Add it to your Matrix room.', 'success');
+        }
 
         class SeededRandom {
             constructor(seed) {
@@ -2579,7 +2986,7 @@
         }
 
         function clampVerificationCount(value) {
-            if (Number.isNaN(value)) return VERIFICATION_MIN_COUNT;
+            if (Number.isNaN(value)) return 1;
             return Math.min(VERIFICATION_MAX_COUNT, Math.max(VERIFICATION_MIN_COUNT, value));
         }
 
@@ -2609,8 +3016,8 @@
             const subtitle = document.getElementById('verificationSubtitle');
             if (subtitle) {
                 subtitle.textContent = section === 'codes'
-                    ? 'Share this URL with your group'
-                    : 'Create secure verification codes';
+                    ? 'Share this URL via your trusted channel'
+                    : 'Confirm identities across platforms';
             }
         }
 
@@ -2619,8 +3026,16 @@
             const view = document.getElementById('verificationView');
             if (view) view.classList.add('active');
 
+            if (!fromRoute) {
+                verificationMode = 'individual';
+            }
+
+            setVerificationMode(verificationMode);
+
             const input = document.getElementById('verificationCountInput');
-            if (input) input.value = verificationLastCount;
+            if (input && verificationMode === 'group') {
+                input.value = verificationLastCount;
+            }
 
             if (!fromRoute) {
                 verificationPathPrefix = '';
@@ -2642,25 +3057,31 @@
             const input = document.getElementById('verificationCountInput');
             if (!input) return;
 
-            const rawCount = parseInt(input.value, 10);
-            if (Number.isNaN(rawCount)) {
-                showMessage('Please enter a number between 3 and 20', 'error');
-                return;
+            let count;
+            if (verificationMode === 'individual') {
+                count = 1; // Always 1 for individual mode
+            } else {
+                const rawCount = parseInt(input.value, 10);
+                if (Number.isNaN(rawCount)) {
+                    showMessage('Please enter a number between 1 and 20', 'error');
+                    return;
+                }
+                count = clampVerificationCount(rawCount);
+                if (count !== rawCount) {
+                    input.value = count;
+                }
             }
 
-            const clampedCount = clampVerificationCount(rawCount);
-            if (clampedCount !== rawCount) {
-                input.value = clampedCount;
-            }
-
-            verificationLastCount = clampedCount;
+            verificationLastCount = count;
             const seed = generateVerificationSeed();
-            displayVerificationCodes(seed, clampedCount);
+            displayVerificationCodes(seed, count);
         }
 
         function displayVerificationCodes(seed, count, options = {}) {
             const normalizedCount = clampVerificationCount(count);
             verificationLastCount = normalizedCount;
+            currentVerificationSeed = seed;
+            claimedCodes.clear(); // Reset claimed codes for new session
 
             const input = document.getElementById('verificationCountInput');
             if (input) input.value = normalizedCount;
@@ -2690,15 +3111,44 @@
                 codes.forEach((code, index) => {
                     const card = document.createElement('div');
                     card.className = 'verification-code-card';
+                    card.setAttribute('data-code-index', index);
                     card.innerHTML = `
                         <div class="verification-code-number">${code}</div>
                         <div class="verification-code-label">Code ${index + 1}</div>
                     `;
+                    
+                    // Make card clickable
+                    card.addEventListener('click', () => {
+                        claimCode(index);
+                    });
+                    
                     grid.appendChild(card);
                 });
             }
 
+            // Show appropriate instruction box
+            const individualReady = document.getElementById('individualVerificationReady');
+            const groupReady = document.getElementById('groupVerificationReady');
+            
+            if (individualReady && groupReady) {
+                if (normalizedCount === 1 || verificationMode === 'individual') {
+                    individualReady.style.display = 'block';
+                    groupReady.style.display = 'none';
+                } else {
+                    individualReady.style.display = 'none';
+                    groupReady.style.display = 'block';
+                }
+            }
+
             setVerificationSection('codes');
+            
+            // Auto-copy URL for convenience
+            copyText(shareUrl);
+            
+            // Load existing claims if in widget mode
+            if (isWidget) {
+                loadExistingClaims();
+            }
         }
 
         function copyVerificationUrl() {
@@ -2709,11 +3159,15 @@
         }
 
         function startNewVerificationSetup() {
+            // Reset state
             const grid = document.getElementById('verificationCodesGrid');
             if (grid) grid.innerHTML = '';
 
             const urlText = document.getElementById('verificationUrlText');
             if (urlText) urlText.textContent = '';
+            
+            currentVerificationSeed = null;
+            claimedCodes.clear();
 
             const currentUrl = new URL(window.location.href);
             if (currentUrl.search || currentUrl.hash) {
@@ -2722,10 +3176,15 @@
 
             setVerificationSection('generate');
 
+            // Reset mode selector
+            setVerificationMode(verificationMode);
+
             const input = document.getElementById('verificationCountInput');
             if (input) {
                 input.value = verificationLastCount;
-                input.focus();
+                if (verificationMode === 'group') {
+                    input.focus();
+                }
             }
         }
 
@@ -2812,6 +3271,7 @@
             if (params) {
                 verificationPathPrefix = params.prefix;
                 verificationLastCount = params.count;
+                verificationMode = params.count === 1 ? 'individual' : 'group';
                 showVerificationView(true);
                 const sharePath = window.location.search
                     ? `${window.location.pathname}${window.location.search}`
@@ -2829,11 +3289,18 @@
             }
         }
 
-        function handleInitialLoad() {
+        async function handleInitialLoad() {
+            // Initialize widget mode first
+            await initWidgetMode();
+            
             const params = getVerificationPathParams();
             if (params) {
                 verificationPathPrefix = params.prefix;
                 verificationLastCount = params.count;
+                
+                // Set mode based on count
+                verificationMode = params.count === 1 ? 'individual' : 'group';
+                
                 showVerificationView(true);
 
                 const sharePath = window.location.search
