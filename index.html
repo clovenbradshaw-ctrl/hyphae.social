@@ -710,6 +710,15 @@
         @media (max-width: 768px) {
             .username-grid { grid-template-columns: 1fr; }
             .mode-cards { grid-template-columns: 1fr; }
+            
+            #helpDesktop [style*="grid-template-columns: 1fr 1fr"],
+            #helpDesktop [style*="grid-template-columns: repeat(3, 1fr)"] {
+                display: block !important;
+            }
+            
+            #helpDesktop [style*="grid-template-columns"] > div {
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
@@ -915,7 +924,7 @@
                             If you lose these, you cannot recover your account.
                         </p>
                     </div>
-                    <div class="checkbox-container" onclick="toggleCheckbox()">
+                    <div class="checkbox-container">
                         <input type="checkbox" id="savedCheckbox" onchange="updateStep1Button()">
                         <label for="savedCheckbox"><strong>I have saved my credentials</strong></label>
                     </div>
@@ -1008,6 +1017,113 @@
                 <p style="text-align: center; color: #10b981; font-weight: 600; margin-top: 30px; font-size: 18px;">
                     ✓ You're all set! Log in with your credentials.
                 </p>
+
+                <!-- Need Help? Section -->
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="toggleHelp()" style="width: 100%;" id="helpToggleBtn">
+                        ❓ Need Help Logging In?
+                    </button>
+                </div>
+
+                <div id="helpSection" style="display: none; margin-top: 30px;">
+                    <!-- Desktop/Element Web Instructions -->
+                    <div id="helpDesktop">
+                        <div class="info-card" style="background: rgba(180, 165, 216, 0.1); border-color: rgba(180, 165, 216, 0.3);">
+                            <div class="info-title">💻 Logging in with Element Web</div>
+                            <div class="info-content">
+                                <p style="margin-bottom: 15px;">Element Web is already configured for hyphae.social - just enter your credentials:</p>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">1️⃣ Click Sign In</div>
+                                <div style="background: #1a1d29; border-radius: 12px; padding: 15px; text-align: center;">
+                                    <img src="https://imgur.com/y2LYvjO.png" alt="Element Web welcome" style="max-width: 100%; height: auto; border-radius: 8px;">
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">2️⃣ Enter Credentials</div>
+                                <div style="background: #1a1d29; border-radius: 12px; padding: 15px; text-align: center;">
+                                    <img src="https://imgur.com/7Eatcmt.png" alt="Sign in form" style="max-width: 100%; height: auto; border-radius: 8px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card" style="background: rgba(180, 165, 216, 0.1); border-color: rgba(180, 165, 216, 0.3); margin-top: 30px;">
+                            <div class="info-title">💻 Logging in with Element Desktop</div>
+                            <div class="info-content">
+                                <p style="margin-bottom: 15px;">Desktop clients need one extra step - change the server first:</p>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">1️⃣ Click Edit</div>
+                                <div style="background: #1a1d29; border-radius: 12px; padding: 15px; text-align: center;">
+                                    <img src="https://imgur.com/dMl5oc5.png" alt="Edit homeserver" style="max-width: 100%; height: auto; border-radius: 8px;">
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">2️⃣ Type hyphae.social</div>
+                                <div style="background: #1a1d29; border-radius: 12px; padding: 15px; text-align: center;">
+                                    <img src="https://imgur.com/mWcwQbS.png" alt="Type server" style="max-width: 100%; height: auto; border-radius: 8px;">
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">3️⃣ Sign In</div>
+                                <div style="background: #1a1d29; border-radius: 12px; padding: 15px; text-align: center;">
+                                    <img src="https://imgur.com/7Eatcmt.png" alt="Login form" style="max-width: 100%; height: auto; border-radius: 8px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Instructions -->
+                    <div id="helpMobile">
+                        <div class="info-card" style="background: rgba(180, 165, 216, 0.1); border-color: rgba(180, 165, 216, 0.3);">
+                            <div class="info-title">📱 Logging in with Element X</div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">1️⃣ Sign in manually</div>
+                                <div style="background: #1a1d29; border-radius: 12px; padding: 15px; text-align: center;">
+                                    <img src="https://i.imgur.com/ZmvBuM4.png" alt="Element X welcome" style="max-width: 200px; height: auto; border-radius: 8px;">
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">2️⃣ Change provider</div>
+                                <div style="background: #1a1d29; border-radius: 12px; padding: 15px; text-align: center;">
+                                    <img src="https://i.imgur.com/n7pxtyH.png" alt="Change provider" style="max-width: 200px; height: auto; border-radius: 8px;">
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">3️⃣ Enter hyphae.social</div>
+                                <div style="background: #1a1d29; border-radius: 12px; padding: 15px; text-align: center;">
+                                    <img src="https://i.imgur.com/5Qnnl7B.png" alt="Enter server" style="max-width: 200px; height: auto; border-radius: 8px;">
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">4️⃣ Enter credentials</div>
+                                <div style="background: #1a1d29; border-radius: 12px; padding: 15px; text-align: center;">
+                                    <p style="color: #8a8a9e; font-size: 13px;">Use the credentials above ⬆️</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-card" style="margin-top: 20px;">
+                        <div class="info-title">💡 Troubleshooting</div>
+                        <div class="info-content">
+                            <ul style="margin-left: 20px; line-height: 1.8;">
+                                <li><strong>Wrong username/password?</strong> Make sure you copied the full username including <code style="background: #1a1d29; padding: 2px 6px; border-radius: 4px;">:hyphae.social</code></li>
+                                <li><strong>Desktop app issues?</strong> Enter <code style="background: #1a1d29; padding: 2px 6px; border-radius: 4px;">hyphae.social</code> (no https://)</li>
+                                <li><strong>Mobile issues?</strong> Some clients need <code style="background: #1a1d29; padding: 2px 6px; border-radius: 4px;">https://hyphae.social</code> with the protocol</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1313,13 +1429,6 @@
             }
         }
 
-        function toggleCheckbox() {
-            const checkbox = document.getElementById('savedCheckbox');
-            if (!checkbox) return;
-            checkbox.checked = !checkbox.checked;
-            updateStep1Button();
-        }
-
         function updateStep1Button() {
             const checkbox = document.getElementById('savedCheckbox');
             const btn = document.getElementById('step1Btn');
@@ -1345,6 +1454,26 @@
             document.getElementById('mobileInstructions').style.display = mobile ? 'block' : 'none';
             
             document.getElementById('successView').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleHelp() {
+            const helpSection = document.getElementById('helpSection');
+            const helpBtn = document.getElementById('helpToggleBtn');
+            const helpDesktop = document.getElementById('helpDesktop');
+            const helpMobile = document.getElementById('helpMobile');
+            const mobile = isMobile();
+            
+            if (helpSection.style.display === 'none') {
+                helpSection.style.display = 'block';
+                helpBtn.textContent = '✓ Hide Help';
+                
+                // Show appropriate help based on device
+                helpDesktop.style.display = mobile ? 'none' : 'block';
+                helpMobile.style.display = mobile ? 'block' : 'none';
+            } else {
+                helpSection.style.display = 'none';
+                helpBtn.textContent = '❓ Need Help Logging In?';
+            }
         }
 
         let passwordVisible2 = false;
