@@ -83,6 +83,13 @@
             border-radius: 12px;
             opacity: 0;
             animation: fadeIn 1s ease-out 0.3s forwards;
+            cursor: pointer;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .quote-display:hover {
+            background: linear-gradient(135deg, rgba(180, 165, 216, 0.08) 0%, rgba(180, 165, 216, 0.15) 100%);
+            border-color: #d0c2f0;
         }
 
         .quote-display blockquote {
@@ -2691,6 +2698,8 @@
         let passwordVisible = false;
         let credentialsWindow = null;
         let quotesData = null;
+        let lastQuoteIndex = null;
+        let quotesLoading = false;
 
         const VERIFICATION_MIN_COUNT = 1;
         const VERIFICATION_MAX_COUNT = 20;
@@ -3288,6 +3297,19 @@
                 showModeSelection();
             }
 
+            const quoteDisplay = document.getElementById('quoteDisplay');
+            if (quoteDisplay) {
+                quoteDisplay.addEventListener('click', () => {
+                    if (!quotesData) {
+                        if (!quotesLoading) loadQuotes();
+                        return;
+                    }
+
+                    displayRandomQuote();
+                });
+                quoteDisplay.setAttribute('title', 'Click to see another quote');
+            }
+
             loadQuotes();
         }
 
@@ -3686,33 +3708,49 @@
         }
 
         async function loadQuotes() {
+            if (quotesLoading) return;
+
+            quotesLoading = true;
             try {
                 const response = await fetch('https://raw.githubusercontent.com/clovenbradshaw-ctrl/hyphae.social/refs/heads/main/quotes');
                 quotesData = await response.json();
+                lastQuoteIndex = null;
                 displayRandomQuote();
             } catch (error) {
                 console.error('Failed to load quotes:', error);
+            } finally {
+                quotesLoading = false;
             }
         }
 
         function displayRandomQuote() {
             if (!quotesData || !quotesData.quotes || quotesData.quotes.length === 0) return;
-            
-            const quote = quotesData.quotes[Math.floor(Math.random() * quotesData.quotes.length)];
+
+            const quotes = quotesData.quotes;
+            let quoteIndex = Math.floor(Math.random() * quotes.length);
+
+            if (quotes.length > 1) {
+                while (quoteIndex === lastQuoteIndex) {
+                    quoteIndex = Math.floor(Math.random() * quotes.length);
+                }
+            }
+
+            const quote = quotes[quoteIndex];
+            lastQuoteIndex = quoteIndex;
             const quoteDisplay = document.getElementById('quoteDisplay');
             const quoteText = document.getElementById('quoteText');
             const quoteAuthor = document.getElementById('quoteAuthor');
             const quoteSource = document.getElementById('quoteSource');
-            
+
             if (quoteDisplay && quoteText && quoteAuthor && quoteSource) {
                 quoteText.textContent = quote.quote;
                 quoteAuthor.textContent = quote.author;
-                
+
                 let sourceText = quote.source;
                 if (quote.year) sourceText += ` (${quote.year})`;
                 if (quote.page && quote.page !== "Not specified") sourceText += `, p. ${quote.page}`;
                 quoteSource.textContent = sourceText;
-                
+
                 quoteDisplay.style.display = 'block';
             }
         }
