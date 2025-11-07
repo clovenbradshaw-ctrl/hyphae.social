@@ -6,7 +6,8 @@
     <title>Hyphae Network - Join the Emergent Network</title>
     <link rel="icon" type="image/png" href="https://imgur.com/ExiUtGS">
     <link rel="shortcut icon" href="https://imgur.com/ExiUtGS">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+</script>
     <script src="https://unpkg.com/matrix-widget-api@^1.0.0/dist/browser.js"></script>
     <style>
         * {
@@ -978,20 +979,603 @@
         .verification-input-group.hidden {
             display: none;
         }
-    </style>
-</head>
-<body>
-    <div id="messageBox" class="message"></div>
+            /* ============================================
+           LEARNING MODULE STYLES
+           ============================================ */
 
-    <!-- Mode Selection -->
-    <div id="modeSelectionView" class="view active">
-        <div class="mode-selection-container">
-            <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <style>
-                    @keyframes fadeInLogo {
-                        to { opacity: 1; }
-                    }
-                </style>
+        /* Learn More Button */
+        .learn-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: rgba(180, 165, 216, 0.1);
+            border: 2px solid rgba(180, 165, 216, 0.3);
+            border-radius: 10px;
+            color: #b4a5d8;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .learn-more-btn:hover {
+            background: rgba(180, 165, 216, 0.2);
+            border-color: rgba(180, 165, 216, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-arrow {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .learn-more-btn:hover .btn-arrow {
+            transform: translateX(4px);
+        }
+
+        /* Learning Modal */
+        .learning-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .learning-modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+        }
+
+        .learning-modal-content {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            background: #1a1d29;
+            border: 2px solid rgba(180, 165, 216, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Learning Header */
+        .learning-header {
+            background: linear-gradient(135deg, rgba(180, 165, 216, 0.1) 0%, rgba(180, 165, 216, 0.05) 100%);
+            border-bottom: 1px solid rgba(180, 165, 216, 0.2);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .learning-close {
+            background: transparent;
+            border: none;
+            color: #8a8a9e;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            line-height: 1;
+        }
+
+        .learning-close:hover {
+            background: rgba(180, 165, 216, 0.15);
+            color: #b4a5d8;
+        }
+
+        .learning-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #8a8a9e;
+            flex-grow: 1;
+            justify-content: center;
+            margin: 0 36px;
+        }
+
+        .crumb {
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+
+        .crumb.active {
+            opacity: 1;
+            color: #b4a5d8;
+            font-weight: 600;
+        }
+
+        .crumb-separator {
+            color: rgba(180, 165, 216, 0.3);
+            margin: 0 4px;
+        }
+
+        /* Learning Views */
+        .learning-view {
+            display: none;
+            flex-direction: column;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 40px 30px;
+        }
+
+        .learning-view.active {
+            display: flex;
+        }
+
+        /* Hub View */
+        .learning-title {
+            color: #b4a5d8;
+            font-size: 32px;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .learning-subtitle {
+            color: #8a8a9e;
+            font-size: 15px;
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .learning-paths {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .learning-path-card {
+            background: #252836;
+            border: 2px solid #353849;
+            border-radius: 16px;
+            padding: 30px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .learning-path-card:hover {
+            border-color: #b4a5d8;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(180, 165, 216, 0.2);
+        }
+
+        .path-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .path-title {
+            color: #e0e0e0;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .path-description {
+            color: #a8a8b8;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .path-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(180, 165, 216, 0.1);
+        }
+
+        .path-time {
+            color: #8a8a9e;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .path-arrow {
+            color: #b4a5d8;
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .learning-path-card:hover .path-arrow {
+            transform: translateX(4px);
+        }
+
+        .learning-quick-start {
+            text-align: center;
+            padding: 20px;
+            background: rgba(180, 165, 216, 0.05);
+            border-radius: 12px;
+            color: #a8a8b8;
+            font-size: 14px;
+        }
+
+        .link-btn {
+            background: none;
+            border: none;
+            color: #b4a5d8;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: inherit;
+            padding: 0;
+        }
+
+        .link-btn:hover {
+            color: #c4b5e8;
+        }
+
+        /* Content View */
+        #learningContentArea {
+            flex-grow: 1;
+            margin-bottom: 30px;
+        }
+
+        .learning-page {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .learning-page h2 {
+            color: #b4a5d8;
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .learning-page h3 {
+            color: #e0e0e0;
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .learning-page p {
+            color: #d4d4d8;
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .learning-page ul {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        .learning-page li {
+            color: #d4d4d8;
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .learning-page ol {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        .learning-page ol li {
+            color: #d4d4d8;
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .learning-page strong {
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+
+        .learning-page code {
+            background: rgba(180, 165, 216, 0.15);
+            color: #b4a5d8;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .learning-page a {
+            color: #b4a5d8;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(180, 165, 216, 0.3);
+        }
+
+        .learning-page a:hover {
+            color: #c4b5e8;
+            border-bottom-color: #c4b5e8;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: rgba(180, 165, 216, 0.08);
+            border-left: 3px solid #b4a5d8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .info-box.success {
+            background: rgba(16, 185, 129, 0.08);
+            border-left-color: #10b981;
+        }
+
+        .info-box.warning {
+            background: rgba(245, 158, 11, 0.08);
+            border-left-color: #f59e0b;
+        }
+
+        .info-box-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            margin-bottom: 8px;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .info-box li {
+            margin: 8px 0;
+        }
+
+        /* Diagrams */
+        .learning-diagram {
+            background: #252836;
+            border: 2px solid rgba(180, 165, 216, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            color: #a8a8b8;
+            font-size: 13px;
+            line-height: 2;
+        }
+
+        .learning-diagram .highlight {
+            color: #b4a5d8;
+            font-weight: 700;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 14px;
+        }
+
+        .comparison-table th {
+            background: rgba(180, 165, 216, 0.1);
+            color: #b4a5d8;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid rgba(180, 165, 216, 0.2);
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border: 1px solid rgba(180, 165, 216, 0.1);
+            color: #d4d4d8;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(180, 165, 216, 0.05);
+        }
+
+        /* Navigation */
+        .learning-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(180, 165, 216, 0.2);
+            flex-shrink: 0;
+        }
+
+        .learning-nav-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .learning-nav-btn.primary {
+            background: #b4a5d8;
+            color: #1a1d29;
+        }
+
+        .learning-nav-btn.primary:hover {
+            background: #c4b5e8;
+            transform: translateY(-2px);
+        }
+
+        .learning-nav-btn.secondary {
+            background: rgba(180, 165, 216, 0.1);
+            border: 2px solid rgba(180, 165, 216, 0.3);
+            color: #b4a5d8;
+        }
+
+        .learning-nav-btn.secondary:hover {
+            background: rgba(180, 165, 216, 0.2);
+        }
+
+        .learning-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .learning-progress {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(180, 165, 216, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: #b4a5d8;
+            transform: scale(1.3);
+        }
+
+        .progress-dot.completed {
+            background: #10b981;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .learning-modal {
+                padding: 0;
+            }
+
+            .learning-modal-content {
+                max-width: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+
+            .learning-header {
+                padding: 15px 20px;
+            }
+
+            .learning-breadcrumb {
+                font-size: 11px;
+                margin: 0 20px;
+            }
+
+            .learning-view {
+                padding: 30px 20px;
+            }
+
+            .learning-title {
+                font-size: 24px;
+            }
+
+            .learning-paths {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .learning-navigation {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .learning-nav-btn {
+                width: 100%;
+            }
+
+            .learning-progress {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .learning-page h2 {
+                font-size: 22px;
+            }
+
+            .learning-page {
+                font-size: 14px;
+            }
+
+            .path-title {
+                font-size: 18px;
+            }
+
+            .comparison-table {
+                font-size: 12px;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 8px;
+            }
+        }
+
+        /style>
+        </head>
+        <body>
+            <div id="messageBox" class="message"></div>
+
+            <!-- Mode Selection -->
+            <div id="modeSelectionView" class="view active">
+                <div class="mode-selection-container">
+                    <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <style>
+                            @keyframes fadeInLogo {
+                                to { opacity: 1; }
+                            }
+                        </style>
                 <g opacity="0.8">
                     <g transform="translate(70, 70)">
                         <animateTransform
@@ -1342,10 +1926,96 @@
                 </div>
             </div>
 
-            <div class="info-banner">
+            <div class="info-banner" id="hyphaeInfoCard">
                 <h3>💬 What is Hyphae Network?</h3>
                 <p>Hyphae is a community server for secure, private messaging. Think of it like email — your account works with different apps, and you can message people on other servers too.</p>
-                <p style="margin-top: 20px; margin-bottom: 0;">We'll help you choose an app after you create your account.</p>
+                <p style="margin-top: 20px; margin-bottom: 15px;">We'll help you choose an app after you create your account.</p>
+                
+                <button class="learn-more-btn" onclick="openLearningHub()">
+                    <span>Learn More About Matrix</span>
+                    <span class="btn-arrow">→</span>
+                </button>
+            </div>
+
+            <!-- Learning Hub Modal -->
+            <div id="learningHub" class="learning-modal" style="display: none;">
+                <div class="learning-modal-overlay" onclick="closeLearningHub()"></div>
+                <div class="learning-modal-content">
+                    <!-- Header -->
+                    <div class="learning-header">
+                        <button class="learning-close" onclick="closeLearningHub()">✕</button>
+                        <div class="learning-breadcrumb" id="learningBreadcrumb">
+                            <span class="crumb active">Choose Your Path</span>
+                        </div>
+                    </div>
+
+                    <!-- Main Hub View -->
+                    <div id="learningHubView" class="learning-view active">
+                        <h2 class="learning-title">What would you like to learn?</h2>
+                        <p class="learning-subtitle">Choose your path through the Matrix network</p>
+                        
+                        <div class="learning-paths">
+                            <div class="learning-path-card" onclick="startLearningPath('basics')">
+                                <div class="path-icon">🌐</div>
+                                <h3 class="path-title">I'm new to this</h3>
+                                <p class="path-description">Start here if Matrix/federation is unfamiliar</p>
+                                <div class="path-footer">
+                                    <span class="path-time">5 min read</span>
+                                    <span class="path-arrow">→</span>
+                                </div>
+                            </div>
+
+                            <div class="learning-path-card" onclick="startLearningPath('security')">
+                                <div class="path-icon">🔐</div>
+                                <h3 class="path-title">Security & Privacy</h3>
+                                <p class="path-description">Encryption, metadata, and threat models</p>
+                                <div class="path-footer">
+                                    <span class="path-time">8 min read</span>
+                                    <span class="path-arrow">→</span>
+                                </div>
+                            </div>
+
+                            <div class="learning-path-card" onclick="startLearningPath('clients')">
+                                <div class="path-icon">📱</div>
+                                <h3 class="path-title">Apps & Clients</h3>
+                                <p class="path-description">Choosing the right app for you</p>
+                                <div class="path-footer">
+                                    <span class="path-time">4 min read</span>
+                                    <span class="path-arrow">→</span>
+                                </div>
+                            </div>
+
+                            <div class="learning-path-card" onclick="startLearningPath('technical')">
+                                <div class="path-icon">⚙️</div>
+                                <h3 class="path-title">Technical Deep Dive</h3>
+                                <p class="path-description">Architecture, federation, and protocols</p>
+                                <div class="path-footer">
+                                    <span class="path-time">10 min read</span>
+                                    <span class="path-arrow">→</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="learning-quick-start">
+                            <p>Just want to get started? <button class="link-btn" onclick="closeLearningHub()">Skip to registration →</button></p>
+                        </div>
+                    </div>
+
+                    <!-- Content Views (populated by JavaScript) -->
+                    <div id="learningContentView" class="learning-view">
+                        <div id="learningContentArea"></div>
+                        
+                        <div class="learning-navigation">
+                            <button class="learning-nav-btn secondary" id="learningBackBtn" onclick="learningGoBack()">
+                                ← Back
+                            </button>
+                            <div class="learning-progress" id="learningProgress"></div>
+                            <button class="learning-nav-btn primary" id="learningNextBtn" onclick="learningGoNext()">
+                                Next →
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div style="text-align: center; margin-bottom: 40px;">
@@ -3877,6 +4547,1121 @@
         window.addEventListener('popstate', handleRouteChange);
         window.addEventListener('hashchange', handleRouteChange);
         window.onload = handleInitialLoad;
-    </script>
+    // ============================================
+// LEARNING MODULE JAVASCRIPT
+// ============================================
+
+// Learning Module State
+let currentLearningPath = null;
+let currentLearningPage = 0;
+let learningPathData = {};
+// Open/Close Learning Hub
+function openLearningHub() {
+    document.getElementById('learningHub').style.display = 'flex';
+    document.getElementById('learningHubView').classList.add('active');
+    document.getElementById('learningContentView').classList.remove('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLearningHub() {
+    document.getElementById('learningHub').style.display = 'none';
+    document.body.style.overflow = '';
+    currentLearningPath = null;
+    currentLearningPage = 0;
+}
+
+// Start a Learning Path
+function startLearningPath(pathId) {
+    currentLearningPath = pathId;
+    currentLearningPage = 0;
+    
+    // Hide hub, show content
+    document.getElementById('learningHubView').classList.remove('active');
+    document.getElementById('learningContentView').classList.add('active');
+    
+    // Load the path content
+    loadLearningPage();
+}
+
+// Navigation
+function learningGoBack() {
+    if (currentLearningPage === 0) {
+        // Return to hub
+        document.getElementById('learningContentView').classList.remove('active');
+        document.getElementById('learningHubView').classList.add('active');
+        currentLearningPath = null;
+        updateBreadcrumb('Choose Your Path');
+    } else {
+        currentLearningPage--;
+        loadLearningPage();
+    }
+}
+
+function learningGoNext() {
+    const path = learningPathData[currentLearningPath];
+    if (currentLearningPage < path.pages.length - 1) {
+        currentLearningPage++;
+        loadLearningPage();
+    } else {
+        // Path complete - return to hub
+        showCompletionMessage();
+    }
+}
+
+// Load Current Page
+function loadLearningPage() {
+    const path = learningPathData[currentLearningPath];
+    const page = path.pages[currentLearningPage];
+    
+    // Update content
+    document.getElementById('learningContentArea').innerHTML = page.content;
+    
+    // Update breadcrumb
+    updateBreadcrumb(path.title, currentLearningPage + 1, path.pages.length);
+    
+    // Update progress dots
+    updateProgressDots(path.pages.length, currentLearningPage);
+    
+    // Update buttons
+    document.getElementById('learningBackBtn').disabled = false;
+    document.getElementById('learningNextBtn').disabled = false;
+    document.getElementById('learningNextBtn').textContent = 
+        currentLearningPage === path.pages.length - 1 ? 'Complete ✓' : 'Next →';
+    
+    // Scroll to top
+    document.getElementById('learningContentView').scrollTop = 0;
+}
+
+// Update Breadcrumb
+function updateBreadcrumb(pathTitle, currentPage, totalPages) {
+    const breadcrumb = document.getElementById('learningBreadcrumb');
+    if (currentPage) {
+        breadcrumb.innerHTML = `
+            <span class="crumb">Home</span>
+            <span class="crumb-separator">›</span>
+            <span class="crumb active">${pathTitle}</span>
+            <span class="crumb-separator">›</span>
+            <span class="crumb active">${currentPage} of ${totalPages}</span>
+        `;
+    } else {
+        breadcrumb.innerHTML = `<span class="crumb active">${pathTitle}</span>`;
+    }
+}
+
+// Update Progress Dots
+function updateProgressDots(total, current) {
+    const progressContainer = document.getElementById('learningProgress');
+    progressContainer.innerHTML = '';
+    
+    for (let i = 0; i < total; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot';
+        if (i < current) dot.classList.add('completed');
+        if (i === current) dot.classList.add('active');
+        progressContainer.appendChild(dot);
+    }
+}
+
+// Completion Message
+function showCompletionMessage() {
+    const path = learningPathData[currentLearningPath];
+    document.getElementById('learningContentArea').innerHTML = `
+        <div class="learning-page" style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 64px; margin-bottom: 20px;">✓</div>
+            <h2>Path Complete!</h2>
+            <p style="font-size: 16px; margin: 20px 0 30px;">You've finished the ${path.title} learning path.</p>
+            
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button class="learning-nav-btn primary" onclick="closeLearningHub()">
+                    Start Registration →
+                </button>
+                <button class="learning-nav-btn secondary" onclick="returnToHub()">
+                    ← Explore More Topics
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('learningBackBtn').style.display = 'none';
+    document.getElementById('learningNextBtn').style.display = 'none';
+    document.getElementById('learningProgress').innerHTML = '';
+}
+
+function returnToHub() {
+    document.getElementById('learningContentView').classList.remove('active');
+    document.getElementById('learningHubView').classList.add('active');
+    document.getElementById('learningBackBtn').style.display = 'block';
+    document.getElementById('learningNextBtn').style.display = 'block';
+    currentLearningPath = null;
+    currentLearningPage = 0;
+    updateBreadcrumb('Choose Your Path');
+}
+
+// Path Content Data - ADD THIS LARGE DATA OBJECT
+learningPathData = {
+    basics: {
+        title: "Federation Basics",
+        pages: [
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Welcome to the Matrix Network</h2>
+                        <p>Let's start with the most important concept: <strong>Matrix is not a single app or company</strong> — it's a <strong>network protocol</strong>, like email.</p>
+                        
+                        <div class="info-box">
+                            <div class="info-box-title">🎯 Key Concept: Think Email</div>
+                            <p>You know how Gmail users can email Outlook users? That's because email is a <strong>protocol</strong> (a set of rules) that lets different providers talk to each other.</p>
+                            <p><strong>Matrix works the same way!</strong></p>
+                        </div>
+
+                        <h3>The Network Has Three Parts</h3>
+                        <ul>
+                            <li><strong>Servers</strong> — Where accounts live (like @gmail.com or @outlook.com)</li>
+                            <li><strong>Clients/Apps</strong> — What you use to access your account (like Gmail app or Apple Mail)</li>
+                            <li><strong>The Protocol</strong> — Rules that let everything work together</li>
+                        </ul>
+
+                        <div class="learning-diagram">
+                            <div>[You] → [Element App] → [hyphae.social] ← federation → [matrix.org] ← [Their App] ← [Them]</div>
+                            <div style="margin-top: 15px; color: #b4a5d8;">↑ You can message each other even though you're on different servers!</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>What is Hyphae.social?</h2>
+                        <p>Hyphae.social is <strong>one server</strong> on the Matrix network — but you can message people on <strong>any Matrix server</strong>.</p>
+
+                        <h3>Your Address Format</h3>
+                        <p>Your Matrix address will look like: <code>@username:hyphae.social</code></p>
+                        <p>Notice the <code>:hyphae.social</code> part? That's like the <code>@gmail.com</code> in an email address.</p>
+
+                        <div class="info-box success">
+                            <div class="info-box-title">✓ With Your ONE Account You Can:</div>
+                            <ul>
+                                <li>Message people on matrix.org, mozilla.org, kde.org, or ANY Matrix server</li>
+                                <li>Join rooms (like Slack channels) hosted on any server</li>
+                                <li>Use any Matrix app (Element, FluffyChat, Nheko, etc.)</li>
+                                <li>Switch apps anytime — your messages sync automatically</li>
+                            </ul>
+                        </div>
+
+                        <h3>Why Choose Hyphae.social?</h3>
+                        <ul>
+                            <li><strong>Community-focused</strong> — Not run by a big tech company</li>
+                            <li><strong>Nashville-based</strong> — Local, transparent operation</li>
+                            <li><strong>Privacy-respecting</strong> — We don't sell your data</li>
+                            <li><strong>Well-maintained</strong> — Reliable uptime and updates</li>
+                        </ul>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Rooms: Cross-Server Communication</h2>
+                        <p>In Matrix, <strong>rooms</strong> are like Slack channels or Discord servers — but they work across ALL Matrix servers.</p>
+
+                        <div class="learning-diagram">
+                            <div style="color: #b4a5d8; margin-bottom: 15px;">Example Room: #nashville-chat:matrix.org</div>
+                            <div>Hosted on: matrix.org</div>
+                            <div style="margin: 15px 0; color: #8a8a9e;">↓ Anyone can join ↓</div>
+                            <div>Alice@<span class="highlight">hyphae.social</span></div>
+                            <div>Bob@<span class="highlight">matrix.org</span></div>
+                            <div>Carol@<span class="highlight">mozilla.org</span></div>
+                            <div>David@<span class="highlight">kde.org</span></div>
+                        </div>
+
+                        <h3>Two Types of Messaging</h3>
+                        <ul>
+                            <li><strong>Direct Messages (DMs)</strong> — Private 1-on-1 or group chats, end-to-end encrypted</li>
+                            <li><strong>Rooms</strong> — Like channels, can be public or private, can be encrypted</li>
+                        </ul>
+
+                        <div class="info-box">
+                            <div class="info-box-title">💡 Finding Rooms</div>
+                            <p>Your Matrix client has a room directory where you can browse and join public rooms from across the entire network.</p>
+                            <p>You can also be invited to private rooms by other users.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Choosing Your App (Client)</h2>
+                        <p>Here's where Matrix gets really cool: <strong>you choose which app you want to use</strong>.</p>
+
+                        <h3>Popular Matrix Clients</h3>
+                        <ul>
+                            <li><strong>Element</strong> — Full-featured, official client (Web, Desktop, Mobile)</li>
+                            <li><strong>FluffyChat</strong> — Simple, beautiful mobile experience</li>
+                            <li><strong>Nheko</strong> — Lightweight desktop client</li>
+                            <li><strong>SchildiChat</strong> — Element fork with extra features</li>
+                            <li><strong>Cinny</strong> — Modern web client with Discord-like UI</li>
+                        </ul>
+
+                        <div class="info-box success">
+                            <div class="info-box-title">🎨 Mix and Match</div>
+                            <p>Use Element on your desktop, FluffyChat on your phone, and Cinny in your browser — all accessing the same account, the same rooms, the same messages.</p>
+                            <p><strong>Try different apps!</strong> If you don't like one, switch to another. Your account stays on hyphae.social regardless.</p>
+                        </div>
+
+                        <div class="learning-diagram">
+                            <div>[Element] [FluffyChat] [Nheko] [Cinny]</div>
+                            <div style="margin: 15px 0;">↓ All connect to ↓</div>
+                            <div style="color: #b4a5d8;">Your Account @username:hyphae.social</div>
+                            <div style="margin: 15px 0;">↓ Which connects to ↓</div>
+                            <div>[The Matrix Network]</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Quick Comparison: Matrix vs. Others</h2>
+                        
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Signal</th>
+                                    <th>Slack</th>
+                                    <th>Matrix/Hyphae</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Who controls it</strong></td>
+                                    <td>Signal Foundation</td>
+                                    <td>Salesforce</td>
+                                    <td>No one / Everyone</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cross-network messaging</strong></td>
+                                    <td>❌ No</td>
+                                    <td>❌ No</td>
+                                    <td>✅ Yes</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Choose your app</strong></td>
+                                    <td>❌ No</td>
+                                    <td>❌ No</td>
+                                    <td>✅ Yes</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>End-to-end encryption</strong></td>
+                                    <td>✅ Yes</td>
+                                    <td>⚠️ Partial</td>
+                                    <td>✅ Yes</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Open source</strong></td>
+                                    <td>✅ Yes</td>
+                                    <td>❌ No</td>
+                                    <td>✅ Yes</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Self-hosting option</strong></td>
+                                    <td>❌ No</td>
+                                    <td>❌ No</td>
+                                    <td>✅ Yes</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="info-box">
+                            <div class="info-box-title">🎯 Bottom Line</div>
+                            <p>Matrix gives you Signal-level encryption with email-level interoperability and the freedom to choose your own app.</p>
+                        </div>
+                    </div>
+                `
+            }
+        ]
+    },
+    
+    security: {
+        title: "Security & Privacy",
+        pages: [
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>How Matrix Protects Your Messages</h2>
+                        <p>Matrix uses the same encryption protocol as Signal — <strong>end-to-end encryption (E2EE)</strong>.</p>
+
+                        <div class="info-box success">
+                            <div class="info-box-title">🔐 What This Means</div>
+                            <p><strong>Messages are encrypted on YOUR device</strong> before being sent, and only decrypted on the <strong>recipient's device</strong>.</p>
+                            <p>Not even the servers (hyphae.social or matrix.org) can read your messages.</p>
+                        </div>
+
+                        <div class="learning-diagram">
+                            <div>[Your Device]</div>
+                            <div>↓ encrypts message</div>
+                            <div style="color: #b4a5d8;">[Encrypted: g8h2k9...]</div>
+                            <div>↓ sent through</div>
+                            <div>[hyphae.social] → [matrix.org]</div>
+                            <div style="color: #8a8a9e; font-size: 11px;">↑ can't read it ↑</div>
+                            <div>↓ arrives at</div>
+                            <div>[Their Device]</div>
+                            <div>↓ decrypts message</div>
+                            <div style="color: #10b981;">[Hey, let's meet at 3pm]</div>
+                        </div>
+
+                        <h3>The Encryption Algorithm</h3>
+                        <p>Matrix uses <strong>Olm and Megolm</strong>, which implement Signal's <strong>Double Ratchet Algorithm</strong>:</p>
+                        <ul>
+                            <li><strong>Forward secrecy</strong> — Old messages can't be decrypted even if keys are stolen</li>
+                            <li><strong>Future secrecy</strong> — Compromised keys don't affect future messages</li>
+                            <li><strong>Device-to-device</strong> — Each device has unique keys</li>
+                        </ul>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>What's Encrypted, What's Not</h2>
+                        <p>It's important to understand what servers CAN and CANNOT see.</p>
+
+                        <h3>✅ Encrypted (Servers Can't See)</h3>
+                        <ul>
+                            <li><strong>Message content</strong> — The actual text you send</li>
+                            <li><strong>Attachments</strong> — Photos, files, videos (content)</li>
+                            <li><strong>Reactions</strong> — Emoji reactions to messages</li>
+                            <li><strong>Edit history</strong> — What you changed in edited messages</li>
+                            <li><strong>Voice/Video calls</strong> — Call content (WebRTC encrypted)</li>
+                        </ul>
+
+                        <h3>❌ Not Encrypted (Servers Can See)</h3>
+                        <ul>
+                            <li><strong>Metadata</strong> — Who you message and when</li>
+                            <li><strong>Room membership</strong> — Which rooms you've joined</li>
+                            <li><strong>Online status</strong> — When you're active/away</li>
+                            <li><strong>Profile info</strong> — Display name, avatar</li>
+                            <li><strong>File metadata</strong> — File size, upload time (not content)</li>
+                        </ul>
+
+                        <div class="info-box warning">
+                            <div class="info-box-title">⚠️ The Metadata Trade-off</div>
+                            <p>This is a limitation of <strong>all federated systems</strong> (like email). Servers need to know who to deliver messages to.</p>
+                            <p><strong>Signal does better on metadata protection</strong> because it's centralized. Matrix prioritizes decentralization and interoperability.</p>
+                        </div>
+
+                        <div class="learning-diagram">
+                            <div style="color: #10b981;">✓ Server sees: "Alice messaged Bob at 3:15pm"</div>
+                            <div style="color: #ef4444;">✗ Server CANNOT see: "Hey Bob, let's meet at the park"</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Device Verification</h2>
+                        <p>Because each device has unique encryption keys, Matrix lets you <strong>verify devices</strong> to ensure you're talking to the right person.</p>
+
+                        <h3>Why Verify?</h3>
+                        <p>Verification protects against <strong>man-in-the-middle attacks</strong> where someone tries to impersonate another user.</p>
+
+                        <div class="info-box">
+                            <div class="info-box-title">🔍 Verification Methods</div>
+                            <p><strong>1. Emoji Verification</strong> — Both users see the same set of emojis on their screens. Compare them to confirm you're connected to the right device.</p>
+                            <p><strong>2. Number Verification</strong> — Similar to emojis, but using numbers instead.</p>
+                            <p><strong>3. QR Code</strong> — Scan a QR code from another device you already verified.</p>
+                        </div>
+
+                        <h3>Remember Those Verification Codes?</h3>
+                        <p>On the Hyphae homepage, you saw a "Group Verification" tool that generates codes. <strong>That's different!</strong></p>
+                        <ul>
+                            <li><strong>Device verification</strong> — Proves you're talking to the right person's device</li>
+                            <li><strong>Group verification</strong> — Tool for verifying everyone in a room is physically present (for in-person meetings)</li>
+                        </ul>
+
+                        <div class="learning-diagram">
+                            <div style="color: #b4a5d8;">Alice's Phone</div>
+                            <div>Shows: 🐶 🌈 🎸 ✈️ 🍕</div>
+                            <div style="margin: 15px 0;">↕️ Compare ↕️</div>
+                            <div style="color: #b4a5d8;">Bob's Computer</div>
+                            <div>Shows: 🐶 🌈 🎸 ✈️ 🍕</div>
+                            <div style="margin-top: 15px; color: #10b981;">✓ Match! Devices verified</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Your Threat Model</h2>
+                        <p>Understanding <strong>who you need to trust</strong> is important for making informed security decisions.</p>
+
+                        <h3>Trust Relationships</h3>
+                        
+                        <div class="info-box">
+                            <div class="info-box-title">🤝 You Trust:</div>
+                            <ul>
+                                <li><strong>Hyphae.social admins</strong> — Can see metadata, could impersonate you</li>
+                                <li><strong>Your client developers</strong> — Their code runs on your device</li>
+                                <li><strong>Your device security</strong> — If compromised, all bets are off</li>
+                            </ul>
+                        </div>
+
+                        <h3>What If Hyphae.social is Compromised?</h3>
+                        <p><strong>They CANNOT:</strong></p>
+                        <ul>
+                            <li>Read your encrypted messages</li>
+                            <li>Decrypt your old messages</li>
+                            <li>Access your encryption keys</li>
+                        </ul>
+                        <p><strong>They CAN:</strong></p>
+                        <ul>
+                            <li>See your metadata (who you message, when)</li>
+                            <li>Potentially impersonate you (send messages as you)</li>
+                            <li>Block your access</li>
+                        </ul>
+
+                        <div class="info-box warning">
+                            <div class="info-box-title">⚠️ This is True for ALL Messengers</div>
+                            <p>Signal: You trust Signal Foundation</p>
+                            <p>WhatsApp: You trust Meta</p>
+                            <p>Matrix: You trust your homeserver admin</p>
+                            <p><strong>The difference:</strong> With Matrix, you can choose who to trust or even run your own server.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Comparing Security Models</h2>
+                        
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Aspect</th>
+                                    <th>Signal</th>
+                                    <th>Matrix</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Message encryption</strong></td>
+                                    <td>✅ E2EE (Double Ratchet)</td>
+                                    <td>✅ E2EE (Olm/Megolm)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Metadata protection</strong></td>
+                                    <td>✅ Sealed sender, minimal metadata</td>
+                                    <td>⚠️ Servers see metadata</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Decentralization</strong></td>
+                                    <td>❌ Single server (centralized)</td>
+                                    <td>✅ Federated (many servers)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Self-hosting</strong></td>
+                                    <td>❌ Not possible</td>
+                                    <td>✅ Anyone can run a server</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Censorship resistance</strong></td>
+                                    <td>⚠️ Single point of failure</td>
+                                    <td>✅ No single point of control</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Client choice</strong></td>
+                                    <td>⚠️ Only Signal apps</td>
+                                    <td>✅ Many clients available</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Auditable</strong></td>
+                                    <td>✅ Open source</td>
+                                    <td>✅ Open source</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h3>Which is "More Secure"?</h3>
+                        <p>It depends on your threat model:</p>
+                        
+                        <div class="info-box">
+                            <div class="info-box-title">🎯 Choose Signal if:</div>
+                            <ul>
+                                <li>Metadata protection is critical</li>
+                                <li>You need the simplest possible UX</li>
+                                <li>You trust Signal Foundation</li>
+                                <li>You're okay with centralization</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-box">
+                            <div class="info-box-title">🎯 Choose Matrix if:</div>
+                            <ul>
+                                <li>You want decentralization/federation</li>
+                                <li>You want to choose your server or self-host</li>
+                                <li>You want client choice and flexibility</li>
+                                <li>You want interoperability across servers</li>
+                                <li>Metadata privacy is acceptable trade-off</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Practical Security Tips</h2>
+                        <p>Here's how to maximize your privacy on Matrix:</p>
+
+                        <h3>🔐 Best Practices</h3>
+                        <ul>
+                            <li><strong>Verify devices</strong> — Always verify devices for sensitive conversations</li>
+                            <li><strong>Use strong passwords</strong> — Your account is only as secure as your password</li>
+                            <li><strong>Enable key backup</strong> — But use a strong passphrase</li>
+                            <li><strong>Log out unused sessions</strong> — Don't leave old devices logged in</li>
+                            <li><strong>Review cross-signing</strong> — Verify your own devices with each other</li>
+                        </ul>
+
+                        <h3>🛡️ Additional Privacy Measures</h3>
+                        <ul>
+                            <li><strong>Use Tor/VPN</strong> — Hides your IP address from servers</li>
+                            <li><strong>Minimal profile info</strong> — Don't use identifying photos/names if privacy is critical</li>
+                            <li><strong>Private room joins</strong> — Be selective about public rooms (membership is visible)</li>
+                            <li><strong>Disable presence</strong> — Some clients let you hide online status</li>
+                        </ul>
+
+                        <div class="info-box success">
+                            <div class="info-box-title">✅ Remember</div>
+                            <p><strong>No system is perfect.</strong> Matrix makes trade-offs: it prioritizes decentralization and interoperability over maximum metadata protection.</p>
+                            <p>For most people, this is a great balance of security, privacy, and freedom.</p>
+                        </div>
+
+                        <h3>🔗 Learn More</h3>
+                        <p>Want deeper technical details? Check out:</p>
+                        <ul>
+                            <li><a href="https://matrix.org/docs/older/e2e-implementation-guide/" target="_blank">Matrix E2EE Implementation Guide</a></li>
+                            <li><a href="https://gitlab.matrix.org/matrix-org/olm/-/blob/master/docs/olm.md" target="_blank">Olm Cryptographic Specification</a></li>
+                            <li><a href="https://signal.org/docs/specifications/doubleratchet/" target="_blank">Signal's Double Ratchet Algorithm</a></li>
+                        </ul>
+                    </div>
+                `
+            }
+        ]
+    },
+    
+    clients: {
+        title: "Apps & Clients",
+        pages: [
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Choosing Your Matrix Client</h2>
+                        <p>One of Matrix's best features: <strong>you're not locked into one app</strong>. All Matrix clients connect to the same network and sync your messages.</p>
+
+                        <div class="info-box success">
+                            <div class="info-box-title">🎨 Mix and Match</div>
+                            <p>Use Element on your laptop, FluffyChat on your phone, and Cinny in your browser — all accessing the same account, rooms, and messages.</p>
+                        </div>
+
+                        <h3>What to Consider</h3>
+                        <ul>
+                            <li><strong>Platform</strong> — Desktop, mobile, web, or all three?</li>
+                            <li><strong>Features</strong> — Voice calls, spaces, widgets, etc.</li>
+                            <li><strong>Design</strong> — Modern UI vs. lightweight/simple</li>
+                            <li><strong>Maturity</strong> — Stable vs. experimental</li>
+                        </ul>
+
+                        <div class="info-box">
+                            <div class="info-box-title">💡 Our Recommendation</div>
+                            <p>Start with <strong>Element</strong> — it's the most mature, full-featured client and works on all platforms. Once you're comfortable, explore alternatives to find what you like best.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Client Comparison</h2>
+                        
+                        <h3>🏆 Element</h3>
+                        <p><strong>Platforms:</strong> Web, Desktop (Windows/Mac/Linux), iOS, Android</p>
+                        <p><strong>Best for:</strong> Most users, especially first-timers</p>
+                        <ul>
+                            <li>✅ Most complete feature set (spaces, threads, voice/video)</li>
+                            <li>✅ Official client, well-maintained</li>
+                            <li>✅ Works on everything</li>
+                            <li>⚠️ Can feel heavyweight/complex</li>
+                        </ul>
+
+                        <h3>🦋 FluffyChat</h3>
+                        <p><strong>Platforms:</strong> iOS, Android, Web, Desktop</p>
+                        <p><strong>Best for:</strong> Simple, beautiful mobile experience</p>
+                        <ul>
+                            <li>✅ Clean, modern design</li>
+                            <li>✅ Fast and lightweight</li>
+                            <li>✅ Great for basic messaging</li>
+                            <li>⚠️ Missing some advanced features</li>
+                        </ul>
+
+                        <h3>🏔️ Nheko</h3>
+                        <p><strong>Platforms:</strong> Desktop (Windows/Mac/Linux)</p>
+                        <p><strong>Best for:</strong> Lightweight desktop client</p>
+                        <ul>
+                            <li>✅ Very fast, minimal resource usage</li>
+                            <li>✅ Native desktop feel</li>
+                            <li>✅ Good for older computers</li>
+                            <li>⚠️ Desktop only, fewer features</li>
+                        </ul>
+
+                        <h3>🌙 Cinny</h3>
+                        <p><strong>Platforms:</strong> Web</p>
+                        <p><strong>Best for:</strong> Discord-like experience in browser</p>
+                        <ul>
+                            <li>✅ Beautiful, modern UI</li>
+                            <li>✅ Discord-style layout (servers sidebar)</li>
+                            <li>✅ No installation needed</li>
+                            <li>⚠️ Web-only, newer/less mature</li>
+                        </ul>
+
+                        <h3>🛡️ SchildiChat</h3>
+                        <p><strong>Platforms:</strong> Desktop, Android</p>
+                        <p><strong>Best for:</strong> Element with extra tweaks</p>
+                        <ul>
+                            <li>✅ Fork of Element with UI improvements</li>
+                            <li>✅ Better message bubbles, more customization</li>
+                            <li>⚠️ May lag behind Element on updates</li>
+                        </ul>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Feature Comparison</h2>
+                        
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Element</th>
+                                    <th>FluffyChat</th>
+                                    <th>Nheko</th>
+                                    <th>Cinny</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>E2EE messaging</strong></td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Voice calls</strong></td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Video calls</strong></td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Threads</strong></td>
+                                    <td>✅</td>
+                                    <td>❌</td>
+                                    <td>❌</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Spaces</strong></td>
+                                    <td>✅</td>
+                                    <td>✅ Limited</td>
+                                    <td>❌</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Message editing</strong></td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Reactions</strong></td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>File sharing</strong></td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Stickers/GIFs</strong></td>
+                                    <td>✅</td>
+                                    <td>✅</td>
+                                    <td>⚠️ Basic</td>
+                                    <td>✅</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Performance</strong></td>
+                                    <td>⚠️ Heavy</td>
+                                    <td>✅ Fast</td>
+                                    <td>✅ Very fast</td>
+                                    <td>✅ Fast</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="info-box">
+                            <div class="info-box-title">💡 All clients are improving</div>
+                            <p>The Matrix ecosystem is actively developed. Features get added regularly, so this comparison may change over time.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Platform-Specific Recommendations</h2>
+
+                        <h3>📱 iOS (iPhone/iPad)</h3>
+                        <p><strong>Best:</strong> Element X or FluffyChat</p>
+                        <ul>
+                            <li><strong>Element X</strong> — New, faster version of Element for iOS</li>
+                            <li><strong>FluffyChat</strong> — Beautiful, simple mobile interface</li>
+                            <li><strong>Element</strong> — Full-featured but heavier</li>
+                        </ul>
+
+                        <h3>🤖 Android</h3>
+                        <p><strong>Best:</strong> Element X, FluffyChat, or SchildiChat</p>
+                        <ul>
+                            <li><strong>Element X</strong> — Newest, fastest Element experience</li>
+                            <li><strong>FluffyChat</strong> — Fast, lightweight, modern</li>
+                            <li><strong>SchildiChat</strong> — Element with better UI tweaks</li>
+                        </ul>
+
+                        <h3>💻 Desktop (Windows/Mac/Linux)</h3>
+                        <p><strong>Best:</strong> Element Desktop or Nheko</p>
+                        <ul>
+                            <li><strong>Element Desktop</strong> — Most features, cross-platform</li>
+                            <li><strong>Nheko</strong> — Lightweight, native feel</li>
+                            <li><strong>SchildiChat</strong> — Element with UI improvements</li>
+                        </ul>
+
+                        <h3>🌐 Web Browser</h3>
+                        <p><strong>Best:</strong> Element Web (on hyphae.social) or Cinny</p>
+                        <ul>
+                            <li><strong>Element Web</strong> — We host this at hyphae.social/element/</li>
+                            <li><strong>Cinny</strong> — Beautiful Discord-like interface</li>
+                        </ul>
+
+                        <div class="info-box success">
+                            <div class="info-box-title">🎯 After Registration</div>
+                            <p>We'll show you exactly how to log in to Element (web or mobile) after you create your account. You can always try other clients later!</p>
+                        </div>
+                    </div>
+                `
+            }
+        ]
+    },
+    
+    technical: {
+        title: "Technical Deep Dive",
+        pages: [
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Matrix Protocol Architecture</h2>
+                        <p>Matrix is an <strong>open standard</strong> for decentralized, real-time communication. Let's look under the hood.</p>
+
+                        <h3>Core Components</h3>
+
+                        <div class="info-box">
+                            <div class="info-box-title">🏠 Homeservers</div>
+                            <p><strong>What:</strong> Servers that host user accounts and rooms</p>
+                            <p><strong>Examples:</strong> hyphae.social (Synapse), matrix.org (Synapse), mozilla.org (Synapse)</p>
+                            <p><strong>Responsibilities:</strong> User authentication, message storage, federation, push notifications</p>
+                        </div>
+
+                        <div class="info-box">
+                            <div class="info-box-title">📱 Clients</div>
+                            <p><strong>What:</strong> Applications that connect to homeservers</p>
+                            <p><strong>Examples:</strong> Element, FluffyChat, Nheko, Cinny</p>
+                            <p><strong>Communication:</strong> Use Matrix Client-Server API (HTTP/REST + long-polling or WebSockets)</p>
+                        </div>
+
+                        <div class="info-box">
+                            <div class="info-box-title">🌐 Federation</div>
+                            <p><strong>What:</strong> How homeservers communicate with each other</p>
+                            <p><strong>Protocol:</strong> Matrix Server-Server API (HTTPS with mutual TLS)</p>
+                            <p><strong>Purpose:</strong> Sync room state, deliver messages across servers</p>
+                        </div>
+
+                        <div class="learning-diagram">
+                            <div>[Client] ←HTTP→ [Homeserver] ←Federation→ [Other Homeservers]</div>
+                            <div style="margin-top: 10px;">↑ Client-Server API ↑ ← Server-Server API →</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>How Federation Works</h2>
+                        <p>Federation is what makes Matrix decentralized. Here's how messages flow across servers.</p>
+
+                        <h3>Federated Room Example</h3>
+                        <p>Room: <code>!AbCdEf:matrix.org</code> (hosted on matrix.org)</p>
+
+                        <div class="learning-diagram">
+                            <div style="color: #b4a5d8;">Members from different servers:</div>
+                            <div style="margin: 15px 0;">
+                                Alice@hyphae.social<br>
+                                Bob@matrix.org<br>
+                                Carol@mozilla.org
+                            </div>
+                            <div style="color: #8a8a9e;">↓ What happens when Alice sends a message ↓</div>
+                            <div style="margin-top: 15px;">
+                                1. Alice's client → hyphae.social<br>
+                                2. hyphae.social → matrix.org (room host)<br>
+                                3. matrix.org → mozilla.org (Carol's server)<br>
+                                4. Each server delivers to its local users
+                            </div>
+                        </div>
+
+                        <h3>Room State Synchronization</h3>
+                        <p>Rooms maintain <strong>Directed Acyclic Graphs (DAGs)</strong> of events:</p>
+                        <ul>
+                            <li>Each message/event references previous events</li>
+                            <li>Servers sync these DAGs to maintain consistency</li>
+                            <li>Conflict resolution uses <strong>state resolution algorithms</strong></li>
+                        </ul>
+
+                        <div class="info-box">
+                            <div class="info-box-title">⚠️ Room Hosting Matters</div>
+                            <p>The room's "home server" (matrix.org in example) stores the authoritative state. If it goes down, the room becomes unavailable even though members are on other servers.</p>
+                            <p>This is being improved with <strong>Portable Rooms</strong> in future Matrix versions.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>End-to-End Encryption (E2EE)</h2>
+                        <p>Matrix uses <strong>Olm</strong> (1-to-1) and <strong>Megolm</strong> (group) for encryption.</p>
+
+                        <h3>Olm: One-to-One Encryption</h3>
+                        <p>Based on Signal's Double Ratchet Algorithm:</p>
+                        <ul>
+                            <li><strong>Key exchange:</strong> Curve25519 ECDH</li>
+                            <li><strong>Ratcheting:</strong> Forward and future secrecy</li>
+                            <li><strong>Each message:</strong> New ephemeral key</li>
+                        </ul>
+
+                        <h3>Megolm: Group Encryption</h3>
+                        <p>Optimized for room communication:</p>
+                        <ul>
+                            <li><strong>Session keys:</strong> Shared among room members</li>
+                            <li><strong>Ratcheting:</strong> Forward secrecy (but not backward)</li>
+                            <li><strong>Efficiency:</strong> Don't need separate keys per recipient</li>
+                        </ul>
+
+                        <div class="info-box warning">
+                            <div class="info-box-title">⚠️ Megolm Trade-off</div>
+                            <p>Megolm doesn't provide backward secrecy like Olm. If someone gets your session keys, they can decrypt all messages in that session.</p>
+                            <p>This trade-off enables efficient group messaging and allows new devices to decrypt history.</p>
+                        </div>
+
+                        <h3>Device Management</h3>
+                        <p>Each device has unique identity keys:</p>
+                        <ul>
+                            <li><strong>Ed25519:</strong> Device identity signing</li>
+                            <li><strong>Curve25519:</strong> Key exchange</li>
+                            <li><strong>Cross-signing:</strong> Trust your own devices with master key</li>
+                        </ul>
+
+                        <div class="learning-diagram">
+                            <div style="color: #b4a5d8;">Your Devices:</div>
+                            <div>Phone (verified) ← cross-signed → Laptop (verified)</div>
+                            <div style="margin-top: 15px;">↑ Both trusted via your master key ↑</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Data Storage & Persistence</h2>
+                        <p>Understanding where your data lives and how it's stored.</p>
+
+                        <h3>On Homeservers</h3>
+                        <ul>
+                            <li><strong>Account data:</strong> Username, settings, password hash</li>
+                            <li><strong>Room state:</strong> Members, power levels, room config</li>
+                            <li><strong>Message history:</strong> Encrypted message content + metadata</li>
+                            <li><strong>Media:</strong> Uploaded files (encrypted if in E2EE room)</li>
+                            <li><strong>Device keys:</strong> Your devices' public keys</li>
+                        </ul>
+
+                        <h3>On Clients</h3>
+                        <ul>
+                            <li><strong>Local cache:</strong> Recent messages and media</li>
+                            <li><strong>Encryption keys:</strong> Private keys (never leave device)</li>
+                            <li><strong>Session data:</strong> Access tokens, sync state</li>
+                        </ul>
+
+                        <h3>Key Backup (Optional)</h3>
+                        <p>Encrypted backup of your E2EE keys:</p>
+                        <ul>
+                            <li>Stored on homeserver (but encrypted with YOUR passphrase)</li>
+                            <li>Enables new devices to decrypt old messages</li>
+                            <li>Server cannot decrypt keys without passphrase</li>
+                        </ul>
+
+                        <div class="info-box">
+                            <div class="info-box-title">🔐 Security Model</div>
+                            <p><strong>Encrypted messages:</strong> Homeserver stores ciphertext, cannot read</p>
+                            <p><strong>Metadata:</strong> Homeserver can see who/when/which room</p>
+                            <p><strong>Private keys:</strong> Only on your devices, never on server</p>
+                        </div>
+
+                        <div class="learning-diagram">
+                            <div style="color: #b4a5d8;">Data Flow:</div>
+                            <div style="margin: 15px 0;">
+                                [Your Device] encrypts with keys<br>
+                                ↓<br>
+                                [Homeserver] stores ciphertext<br>
+                                ↓<br>
+                                [Other Device] decrypts with keys
+                            </div>
+                            <div style="color: #8a8a9e;">Server never has keys!</div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Matrix Specifications & Implementations</h2>
+
+                        <h3>The Matrix Spec</h3>
+                        <p>Matrix is an <strong>open standard</strong>, not controlled by any single company:</p>
+                        <ul>
+                            <li><strong>Governed by:</strong> The Matrix.org Foundation (non-profit)</li>
+                            <li><strong>Specification:</strong> Public, versioned, community-reviewed</li>
+                            <li><strong>Current version:</strong> v1.x (actively developed)</li>
+                        </ul>
+
+                        <h3>Homeserver Implementations</h3>
+                        
+                        <div class="info-box">
+                            <div class="info-box-title">🐍 Synapse (Python)</div>
+                            <p><strong>Status:</strong> Reference implementation, most mature</p>
+                            <p><strong>Used by:</strong> matrix.org, hyphae.social, most servers</p>
+                            <p><strong>Performance:</strong> Moderate (Python overhead)</p>
+                        </div>
+
+                        <div class="info-box">
+                            <div class="info-box-title">⚡ Dendrite (Go)</div>
+                            <p><strong>Status:</strong> Second-generation, more efficient</p>
+                            <p><strong>Performance:</strong> Better than Synapse, less resource usage</p>
+                            <p><strong>Maturity:</strong> Stable, but fewer deployments</p>
+                        </div>
+
+                        <div class="info-box">
+                            <div class="info-box-title">🔥 Conduit (Rust)</div>
+                            <p><strong>Status:</strong> Lightweight, minimal resource usage</p>
+                            <p><strong>Performance:</strong> Excellent, runs on Raspberry Pi</p>
+                            <p><strong>Maturity:</strong> Newer, still evolving</p>
+                        </div>
+
+                        <h3>API Specifications</h3>
+                        <ul>
+                            <li><strong>Client-Server API:</strong> How clients talk to homeservers</li>
+                            <li><strong>Server-Server API:</strong> How homeservers federate</li>
+                            <li><strong>Application Service API:</strong> For bots and bridges</li>
+                            <li><strong>Push Gateway API:</strong> For mobile notifications</li>
+                        </ul>
+
+                        <p><a href="https://spec.matrix.org/" target="_blank">→ Read the full Matrix Specification</a></p>
+                    </div>
+                `
+            },
+            {
+                content: `
+                    <div class="learning-page">
+                        <h2>Advanced Features & Future Development</h2>
+
+                        <h3>🌌 Spaces</h3>
+                        <p>Hierarchical room organization (like Discord servers):</p>
+                        <ul>
+                            <li>Group multiple rooms under one "space"</li>
+                            <li>Manage permissions at space level</li>
+                            <li>Nested spaces for complex organizations</li>
+                        </ul>
+
+                        <h3>🧵 Threads</h3>
+                        <p>Reply threads within rooms (like Slack threads):</p>
+                        <ul>
+                            <li>Keep discussions organized</li>
+                            <li>Separate thread timeline from main room</li>
+                            <li>Still relatively new feature</li>
+                        </ul>
+
+                        <h3>🌉 Bridges</h3>
+                        <p>Connect Matrix to other platforms:</p>
+                        <ul>
+                            <li><strong>Slack bridge:</strong> Mirror Slack channels to Matrix</li>
+                            <li><strong>Discord bridge:</strong> Connect Discord servers</li>
+                            <li><strong>Telegram bridge:</strong> Message Telegram users</li>
+                            <li><strong>IRC, XMPP, WhatsApp, Signal</strong> bridges available</li>
+                        </ul>
+
+                        <h3>🤖 Bots & Application Services</h3>
+                        <p>Extend functionality with bots:</p>
+                        <ul>
+                            <li>Moderation bots</li>
+                            <li>RSS/news feeds</li>
+                            <li>Custom integrations</li>
+                            <li>Use Application Service API</li>
+                        </ul>
+
+                        <h3>🔮 Upcoming Features</h3>
+                        <ul>
+                            <li><strong>Matrix 2.0:</strong> Faster protocol, sliding sync</li>
+                            <li><strong>Portable Rooms:</strong> Rooms not tied to single server</li>
+                            <li><strong>Improved Moderation:</strong> Better tools for managing communities</li>
+                            <li><strong>Voice/Video Improvements:</strong> Better conferencing support</li>
+                        </ul>
+
+                        <div class="info-box success">
+                            <div class="info-box-title">🚀 Active Development</div>
+                            <p>Matrix is rapidly evolving. The protocol, clients, and servers are constantly improving. What's missing today might be here tomorrow!</p>
+                        </div>
+                    </div>
+                `
+            }
+        ]
+    }
+};
+
+
+</script>
 </body>
 </html>
