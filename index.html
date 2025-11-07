@@ -2584,8 +2584,20 @@
         }
 
         function buildVerificationPath(seed, count) {
-            const prefix = verificationPathPrefix ? `${verificationPathPrefix}` : '';
-            return `/#/${prefix}${seed}-${count}`;
+            const params = new URLSearchParams();
+            params.set('utm_source', 'verification');
+            params.set('utm_medium', 'share');
+            params.set('utm_campaign', seed);
+            params.set('utm_content', String(count));
+
+            if (verificationPathPrefix) {
+                const trimmedPrefix = verificationPathPrefix.replace(/\/+$/, '');
+                if (trimmedPrefix) {
+                    params.set('utm_term', trimmedPrefix);
+                }
+            }
+
+            return `/?${params.toString()}`;
         }
 
         function setVerificationSection(section) {
@@ -2617,8 +2629,9 @@
         }
 
         function navigateHomeFromVerification() {
-            if (window.location.hash) {
-                history.pushState({}, '', '/');
+            const currentUrl = new URL(window.location.href);
+            if (currentUrl.search || currentUrl.hash) {
+                history.pushState({}, '', currentUrl.pathname);
             }
             verificationPathPrefix = '';
             setVerificationSection('generate');
@@ -2702,8 +2715,9 @@
             const urlText = document.getElementById('verificationUrlText');
             if (urlText) urlText.textContent = '';
 
-            if (window.location.hash) {
-                history.pushState({}, '', '/');
+            const currentUrl = new URL(window.location.href);
+            if (currentUrl.search || currentUrl.hash) {
+                history.pushState({}, '', currentUrl.pathname);
             }
 
             setVerificationSection('generate');
@@ -2715,7 +2729,7 @@
             }
         }
 
-        function getVerificationPathParams(hash = window.location.hash) {
+        function parseVerificationHash(hash) {
             if (!hash) return null;
 
             const trimmedHash = hash.replace(/^#/, '');
@@ -2759,15 +2773,54 @@
             return { seed, count: normalizedCount, prefix, shouldNormalize };
         }
 
+        function getVerificationPathParams() {
+            const search = window.location.search;
+            if (search) {
+                const params = new URLSearchParams(search);
+                const utmSource = params.get('utm_source');
+                if (utmSource && utmSource.toLowerCase() === 'verification') {
+                    const seed = params.get('utm_campaign') || '';
+                    if (!seed) return null;
+
+                    const countValue = params.get('utm_content');
+                    const hasExplicitCount = params.has('utm_content');
+                    let parsedCount = null;
+
+                    if (hasExplicitCount) {
+                        parsedCount = parseInt(countValue, 10);
+                        if (Number.isNaN(parsedCount)) return null;
+                    }
+
+                    if (!/^[A-Za-z0-9]+$/.test(seed)) return null;
+                    if (seed.length < 6) return null;
+                    if (!/\d/.test(seed)) return null;
+
+                    const normalizedCount = clampVerificationCount(parsedCount ?? 5);
+                    const shouldNormalize = !hasExplicitCount || normalizedCount !== (parsedCount ?? normalizedCount);
+                    const term = params.get('utm_term') || '';
+                    const prefix = term ? `${term.replace(/\/+$/, '')}/` : '';
+
+                    return { seed, count: normalizedCount, prefix, shouldNormalize };
+                }
+            }
+
+            return parseVerificationHash(window.location.hash);
+        }
+
         function handleRouteChange() {
             const params = getVerificationPathParams();
             if (params) {
                 verificationPathPrefix = params.prefix;
                 verificationLastCount = params.count;
                 showVerificationView(true);
+                const sharePath = window.location.search
+                    ? `${window.location.pathname}${window.location.search}`
+                    : window.location.hash
+                        ? `/${window.location.hash.replace(/^#/, '#')}`
+                        : undefined;
                 displayVerificationCodes(params.seed, params.count, {
                     updateHistory: false,
-                    sharePath: window.location.hash ? `/${window.location.hash.replace(/^#/, '#')}` : undefined
+                    sharePath
                 });
             } else if (document.getElementById('verificationView')?.classList.contains('active')) {
                 verificationPathPrefix = '';
@@ -2783,9 +2836,15 @@
                 verificationLastCount = params.count;
                 showVerificationView(true);
 
+                const sharePath = window.location.search
+                    ? `${window.location.pathname}${window.location.search}`
+                    : window.location.hash
+                        ? `/${window.location.hash.replace(/^#/, '#')}`
+                        : undefined;
+
                 const options = params.shouldNormalize
                     ? { replaceHistory: true }
-                    : { updateHistory: false, sharePath: window.location.hash ? `/${window.location.hash.replace(/^#/, '#')}` : undefined };
+                    : { updateHistory: false, sharePath };
 
                 displayVerificationCodes(params.seed, params.count, options);
             } else {
