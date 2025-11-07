@@ -812,6 +812,18 @@
             .username-grid { grid-template-columns: 1fr; }
             .mode-cards { grid-template-columns: 1fr; }
         }
+
+        @media (max-width: 768px) {
+            /* Make tutorial grids stack on mobile */
+            #desktopLoginInstructions [style*="grid-template-columns: 1fr 1fr"],
+            #desktopLoginInstructions [style*="grid-template-columns: repeat(3, 1fr)"] {
+                display: block !important;
+            }
+
+            #desktopLoginInstructions [style*="grid-template-columns"] > div {
+                margin-bottom: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1067,55 +1079,136 @@
                 <div id="desktopLoginInstructions">
                     <div class="info-card success">
                         <div class="info-content" style="text-align: center;">
-                            <strong>Signing in to Element Web or Desktop Client</strong>
+                            <strong>Ready to sign in? It's quick.</strong>
                         </div>
                     </div>
 
+                    <!-- Quick credentials reference -->
+                    <div class="credentials-box" style="margin-bottom: 30px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 14px; color: #8a8a9e; margin-bottom: 15px;">YOUR LOGIN INFO</div>
+                        </div>
+                        <div class="credential-item">
+                            <div class="credential-label">Username</div>
+                            <div class="credential-value-row">
+                                <div class="credential-value" id="desktopTutorialUsername"></div>
+                                <button class="copy-btn" onclick="copyCredential('username')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="credential-item" style="margin-bottom: 0;">
+                            <div class="credential-label">Password</div>
+                            <div class="credential-value-row">
+                                <div class="credential-value">••••••••••••</div>
+                                <button class="copy-btn" onclick="copyCredential('password')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Two-path tutorial -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                        <div style="background: rgba(180, 165, 216, 0.05); border: 2px solid rgba(180, 165, 216, 0.2); border-radius: 12px; padding: 20px;">
+                            <div style="font-size: 16px; font-weight: 600; color: #b4a5d8; margin-bottom: 10px;">🌐 Element Web</div>
+                            <div style="font-size: 13px; color: #d4d4d8; line-height: 1.6;">
+                                <strong>Simplest option</strong> - pre-configured for hyphae.social
+                            </div>
+                        </div>
+                        <div style="background: rgba(180, 165, 216, 0.05); border: 2px solid rgba(180, 165, 216, 0.2); border-radius: 12px; padding: 20px;">
+                            <div style="font-size: 16px; font-weight: 600; color: #b4a5d8; margin-bottom: 10px;">💻 Desktop Client</div>
+                            <div style="font-size: 13px; color: #d4d4d8; line-height: 1.6;">
+                                <strong>One extra step</strong> - change homeserver first
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Element Web Flow -->
                     <div class="tutorial-container">
-                        <div class="tutorial-step">
-                            <div class="tutorial-step-header">
-                                <div class="step-number-badge">1</div>
-                                <div>
-                                    <div class="step-title">Open Your Client</div>
+                        <div style="background: rgba(16, 185, 129, 0.1); border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 15px; margin-bottom: 25px;">
+                            <div style="font-size: 16px; font-weight: 600; color: #10b981; margin-bottom: 8px;">🌐 Element Web (Recommended)</div>
+                            <div style="font-size: 13px; color: #d4d4d8;">Already configured - just sign in</div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">1️⃣ Open & Click Sign In</div>
+                                <div class="screenshot-container">
+                                    <img src="https://imgur.com/y2LYvjO.png" alt="Element Web welcome">
                                 </div>
+                                <a href="https://hyphae.social/element/" class="btn btn-primary" target="_blank" style="width: 100%; text-align: center; text-decoration: none; display: block; margin-top: 15px;">
+                                    Open Element Web →
+                                </a>
                             </div>
-                            <div class="step-description">
-                                If using Element Web, it opens directly at hyphae.social. For other clients, you'll need to specify the homeserver.
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">2️⃣ Enter Your Credentials</div>
+                                <div class="screenshot-container">
+                                    <img src="https://imgur.com/7Eatcmt.png" alt="Sign in form">
+                                </div>
+                                <div style="font-size: 13px; color: #8a8a9e; margin-top: 12px; line-height: 1.6;">
+                                    Copy your username and password above, paste, and sign in. Done!
+                                </div>
                             </div>
                         </div>
 
-                        <div class="tutorial-step">
-                            <div class="tutorial-step-header">
-                                <div class="step-number-badge">2</div>
-                                <div>
-                                    <div class="step-title">Enter Your Credentials</div>
+                        <div class="info-card success">
+                            <div class="info-title">✓ That's it!</div>
+                            <div class="info-content">
+                                Two steps and you're in. Element Web is already pointed at hyphae.social.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Client Flow -->
+                    <div class="tutorial-container" style="margin-top: 40px;">
+                        <div style="background: rgba(180, 165, 216, 0.1); border: 2px solid rgba(180, 165, 216, 0.3); border-radius: 10px; padding: 15px; margin-bottom: 25px;">
+                            <div style="font-size: 16px; font-weight: 600; color: #b4a5d8; margin-bottom: 8px;">💻 Element Desktop</div>
+                            <div style="font-size: 13px; color: #d4d4d8;">One extra step to change the server</div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px;">
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">1️⃣ Click Edit</div>
+                                <div class="screenshot-container">
+                                    <img src="https://imgur.com/dMl5oc5.png" alt="Edit homeserver">
                                 </div>
                             </div>
-                            <div class="step-description">
-                                If asked for a homeserver, enter <code style="background: #1a1d29; padding: 4px 8px; border-radius: 4px; color: #b4a5d8;">hyphae.social</code>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">2️⃣ Enter hyphae.social</div>
+                                <div class="screenshot-container">
+                                    <img src="https://imgur.com/mWcwQbS.png" alt="Type server">
+                                </div>
+                                <button class="quick-copy-btn" onclick="copyText('hyphae.social')" style="width: 100%; margin-top: 10px;">📋 Copy Server</button>
                             </div>
-                            <div class="quick-copy-section">
-                                <p style="color: #8a8a9e; margin-bottom: 10px; font-size: 13px;">Your credentials:</p>
-                                <div style="font-family: monospace; color: #b4a5d8; margin: 10px 0; font-size: 14px;" id="desktopTutorialUsername"></div>
-                                <button class="quick-copy-btn" onclick="copyCredential('username')">📋 Copy Username</button>
-                                <button class="quick-copy-btn" onclick="copyCredential('password')">📋 Copy Password</button>
-                                <button class="quick-copy-btn" onclick="copyCredential('server')">📋 Copy Server</button>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">3️⃣ Sign In</div>
+                                <div class="screenshot-container">
+                                    <img src="https://imgur.com/7Eatcmt.png" alt="Login form">
+                                </div>
                             </div>
                         </div>
 
-                        <div class="tutorial-step">
-                            <div class="tutorial-step-header">
-                                <div class="step-number-badge">3</div>
-                                <div>
-                                    <div class="step-title">Sign In</div>
-                                </div>
+                        <div class="info-card">
+                            <div class="info-content">
+                                Desktop clients default to matrix.org - just change it to <strong>hyphae.social</strong> then log in normally.
                             </div>
-                            <div class="info-card success">
-                                <div class="info-title">✓ Welcome to Hyphae!</div>
-                                <div class="info-content">
-                                    You're now connected to the network. Start messaging, join rooms, and explore the federation.
-                                </div>
-                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success -->
+                    <div style="margin-top: 40px; text-align: center;">
+                        <div class="screenshot-container" style="max-width: 500px; margin: 0 auto;">
+                            <img src="https://imgur.com/fACui4N.png" alt="Welcome screen">
+                        </div>
+                        <div style="font-size: 18px; font-weight: 600; color: #10b981; margin-top: 20px;">
+                            ✓ You're in! Welcome to Hyphae Network
+                        </div>
+                    </div>
+
+                    <div class="info-card" style="margin-top: 30px;">
+                        <div class="info-title">💡 Quick Tips</div>
+                        <div class="info-content">
+                            <ul style="margin-left: 20px; line-height: 1.8;">
+                                <li><strong>Wrong username/password?</strong> Make sure you copied the full username including <code style="background: #1a1d29; padding: 2px 6px; border-radius: 4px;">:hyphae.social</code></li>
+                                <li><strong>Desktop app issues?</strong> Double-check you entered <code style="background: #1a1d29; padding: 2px 6px; border-radius: 4px;">hyphae.social</code> (no https://)</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -1456,19 +1549,19 @@
         function goToStep3() {
             document.getElementById('step2').style.display = 'none';
             document.getElementById('step3').style.display = 'block';
-            
+
             // Show appropriate login instructions
             const mobile = isMobile();
             const desktopLogin = document.getElementById('desktopLoginInstructions');
             const mobileLogin = document.getElementById('mobileLoginInstructions');
-            
+
             if (desktopLogin) desktopLogin.style.display = mobile ? 'none' : 'block';
             if (mobileLogin) mobileLogin.style.display = mobile ? 'block' : 'none';
-            
-            // Populate username in desktop instructions
+
+            // Populate username in BOTH locations for desktop instructions
             const desktopUsername = document.getElementById('desktopTutorialUsername');
             if (desktopUsername) desktopUsername.textContent = createdUsername;
-            
+
             document.getElementById('successView').scrollIntoView({ behavior: 'smooth' });
         }
 
