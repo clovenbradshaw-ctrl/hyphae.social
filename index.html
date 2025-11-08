@@ -4029,16 +4029,16 @@
             document.getElementById('modeSelectionView').classList.add('active');
         }
 
-        function startRegistration() {
+        async function startRegistration() {
             const rateCheck = checkRateLimit();
             if (!rateCheck.allowed) {
                 const minutesRemaining = Math.ceil(rateCheck.timeRemaining / 60000);
                 showRateLimitWarning(minutesRemaining);
             }
-            
+
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('registrationUsernameView').classList.add('active');
-            generateUsernames();
+            await generateUsernames();
         }
 
         function checkRateLimit() {
@@ -4079,36 +4079,125 @@
             `;
         }
 
-        const adjectives = ["emergent", "symbiotic", "entangled", "recursive", "holistic", "adaptive", "resonant", "fluid", "networked", "crystalline"];
-        const nouns = ["mycelium", "network", "web", "node", "pattern", "wave", "flow", "spiral", "nexus", "matrix"];
+        const fallbackAdjectives = [
+            "emergent",
+            "symbiotic",
+            "entangled",
+            "recursive",
+            "holistic",
+            "adaptive",
+            "resonant",
+            "fluid",
+            "networked",
+            "crystalline"
+        ];
+        const fallbackNouns = [
+            "mycelium",
+            "network",
+            "web",
+            "node",
+            "pattern",
+            "wave",
+            "flow",
+            "spiral",
+            "nexus",
+            "matrix"
+        ];
+
+        let adjectives = [...fallbackAdjectives];
+        let nouns = [...fallbackNouns];
+        let namesLoadingPromise = null;
+
+        const NAMES_SOURCE_URL = 'https://raw.githubusercontent.com/clovenbradshaw-ctrl/hyphae.social/refs/heads/main/names';
+
+        function normalizeNameList(values) {
+            if (!Array.isArray(values)) return [];
+            const sanitized = values
+                .map(value => (typeof value === 'string' ? value.trim().toLowerCase() : ''))
+                .filter(Boolean)
+                .map(value => value
+                    .replace(/\s+/g, '_')
+                    .replace(/[^a-z0-9_-]/g, '')
+                )
+                .filter(Boolean);
+            return Array.from(new Set(sanitized));
+        }
+
+        async function loadNameData() {
+            if (namesLoadingPromise) return namesLoadingPromise;
+
+            namesLoadingPromise = (async () => {
+                try {
+                    const response = await fetch(NAMES_SOURCE_URL);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    const loadedAdjectives = normalizeNameList(data.adjectives);
+                    const loadedNouns = normalizeNameList([
+                        ...(Array.isArray(data.nouns) ? data.nouns : []),
+                        ...(data.nature_specific?.nouns ? data.nature_specific.nouns : []),
+                        ...(data.systems_specific?.nouns ? data.systems_specific.nouns : []),
+                        ...(data.quantum_cosmic?.nouns ? data.quantum_cosmic.nouns : [])
+                    ]);
+
+                    if (loadedAdjectives.length) {
+                        adjectives = loadedAdjectives;
+                    }
+
+                    if (loadedNouns.length) {
+                        nouns = loadedNouns;
+                    }
+                } catch (error) {
+                    console.error('Failed to load name data:', error);
+                }
+            })();
+
+            return namesLoadingPromise;
+        }
 
         function generateUsername() {
+            if (!adjectives.length) {
+                adjectives = [...fallbackAdjectives];
+            }
+
+            if (!nouns.length) {
+                nouns = [...fallbackNouns];
+            }
+
             const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
             const noun = nouns[Math.floor(Math.random() * nouns.length)];
             const num = Math.floor(Math.random() * 900000) + 100000;
+            const username = `${adj}_${noun}${num}`;
+
             return {
-                username: `${adj}${noun}${num}`,
+                username,
                 adjective: adj,
                 noun: noun,
-                adjectiveMeaning: adjectiveMeanings[adj],
-                nounMeaning: nounMeanings[noun]
+                adjectiveMeaning: adjectiveMeanings[adj] || null,
+                nounMeaning: nounMeanings[noun] || null
             };
         }
 
-        function generateUsernames() {
+        async function generateUsernames() {
+            await loadNameData();
+
             const grid = document.getElementById('usernameGrid');
             grid.innerHTML = '';
             selectedUsername = null;
             selectedUsernameDisplay = null;
-            
+
             for (let i = 0; i < 4; i++) {
                 const data = generateUsername();
+                const adjectiveMeaning = data.adjectiveMeaning ? ` (${data.adjectiveMeaning})` : '';
+                const nounMeaning = data.nounMeaning ? ` (${data.nounMeaning})` : '';
                 const card = document.createElement('div');
                 card.className = 'username-card';
                 card.innerHTML = `
                     <div class="username-text">${data.username}</div>
                     <div class="username-hint">@${data.username}:hyphae.social</div>
-                    <div class="username-meaning">${data.adjective} (${data.adjectiveMeaning}) + ${data.noun} (${data.nounMeaning})</div>
+                    <div class="username-meaning">${data.adjective}${adjectiveMeaning} + ${data.noun}${nounMeaning}</div>
                 `;
                 card.onclick = () => {
                     document.querySelectorAll('.username-card').forEach(c => c.classList.remove('selected'));
