@@ -4029,7 +4029,7 @@
             document.getElementById('modeSelectionView').classList.add('active');
         }
 
-        async function startRegistration() {
+        function startRegistration() {
             const rateCheck = checkRateLimit();
             if (!rateCheck.allowed) {
                 const minutesRemaining = Math.ceil(rateCheck.timeRemaining / 60000);
@@ -4038,7 +4038,7 @@
 
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('registrationUsernameView').classList.add('active');
-            await generateUsernames();
+            generateUsernames();
         }
 
         function checkRateLimit() {
@@ -4079,91 +4079,50 @@
             `;
         }
 
-        const fallbackAdjectives = [
-            "emergent",
-            "symbiotic",
-            "entangled",
-            "recursive",
-            "holistic",
-            "adaptive",
-            "resonant",
-            "fluid",
-            "networked",
-            "crystalline"
-        ];
-        const fallbackNouns = [
-            "mycelium",
-            "network",
-            "web",
-            "node",
-            "pattern",
-            "wave",
-            "flow",
-            "spiral",
-            "nexus",
-            "matrix"
+        const HARD_CODED_ADJECTIVES = [
+            'emergent', 'symbiotic', 'entangled', 'recursive', 'holistic', 'autopoietic', 'collective',
+            'adaptive', 'resonant', 'fluid', 'reciprocal', 'interconnected', 'self-organizing',
+            'polycentric', 'cascading', 'nonlinear', 'dynamic', 'synergistic', 'mutualistic',
+            'distributed', 'nested', 'intricate', 'woven', 'pulsing', 'living', 'dancing', 'shifting',
+            'spiraling', 'branching', 'networked', 'coherent', 'resilient', 'plastic', 'multidimensional',
+            'spherical', 'planetary', 'cosmic', 'sacred', 'ferocious', 'wild', 'ancient', 'boundless',
+            'luminous', 'verdant', 'crystalline', 'quantum', 'strange', 'mystic', 'sublime',
         ];
 
-        let adjectives = [...fallbackAdjectives];
-        let nouns = [...fallbackNouns];
-        let namesLoadingPromise = null;
+        const HARD_CODED_NOUNS = [
+            'mycelium', 'network', 'web', 'node', 'pattern', 'wave', 'flow', 'cycle', 'spiral', 'vortex',
+            'field', 'matrix', 'lattice', 'nexus', 'strand', 'thread', 'weave', 'tapestry', 'mosaic',
+            'fractal', 'attractor', 'cascade', 'resonance', 'symbiosis', 'synergy', 'emergence', 'commons',
+            'ecosystem', 'biosphere', 'ecotone', 'organism', 'colony', 'collective', 'community', 'swarm',
+            'flock', 'murmuration', 'chorus', 'pulse', 'rhythm', 'dance', 'current', 'tide', 'eddy',
+            'stream', 'river', 'ocean', 'forest', 'canopy', 'root', 'branch', 'leaf', 'seed', 'spore',
+            'bloom', 'blossom', 'garden', 'meadow', 'grove', 'thicket', 'wilderness', 'horizon', 'cosmos',
+            'galaxy', 'nebula', 'constellation', 'quantum', 'photon', 'particle', 'crystal', 'prism',
+            'aurora', 'phenomenon', 'mystery', 'threshold', 'liminal', 'vertex', 'synapse', 'membrane',
+            'catalyst', 'substrate', 'enzyme', 'pathway', 'circuit', 'conduit', 'vessel', 'chamber',
+            'cell', 'nucleus', 'helix', 'molecule', 'element', 'compound', 'alloy', 'fusion', 'synthesis',
+            'confluence', 'convergence', 'fungus', 'hyphae', 'rhizome', 'mycorrhiza', 'lichen', 'coral',
+            'plankton', 'kelp', 'algae', 'moss', 'fern', 'vine', 'tendril', 'pollen', 'nectar', 'dewdrop',
+            'raindrop', 'snowflake', 'icicle', 'wind', 'breeze', 'storm', 'lightning', 'thunder', 'mist',
+            'fog', 'cloud', 'sky', 'earth', 'soil', 'stone', 'sand', 'clay', 'silt', 'loam', 'bedrock',
+            'feedback', 'loop', 'oscillation', 'perturbation', 'fluctuation', 'bifurcation', 'transition',
+            'transformation', 'phase', 'state', 'equilibrium', 'stability', 'instability', 'constraint',
+            'boundary', 'edge', 'interface', 'gradient', 'differential', 'manifold', 'topology',
+            'geometry', 'algorithm', 'protocol', 'mechanism', 'process', 'dynamics', 'quanta',
+            'entanglement', 'superposition', 'coherence', 'decoherence', 'vacuum', 'void', 'plenum',
+            'implicate', 'explicate', 'hologram', 'dimension', 'spacetime', 'singularity', 'infinity',
+        ];
 
-        const NAMES_SOURCE_URL = 'https://raw.githubusercontent.com/clovenbradshaw-ctrl/hyphae.social/refs/heads/main/names';
-
-        function normalizeNameList(values) {
-            if (!Array.isArray(values)) return [];
-            const sanitized = values
-                .map(value => (typeof value === 'string' ? value.trim().toLowerCase() : ''))
-                .filter(Boolean)
-                .map(value => value
-                    .replace(/\s+/g, '_')
-                    .replace(/[^a-z0-9_-]/g, '')
-                )
-                .filter(Boolean);
-            return Array.from(new Set(sanitized));
-        }
-
-        async function loadNameData() {
-            if (namesLoadingPromise) return namesLoadingPromise;
-
-            namesLoadingPromise = (async () => {
-                try {
-                    const response = await fetch(NAMES_SOURCE_URL);
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    const loadedAdjectives = normalizeNameList(data.adjectives);
-                    const loadedNouns = normalizeNameList([
-                        ...(Array.isArray(data.nouns) ? data.nouns : []),
-                        ...(data.nature_specific?.nouns ? data.nature_specific.nouns : []),
-                        ...(data.systems_specific?.nouns ? data.systems_specific.nouns : []),
-                        ...(data.quantum_cosmic?.nouns ? data.quantum_cosmic.nouns : [])
-                    ]);
-
-                    if (loadedAdjectives.length) {
-                        adjectives = loadedAdjectives;
-                    }
-
-                    if (loadedNouns.length) {
-                        nouns = loadedNouns;
-                    }
-                } catch (error) {
-                    console.error('Failed to load name data:', error);
-                }
-            })();
-
-            return namesLoadingPromise;
-        }
+        let adjectives = [...HARD_CODED_ADJECTIVES];
+        let nouns = [...HARD_CODED_NOUNS];
 
         function generateUsername() {
             if (!adjectives.length) {
-                adjectives = [...fallbackAdjectives];
+                adjectives = [...HARD_CODED_ADJECTIVES];
             }
 
             if (!nouns.length) {
-                nouns = [...fallbackNouns];
+                nouns = [...HARD_CODED_NOUNS];
             }
 
             const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
@@ -4180,9 +4139,7 @@
             };
         }
 
-        async function generateUsernames() {
-            await loadNameData();
-
+        function generateUsernames() {
             const grid = document.getElementById('usernameGrid');
             grid.innerHTML = '';
             selectedUsername = null;
