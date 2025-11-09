@@ -2,205 +2,407 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Room Notes</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        .container { background: white; border-radius: 12px; padding: 25px; max-width: 800px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        h2 { color: #333; margin-bottom: 5px; }
-        .subtitle { color: #666; font-size: 13px; margin-bottom: 15px; }
-        .info { padding: 12px; margin-bottom: 15px; border-radius: 6px; font-size: 13px; background: #e3f2fd; border-left: 4px solid #2196f3; color: #1565c0; }
-        .error { background: #ffebee; border-left-color: #f44336; color: #c62828; }
-        textarea { width: 100%; padding: 15px; font-size: 14px; border: 2px solid #e0e0e0; border-radius: 8px; min-height: 350px; font-family: inherit; resize: vertical; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h2 { color: #333; margin-bottom: 5px; font-size: 24px; }
+        .subtitle { color: #666; font-size: 13px; margin-bottom: 20px; }
+        .status { padding: 10px; margin-bottom: 15px; border-radius: 6px; font-size: 14px; }
+        .status.ok { background: #d4edda; color: #155724; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.warn { background: #fff3cd; color: #856404; }
+        textarea { 
+            width: 100%; 
+            padding: 15px; 
+            font-size: 14px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 8px; 
+            min-height: 350px; 
+            font-family: inherit;
+            resize: vertical;
+        }
         textarea:focus { outline: none; border-color: #667eea; }
-        button { padding: 14px 24px; margin: 10px 10px 0 0; border: none; border-radius: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 14px; font-weight: 600; cursor: pointer; }
-        button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
-        .help { font-size: 12px; color: #888; margin-top: 15px; }
+        .button-group { margin-top: 15px; display: flex; gap: 10px; }
+        button { 
+            flex: 1;
+            padding: 14px 24px; 
+            border: none; 
+            border-radius: 8px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover { 
+            background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
+            transform: translateY(-1px);
+        }
+        button:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed;
+            transform: none;
+        }
+        .help { font-size: 12px; color: #888; margin-top: 10px; }
+        .debug { 
+            font-size: 11px; 
+            color: #999; 
+            margin-top: 15px; 
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-family: monospace;
+            max-height: 150px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="info" id="status">⏳ Connecting to Matrix...</div>
+        <div class="status info" id="status">⏳ Initializing...</div>
         <h2>📝 Room Notes</h2>
-        <p class="subtitle">Private notes stored in your room account data</p>
-        <textarea id="notes" placeholder="Type your notes here..."></textarea>
-        <button onclick="saveNotes()" id="saveBtn" disabled>💾 Save Notes</button>
-        <button onclick="loadNotes()" id="loadBtn" disabled>🔄 Reload</button>
-        <p class="help">💡 Notes are stored privately in Matrix room account data and auto-load on open</p>
+        <p class="subtitle">Private notes stored as state events</p>
+        <textarea id="noteText" placeholder="Type your notes here..."></textarea>
+        <div class="button-group">
+            <button id="saveBtn" onclick="saveNotes()" disabled>💾 Save Notes</button>
+            <button id="loadBtn" onclick="loadNotes()" disabled>🔄 Reload</button>
+        </div>
+        <p class="help">💡 Notes saved as room state events • Ctrl/Cmd+S to save</p>
+        <div class="debug" id="debug"></div>
     </div>
 
     <script>
-        const NOTE_KEY = 'social.hyphae.notes';
+        const NOTE_TYPE = 'social.hyphae.notes';
+        const STATE_KEY = 'notes'; // State key for the event
+        
         let roomId = null;
-        let requests = {};
+        let widgetId = null;
+        let requestCounter = 0;
+        let pendingRequests = {};
+        let capabilitiesNegotiated = false;
 
-        function log(msg) {
-            console.log(`[${new Date().toLocaleTimeString()}]`, msg);
+        // Generate unique request ID
+        function generateRequestId() {
+            return `req_${Date.now()}_${++requestCounter}`;
         }
 
-        function updateStatus(msg, isError = false) {
-            const el = document.getElementById('status');
-            el.textContent = msg;
-            el.className = isError ? 'info error' : 'info';
-        }
-
-        function sendToParent(action, data = {}) {
-            const reqId = 'req_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        // Debug logging with timestamp
+        function debug(message, data = null) {
+            const debugEl = document.getElementById('debug');
+            const timestamp = new Date().toLocaleTimeString();
+            const line = `[${timestamp}] ${message}${data ? ': ' + JSON.stringify(data) : ''}`;
+            console.log(line, data || '');
             
+            if (debugEl) {
+                const lines = debugEl.textContent.split('\n');
+                lines.unshift(line);
+                debugEl.textContent = lines.slice(0, 10).join('\n');
+            }
+        }
+
+        // Update status message
+        function setStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = `status ${type}`;
+            }
+            debug(`Status: ${message}`);
+        }
+
+        // Send request to Matrix client and wait for response
+        function sendMatrixRequest(action, data = {}) {
             return new Promise((resolve, reject) => {
-                requests[reqId] = { resolve, reject, action };
+                const requestId = generateRequestId();
                 
-                log(`Sending: ${action}: ${JSON.stringify({
+                pendingRequests[requestId] = { resolve, reject, action };
+                
+                const message = {
                     api: 'fromWidget',
-                    widgetId: 'notes-widget',
-                    requestId: reqId,
-                    action,
-                    data
-                })}`);
+                    widgetId: widgetId,
+                    requestId: requestId,
+                    action: action,
+                    data: data
+                };
                 
-                window.parent.postMessage({
-                    api: 'fromWidget',
-                    widgetId: 'notes-widget',
-                    requestId: reqId,
-                    action,
-                    data
-                }, '*');
+                debug(`Sending: ${action}`, message);
+                window.parent.postMessage(message, '*');
                 
+                // Timeout after 10 seconds
                 setTimeout(() => {
-                    if (requests[reqId]) {
-                        delete requests[reqId];
-                        log(`Timeout for ${action}`);
+                    if (pendingRequests[requestId]) {
+                        delete pendingRequests[requestId];
                         reject(new Error(`Timeout waiting for ${action}`));
                     }
                 }, 10000);
             });
         }
 
+        // Handle incoming messages from Matrix client
         window.addEventListener('message', (event) => {
-            if (!event.data || event.data.api !== 'toWidget') return;
+            const data = event.data;
             
-            log(`Received: ${JSON.stringify(event.data)}`);
+            if (!data || data.api !== 'toWidget') return;
             
-            // Handle capabilities request
-            if (event.data.action === 'capabilities') {
-                window.parent.postMessage({
+            debug('Received message', data);
+            
+            // Handle capability negotiation
+            if (data.action === 'capabilities') {
+                const response = {
                     api: 'fromWidget',
-                    widgetId: 'notes-widget',
-                    requestId: event.data.requestId,
+                    widgetId: widgetId,
+                    requestId: data.requestId,
                     action: 'capabilities',
                     response: {
                         capabilities: [
-                            'm.read_event_relations',
-                            'org.matrix.msc2762.timeline:!AziSSuSIEjByDlOwxn:hyphae.social'
+                            'org.matrix.msc2762.timeline:*',
+                            'org.matrix.msc2762.send.event:m.room.message',
+                            'org.matrix.msc2762.receive.event:m.room.message',
+                            `org.matrix.msc2762.send.state_event:${NOTE_TYPE}`,
+                            `org.matrix.msc2762.receive.state_event:${NOTE_TYPE}`
                         ]
                     }
-                }, '*');
+                };
+                debug('Sending capabilities', response);
+                window.parent.postMessage(response, '*');
+                capabilitiesNegotiated = true;
                 return;
             }
             
             // Handle responses to our requests
-            if (event.data.requestId && requests[event.data.requestId]) {
-                const req = requests[event.data.requestId];
-                delete requests[event.data.requestId];
-                log(`Got response for: ${req.action}`);
-                req.resolve(event.data.response || event.data);
+            if (data.requestId && pendingRequests[data.requestId]) {
+                const request = pendingRequests[data.requestId];
+                delete pendingRequests[data.requestId];
+                
+                if (data.response !== undefined) {
+                    debug(`Response for ${request.action}`, data.response);
+                    request.resolve(data.response);
+                } else {
+                    const error = data.error || 'Request failed';
+                    debug(`Error for ${request.action}`, error);
+                    request.reject(new Error(error));
+                }
             }
         });
 
+        // Extract widget ID and room ID from URL
+        function parseUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const hash = window.location.hash.substring(1);
+            const hashParams = new URLSearchParams(hash);
+            
+            // Merge both param sources
+            const allParams = {};
+            for (const [key, value] of params.entries()) {
+                allParams[key] = value;
+            }
+            for (const [key, value] of hashParams.entries()) {
+                allParams[key] = value;
+            }
+            
+            debug('URL params', allParams);
+            return allParams;
+        }
+
+        // Initialize widget
         async function init() {
             try {
-                log('Initializing widget: ' + window.location.search);
+                const params = parseUrlParams();
                 
-                // Try to get room ID from URL first
-                const params = new URLSearchParams(window.location.search);
-                roomId = params.get('roomId');
+                // Extract widget ID
+                widgetId = params.widgetId || params.widget_id || 'notes-widget';
+                debug('Widget ID', widgetId);
                 
+                // Send content_loaded to signal we're ready
+                window.parent.postMessage({
+                    api: 'fromWidget',
+                    widgetId: widgetId,
+                    action: 'content_loaded',
+                    data: {}
+                }, '*');
+                
+                setStatus('🔗 Connecting to Matrix...', 'info');
+                
+                // Try to get room ID from URL params first
+                roomId = params.roomId || params.room_id;
+                
+                // If not in params, try to extract from various sources
                 if (!roomId) {
-                    // Try to get it from OpenID
+                    // Some widget implementations put the room ID in the fragment
+                    const fragmentMatch = window.location.hash.match(/roomId=([^&]+)/);
+                    if (fragmentMatch) {
+                        roomId = decodeURIComponent(fragmentMatch[1]);
+                    }
+                }
+                
+                // If still no room ID, try to request it via widget API
+                if (!roomId) {
                     try {
-                        const openIdData = await sendToParent('get_openid', {});
-                        log(`Got OpenID: ${JSON.stringify(openIdData)}`);
+                        // Wait a moment for capabilities to be negotiated
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        
+                        // Try to read room state to infer room ID
+                        // This is a hack but sometimes works
+                        const stateResponse = await sendMatrixRequest('read_state_event', {
+                            type: 'm.room.create',
+                            state_key: ''
+                        });
+                        
+                        debug('Got room create event', stateResponse);
+                        // The room ID should be in the context somewhere
                     } catch (e) {
-                        log(`Could not get OpenID: ${JSON.stringify(e)}`);
+                        debug('Could not get room context', e);
+                    }
+                }
+                
+                // Last resort: try to extract from widget URL structure
+                if (!roomId) {
+                    // Element often embeds room ID in the widget iframe src
+                    const parentUrl = document.referrer;
+                    const roomMatch = parentUrl.match(/\/room\/(![^\/]+)/);
+                    if (roomMatch) {
+                        roomId = decodeURIComponent(roomMatch[1]);
+                        debug('Extracted room ID from referrer', roomId);
                     }
                 }
                 
                 if (!roomId) {
-                    throw new Error('Could not determine room ID. Add ?roomId=!yourroom:domain to URL');
+                    throw new Error('Could not determine room ID automatically. Widget needs to be opened within a Matrix room.');
                 }
                 
-                log(`Room ID: ${roomId}`);
+                debug('Using room ID', roomId);
+                setStatus(`✅ Connected to room ${roomId.substring(0, 20)}...`, 'ok');
                 
-                // Send ready signal
-                await sendToParent('contentLoaded', {});
-                
-                updateStatus('✅ Connected to Matrix room');
+                // Enable buttons
                 document.getElementById('saveBtn').disabled = false;
                 document.getElementById('loadBtn').disabled = false;
                 
-                // Auto-load notes
+                // Auto-load existing notes
                 await loadNotes();
                 
             } catch (error) {
-                log(`Init error: ${JSON.stringify(error)}`);
                 console.error('Initialization error:', error);
-                updateStatus('❌ ' + error.message, true);
+                setStatus(`❌ Error: ${error.message}`, 'error');
+                debug('Init error', error.toString());
             }
         }
 
-        async function saveNotes() {
-            const text = document.getElementById('notes').value;
-            updateStatus('⏳ Saving to Matrix...');
+        // Load notes from room state
+        async function loadNotes() {
+            if (!roomId) {
+                setStatus('❌ No room ID available', 'error');
+                return;
+            }
             
             try {
-                // Save to room account data
-                await sendToParent('send_event', {
-                    type: 'm.room.account_data',
-                    room_id: roomId,
-                    state_key: NOTE_KEY,
-                    content: {
-                        notes: text,
-                        updated: Date.now()
-                    }
+                setStatus('⏳ Loading notes...', 'info');
+                document.getElementById('loadBtn').disabled = true;
+                
+                // Try to read state event
+                const response = await sendMatrixRequest('read_state_event', {
+                    type: NOTE_TYPE,
+                    state_key: STATE_KEY
                 });
                 
-                updateStatus('✅ Saved to Matrix room!');
-                log('Saved successfully');
+                debug('Loaded state event', response);
+                
+                if (response && response.notes) {
+                    document.getElementById('noteText').value = response.notes;
+                    const lastUpdate = response.timestamp 
+                        ? new Date(response.timestamp).toLocaleString()
+                        : 'unknown';
+                    setStatus(`✅ Loaded notes (updated: ${lastUpdate})`, 'ok');
+                } else {
+                    setStatus('ℹ️ No saved notes found', 'info');
+                }
+                
+            } catch (error) {
+                console.error('Load error:', error);
+                if (error.message.includes('not found') || error.message.includes('M_NOT_FOUND')) {
+                    setStatus('ℹ️ No saved notes yet - start typing!', 'info');
+                } else {
+                    setStatus(`⚠️ Could not load: ${error.message}`, 'warn');
+                }
+            } finally {
+                document.getElementById('loadBtn').disabled = false;
+            }
+        }
+
+        // Save notes to room state
+        async function saveNotes() {
+            if (!roomId) {
+                setStatus('❌ No room ID available', 'error');
+                return;
+            }
+            
+            const notes = document.getElementById('noteText').value;
+            
+            if (!notes.trim()) {
+                setStatus('⚠️ Nothing to save', 'warn');
+                return;
+            }
+            
+            try {
+                setStatus('⏳ Saving notes...', 'info');
+                document.getElementById('saveBtn').disabled = true;
+                
+                // Save as state event
+                const content = {
+                    notes: notes,
+                    timestamp: Date.now(),
+                    version: '1.0'
+                };
+                
+                debug('Saving content', content);
+                
+                const response = await sendMatrixRequest('send_event', {
+                    type: NOTE_TYPE,
+                    state_key: STATE_KEY,
+                    content: content
+                });
+                
+                debug('Saved successfully', response);
+                setStatus('✅ Notes saved!', 'ok');
+                
             } catch (error) {
                 console.error('Save error:', error);
-                // Fallback to localStorage
-                localStorage.setItem(NOTE_KEY + roomId, text);
-                updateStatus('✅ Saved locally (Matrix save pending)');
+                setStatus(`❌ Failed to save: ${error.message}`, 'error');
+                debug('Save error details', error.toString());
+            } finally {
+                document.getElementById('saveBtn').disabled = false;
             }
         }
 
-        async function loadNotes() {
-            updateStatus('⏳ Loading from Matrix...');
-            
-            try {
-                const response = await sendToParent('read_event', {
-                    type: 'm.room.account_data',
-                    room_id: roomId,
-                    state_key: NOTE_KEY
-                });
-                
-                if (response && response.content && response.content.notes) {
-                    document.getElementById('notes').value = response.content.notes;
-                    updateStatus('✅ Loaded from Matrix');
-                    log('Loaded from Matrix');
-                } else {
-                    throw new Error('No data found');
+        // Auto-save on Ctrl+S / Cmd+S
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('noteText').addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    if (!document.getElementById('saveBtn').disabled) {
+                        saveNotes();
+                    }
                 }
-            } catch (error) {
-                // Fallback to localStorage
-                const text = localStorage.getItem(NOTE_KEY + roomId) || '';
-                document.getElementById('notes').value = text;
-                updateStatus(text ? '📝 Loaded from local storage' : '📝 No saved notes');
-                log('Loaded from localStorage');
-            }
-        }
+            });
+        });
 
-        // Initialize
+        // Initialize when page loads
         window.addEventListener('load', init);
     </script>
 </body>
